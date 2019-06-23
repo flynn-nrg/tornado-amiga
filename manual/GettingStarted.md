@@ -3,6 +3,8 @@ Getting Started
 
 This framework only works on Mac OS X and GNU/Linux. It might work on Windows using the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux), but this hasn't been tested.
 
+**IMPORTANT**: Clone this repository. Do not download a ZIP file.
+
 Before you can use Tornado there's a few things you need to setup:
 
 * A working [clang](https://clang.llvm.org/). Mac OS X uses clang by default and it's available in every GNU/Linux distribution as a package.
