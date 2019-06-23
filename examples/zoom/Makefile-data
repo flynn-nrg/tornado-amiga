@@ -1,0 +1,44 @@
+TORNADO_BASE = ../..
+TARGETS += zoom_data
+
+.PHONY: clean all
+
+
+all: $(TARGETS)
+
+clean: 
+	rm -rf $(TARGETS)
+
+
+# Zoom assets.
+ZOOM_DATA = data/zoom.tndo data/zoom2.tndo data/zoom_frame0.tndo data/zoom.pal
+
+zoom_data: $(ZOOM_DATA)
+
+data/zoom.tndo: /tmp/tndo_compress srcdata/zoom/zoom_*.raw
+		cat srcdata/zoom/zoom_*.raw > /tmp/zoom
+		/tmp/tndo_compress -b -v -i /tmp/zoom -o $@
+		rm /tmp/zoom
+
+data/zoom2.tndo: /tmp/tndo_compress srcdata/zoom/zoom2_*.raw
+		cat srcdata/zoom/zoom2_*.raw > /tmp/zoom2
+		/tmp/tndo_compress -b -v -i /tmp/zoom2 -o $@
+		rm /tmp/zoom2
+
+data/zoom_frame0.tndo: /tmp/tndo_compress /tmp/png2raw srcdata/zoom/zoom_frame0.png
+			 /tmp/png2raw -i srcdata/zoom/zoom_frame0.png -o /tmp/zoom_frame0.raw
+			 /tmp/tndo_compress -b -v -i /tmp/zoom_frame0.raw -o $@
+			 rm /tmp/zoom_frame0.raw
+			 
+data/zoom.pal:  srcdata/zoom/zoom_pal.png /tmp/png2raw
+	       /tmp/png2raw -p -i $< -o $@
+
+
+# Tools
+
+/tmp/tndo_compress: 
+	cd $(TORNADO_BASE)/tools/compress ; make ; mv tndo_compress /tmp/tndo_compress ; make clean
+
+/tmp/png2raw:
+	cd $(TORNADO_BASE)/tools/png2raw ; make ; mv png2raw /tmp/png2raw ; make clean
+	

@@ -1,0 +1,21 @@
+Source tile        Histogram      Roundrobin 1    Roundrobin 2    Roundrobin 3    Roundrobin 4
+tile-0.raw            6           zoom_01.raw                     zoom3_04.raw    zoom4_07.raw
+tile-1.raw            7           zoom_11.raw                     zoom3_06.raw    zoom4_08.raw
+tile-2.raw            8           zoom_13.raw     zoom2_11.raw    zoom3_08.raw    zoom4_15.raw
+tile-3.raw            6           zoom_06.raw     zoom2_02.raw
+tile-4.raw            8           zoom_12.raw     zoom2_15.raw    zoom3_07.raw    zoom4_09.raw
+tile-5.raw            7                           zoom2_07.raw    zoom3_15.raw    zoom4_10.raw
+tile-6.raw            5           zoom_04.raw     zoom2_01.raw                    zoom4_05.raw
+tile-7.raw            6                           zoom2_06.raw    zoom3_00.raw    zoom4_11.raw
+tile-8.raw            7                           zoom2_08.raw    zoom3_12.raw
+tile-9.raw            5           zoom_02.raw     zoom2_05.raw                    zoom4_00.raw
+tile-10.raw           7           zoom_10.raw     zoom2_04.raw    zoom3_09.raw    zoom4_12.raw
+tile-11.raw           6           zoom_03.raw     zoom2_03.raw    zoom3_01.raw    zoom4_02.raw
+tile-12.raw           6           zoom_00.raw                     zoom3_02.raw    zoom4_06.raw
+tile-13.raw           7           zoom_09.raw                     zoom3_14.raw    zoom4_03.raw
+tile-14.raw           9           zoom_14.raw     zoom2_12.raw    zoom3_10.raw    zoom4_13.raw
+tile-15.raw           6                           zoom2_09.raw    zoom3_05.raw    zoom4_01.raw
+tile-16.raw           13          zoom_15.raw     zoom2_13.raw    zoom3_11.raw
+tile-17.raw           7           zoom_08.raw     zoom2_10.raw    zoom3_13.raw    zoom4_14.raw
+tile-18.raw           7           zoom_07.raw     zoom2_14.raw
+tile-19.raw           5           zoom_05.raw     zoom2_00.raw    zoom3_03.raw    zoom4_04.raw

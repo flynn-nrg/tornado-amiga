@@ -1,0 +1,57 @@
+<sync rows="1300">
+	<tracks>
+		<track name="zoom.z">
+			<key value="320" interpolation="3" row="0"/>
+			<key value="450" interpolation="3" row="64"/>
+			<key value="3000" interpolation="3" row="168"/>
+			<key value="81600" interpolation="0" row="299"/>
+			<key value="320" interpolation="1" row="300"/>
+			<key value="1000" interpolation="3" row="468"/>
+			<key value="81600" interpolation="0" row="599"/>
+			<key value="320" interpolation="1" row="600"/>
+			<key value="830" interpolation="1" row="726"/>
+			<key value="500" interpolation="3" row="744"/>
+			<key value="3000" interpolation="3" row="824"/>
+			<key value="81856" interpolation="0" row="899"/>
+			<key value="320" interpolation="1" row="900"/>
+			<key value="1000" interpolation="3" row="964"/>
+			<key value="370" interpolation="3" row="1003"/>
+			<key value="2000" interpolation="3" row="1051"/>
+			<key value="350" interpolation="2" row="1115"/>
+			<key value="30000" interpolation="0" row="1200"/>
+		</track>
+		<track name="zoom.deltaX">
+			<key value="0" interpolation="2" row="0"/>
+			<key value="1656.17" interpolation="0" row="168"/>
+			<key value="1656.17" interpolation="0" row="299"/>
+			<key value="0" interpolation="2" row="300"/>
+			<key value="-1281.38" interpolation="0" row="420"/>
+			<key value="-1281.38" interpolation="0" row="599"/>
+			<key value="0" interpolation="2" row="600"/>
+			<key value="-31.29" interpolation="0" row="899"/>
+			<key value="0" interpolation="2" row="900"/>
+			<key value="0" interpolation="2" row="964"/>
+			<key value="0" interpolation="0" row="1200"/>
+		</track>
+		<track name="zoom.deltaY">
+			<key value="0" interpolation="2" row="0"/>
+			<key value="3281.16" interpolation="2" row="168"/>
+			<key value="3281.16" interpolation="2" row="299"/>
+			<key value="0" interpolation="2" row="300"/>
+			<key value="3031.15" interpolation="0" row="420"/>
+			<key value="3031.15" interpolation="0" row="599"/>
+			<key value="0" interpolation="2" row="600"/>
+			<key value="93.69" interpolation="0" row="899"/>
+			<key value="0" interpolation="2" row="900"/>
+			<key value="0" interpolation="2" row="964"/>
+			<key value="0" interpolation="0" row="1200"/>
+		</track>
+		<track name="zoom.instance">
+			<key value="0" interpolation="0" row="0"/>
+			<key value="1" interpolation="0" row="300"/>
+			<key value="2" interpolation="0" row="600"/>
+			<key value="3" interpolation="0" row="900"/>
+		</track>
+	</tracks>
+	<bookmarks/>
+</sync>

@@ -1,0 +1,148 @@
+Short:        The Player playroutine 611.12, E1x/E2x fix.
+Author:       Photon,NoName,Platon42,Tolkien,The Dark Coder
+Uploader:     photon scoopex1988 org
+Type:         mus/misc
+Architecture: m68k-amigaos
+
+
+                      The Player 6.1A 610.12 / 01.15.15
+                      Copyright 1992-95 Jarno Paananen
+                            Guru / Sahara Surfers
+                        A Sahara Surfers Product 1995
+        Fixed 1998-04 by NoName, Platon42, Tolkien and The Dark Coder     
+          Optimized, bugfixed, improved 2010-2015 by Photon/Scoopex
+
+    Packaged single-include easy-to-use archive with examples and comments.
+
+New in 610.12
+-------------
+- E1x/E2x fix
+
+New in 610.11
+-------------
+Tutorial here: http://youtu.be/xBtHO-IuN9E
+Put it in your demo: http://youtu.be/JYLcIR6tyO4
+
+For more help, read docs and sources. I leave development of P61 as of this 
+version.
+
+- fixed EDx command
+- fixed an unwanted feature in legacy init/exit code (CIA poked when p61cia=0)
+- Dxx was never implemented, except for where xx=00. Implementing it will cause
+spikes in rastertime. See sources for the technical details.
+- E8x and 8xx work identically. E8x will cause filtered loops in non-legacy 
+trackers if the module is ripped. 8xx recommended therefore.
+
+
+New in 610.10
+-------------
+- fixed E6x command bug introduced (by me) in 610.8. See notes in P6110-Play.i.
+- new option: visuctrs=1 for easy visualizers (demonstrated in P6110-Example.S)
+- final cleanup and passed all tests.
+
+
+New in 610.9
+------------
+No functional changes from P6108. Cleaned up version for ease of use and 
+compatibility.
+
+- 'start' define replaced with P61_InitPos. Works the same way but at runtime.
+- Cleaned up, easier to include and use.
+- A few of the options have been prefixed with "p61" to avoid common name 
+  conflicts.
+- Fixed remaining case sensitivity and Label: issues.
+- More compatible directives and operators. NOTE: this means you will only be
+  informed of FAILs in AsmOne/AsmPro.
+  (only checks channels and splitchans for insane values, so don't panic.)
+- Assembles in AsmOne, AsmPro, Devpac, PhxAss, and vasm. (Optimize jmp(PC) must
+  be off in vasm.)
+- new option: p61bigjtab=0 to save 480 bytes and lose max 56 cycles.
+
+
+New in 610.8
+------------
+This is also not a minor update... but the numbering has been kept for historical 
+reasons. In short, SLen variable in P61_Init always wrote SongLength+1. It was 
+bugfixed, so PosJmp to last track works, for example. If you have any code that 
+subtracts 1 from songlength, you need to unfix it for this version.
+
+Also, the playroutine has two "big" optimization options, splitchans and split4. 
+Split4 doesn't work with songs with speed F03 or faster, obviously. To split 
+decrunch over 4 frames requires at least 4 frames per notestep ;)
+
+Splitchans works with all speeds and splits decrunch in half, basically. There 
+are no speed restrictions. Both Split4 and Splitchans works with CIA and Vblank.
+
+Non lev6 mode added for the first time, as "poke DMAs to a byte address". You can 
+for example set a copper wait 11 scanlines after Vblank and load DMAcon, and give 
+the address in a4 to P61_Init. (If you run the playroutine at Vblank of course.)
+
+All measurements done with 68000 running at full speed without interfering 
+bitplane or blitter DMA, when used 'in action' the raster time gained might 
+be greater, but still 25 percent.
+
+Timing measurement and testing done on >12 random modules, with the above
+results. Optimization has been made only with regards to the maximum raster-
+time consumed, as it is this which affects a demo's or game's performance.
+But gain should be near to the above also for average time consumed.
+
+(I have no idea what the gain will be if you set use=-1. Set it to the value 
+in the P61.#? file comment! All modules have been tested with use=-1, of 
+course, so laziness is not a problem, just a raster time loss.)
+
+It has also been tested in 68040 mode on my accelerated OCS A500, and WinUAE 
+2.0.2b15. Not that it means anything. I've made no changes that would work 
+differently on any Amiga.
+
+
+
+GLOBAL CHANGES:
+- restructuring changes, all based on the used new options.
+
+CHANGES IN P61_MUSIC:
+- removed the usage of A2, so 16 cycles saved if called in an interrupt :)
+
+CHANGES IN P61_POSJMP:
+- none. Everything worked when SLen was corrected :)
+
+CHANGES IN P61_SETPOSITION:
+- none. Everything worked when SLen was corrected :)
+- actually, I added an improvement for click free soundoff/posjmp and soundon...
+- split4/splitchans option handling added for correct functioning. Read comments.
+
+OTHER CHANGES:
+- anal optimization on everything that affects maxtime. I dare an alien from an 
+advanced civilization to gain more than 16 cycles on the maxtime. See it as a 
+challenge, not as arrogance. A warning: You will become obsessive compulsive...
+like me...
+- oscillo option added. This will give you extremely exact sample windows of the 
+samples played each frame, exact enough to allow you to mix channels while Paula 
+is playing the samples... or you can make the best oscilloscope effect yet...
+I wrote a separate demopart oscilloscope effect to test it, let me know if you 
+want the example source.
+
+ADDED FEATURES:
+- see options in P6108-MaxTimeOptiOptions.S. Use them wisely. For example by 
+reading their comments!
+
+DOCUMENTATION:
+- See extensive comments in P61-Play.S and P61-Example.S.
+
+FEEDBACK:
+- I am confident every module that works in P6107 works in P6108. I've tested 
+even more modules this time :)
+- If you find a module that doesn't or want to give feedback, email photon 
+scoopex1988 org.
+- If you want me to answer questions about P61 playroutines in general, ask me 
+soon, before I forget. Best before date is 1 week from release date. :P
+
+WISHLIST/FUTURE:
+- 2-channel cross-Pan/Echo/Delay. Will be in next version. Or you can make it 
+yourself, see plugin comments in P6108-Play.S
+- 1-2 Extra synth or sample channels. You can do this with P61_Osc. But buffered 
+is more effective. Framework is there, see plugin comments. An example buffered 
+mixing routine will be in next version.
+
+Released during Amiga Demo Compo on BP2010. Haujobb rulez :) Greetings to 
+NoName for finding me at the party :)
+//Photon
