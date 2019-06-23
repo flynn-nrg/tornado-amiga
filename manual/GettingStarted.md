@@ -119,7 +119,7 @@ Submodule path '../rocket': checked out '901db86412a0d57600cb072c16deac9c3ebc709
 Adding the NDK
 ----------------------
 
-Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha) and unpack it. Move the contents of the ```include/include_h``` directory to the ```third_party/ndk``` directory. You should end up with a directory structure like this:
+Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha) and unpack it. Move the contents of the ```include/include_h``` and  ```include/include_i``` directories to the ```third_party/ndk``` directory. You should end up with a directory structure like this:
 
 ```
 mmendez$ cd third_party/ndk
@@ -132,7 +132,7 @@ datatypes	dos		graphics	intuition	pragmas		reaction	utility
 Installing BASS
 ---------------
 
-Download BASS for OSX and GNU/Linux and unpack it in the ```third_party``` directory.
+Download [BASS](https://www.un4seen.com) for OSX and GNU/Linux and unpack it in the ```third_party``` directory.
 
 ```
 mmendez$ ls -la
