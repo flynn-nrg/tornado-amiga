@@ -19,6 +19,11 @@ Authors
 
 Tornado was mainly developed by Miguel 'Flynn' Mendez with contributions from Luis 'Peskanov' Pons and Antonio 'winden' Vargas.
 
+The music used in the examples was composed by Carlos 'Estrayk' del Alamo.
+
+The graphics used in the examples were created by Manuel 'Leunam' Sagall and Jordi Carlos 'God'.
+
+
 It also makes use of the following third party software:
 
 * [Rocket](https://github.com/kusma/rocket): Used for synchronisation.
