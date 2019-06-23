@@ -111,6 +111,7 @@ LDFLAGS += -fno-omit-frame-pointer
 ifdef OSX_HOST
 LDFLAGS += -F/Library/Frameworks/
 LDFLAGS += -framework SDL2
+LDFLAGS += -framework CoreFoundation
 LDFLAGS += -L$(BASS_OSX)
 endif
 ifdef LINUX_HOST
