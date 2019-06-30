@@ -102,7 +102,7 @@ The following settings are all related to the [Memory Manager](MemoryManager.md)
 * ```fastMemPool``` is a pool of Fast RAM that can be allocated at run time, i.e. once the demo is running. Please refer to the [Memory Manager](MemoryManager.md) for more details.
 * ```chipMemPool``` is being phased out in favour of the ```chipScratch``` scratch pad and should not be used at this point. At this point it still cannot be zero, so set it to a couple of KiB.
 * ```chipScratch``` provides a Chip RAM scratch pad that effects and displays can use during the execution of the demo.  Please refer to the [Memory Manager](MemoryManager.md) section for more details.
-* ```packedData``` needs to be at least as big as your biggest compressed file. This will be phased out in future releases once streaming is added to the decompression routines. Please refer to the [Data Files](DataFiles.md) section for more information on this topic.
+* ```packedData``` needs to be at least as big as your biggest compressed file. This will be phased out in future releases once streaming is added to the decompression routines. Please refer to the [Tools](Tools.md) section for more information on how to compress your assets.
 
 And the last setting:
 
