@@ -224,7 +224,7 @@ void demoSettings(demoParams *dp) {
   dp->fastMemPool = FAST_MEM_POOL_SIZE * 1024 * 1024;
   dp->chipMemPool = 2 * 1024;
   dp->chipScratch = 1024 * 700;
-  dp->packedData = 2 * 1024 * 1024; // The size of the biggest packed file.
+  dp->packedData = 128 * 1024; // Enough space for the LZW dictionary + stream buffers.
   dp->tndoContainerPath = dataPath;
   dp->numDisplays = 1;
   // dp->vfsLoaderCallback = loaderCallback;
