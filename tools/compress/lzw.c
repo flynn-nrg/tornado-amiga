@@ -406,7 +406,7 @@ compressedData *lzw_compress(void *data, uint32_t size, uint32_t dictSize,
   }
 
   // Header + dictionary + compressed payload.
-  c->size = compressedDataSize + overHead + (5 * sizeof(uint32_t));
+  c->size = compressedDataSize + overHead + (LZW_HEADER_SIZE);
   c->data = calloc(c->size, sizeof(uint8_t));
 
   // Header (in network order!):
@@ -414,6 +414,7 @@ compressedData *lzw_compress(void *data, uint32_t size, uint32_t dictSize,
   // uint32_t clear code
   // uint32_t stop code
   // uint32_t dictionary size
+  // uint32_t dictinary payload size
   // uint32_t code length
 
   usedBytes = 0;
@@ -435,6 +436,11 @@ compressedData *lzw_compress(void *data, uint32_t size, uint32_t dictSize,
   bitBuffer = dict->numEntries >> 16;
   flush(c->data);
   bitBuffer = dict->numEntries & 0xffff;
+  flush(c->data);
+
+  bitBuffer = overHead >> 16;
+  flush(c->data);
+  bitBuffer = overHead & 0xffff;
   flush(c->data);
 
   bitBuffer = codeLen >> 16;

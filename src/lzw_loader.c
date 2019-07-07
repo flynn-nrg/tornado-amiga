@@ -25,8 +25,8 @@ misrepresented as being the original software.
 #include <stdlib.h>
 #include <string.h>
 
-#include "lzw.h"
 #include "lzw_loader.h"
+#include "lzw_unpack_stream.h"
 #include "memory.h"
 #include "tndo_file.h"
 
@@ -35,17 +35,9 @@ misrepresented as being the original software.
 // call this directly and should let the asset manager take care of things for
 // you.
 int lzwLoadFile(FILE *source, unsigned char *dest, int fileSize) {
-  void *compData = tndo_get_packed_data_buffer(fileSize);
-
-  // Consume payload.
-  int read = tndo_fread(compData, fileSize, 1, source);
-  if (read != 1) {
-    free(compData);
-    return 1;
-  }
 
   // Call the depack routine.
-  lzw_uncompress((uint8_t *)compData, (uint8_t *)dest, fileSize);
+  lzw_uncompress_stream(source, (uint8_t *)dest, fileSize);
 
   return 0;
 }

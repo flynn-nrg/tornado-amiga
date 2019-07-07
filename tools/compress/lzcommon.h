@@ -40,6 +40,11 @@ misrepresented as being the original software.
 
 #define LZW_HASHTABLE_SIZE 65536
 
+#define LZW_STREAM_BUFFER 65536
+#define LZSS_STREAM_BUFFER 65536
+
+#define LZW_HEADER_SIZE 6 * sizeof(uint32_t)
+
 typedef struct compressedData {
   uint32_t size;
   uint8_t *data;
