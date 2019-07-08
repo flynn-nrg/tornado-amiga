@@ -85,7 +85,7 @@ void lzw_uncompress(uint8_t *data, uint8_t *dst, uint32_t size) {
   uint32_t clearCode = consume32(data);
   uint32_t stopCode = consume32(data);
   uint32_t dictSize = consume32(data);
-  uint32_t dictPayload = consume32(header);
+  uint32_t dictPayload = consume32(data);
   uint32_t codeLen = consume32(data);
 
   uint8_t **symbols =
