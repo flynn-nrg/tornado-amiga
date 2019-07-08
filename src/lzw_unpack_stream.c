@@ -119,7 +119,11 @@ void lzw_uncompress_stream(FILE *source, uint8_t *dst, uint32_t fileSize) {
   uint8_t *dict = workBuffers;
 
   // Read dictionary into memory.
-  tndo_fread(dict, dictPayload, 1, source);
+  uint32_t read = tndo_fread(dict, dictPayload, 1, source);
+  if (!read) {
+    fprintf(stderr, "FATAL - Failed to LZW dictionary. Aborting.\n");
+    abort();
+  }
 
   consumed = 0;
 
