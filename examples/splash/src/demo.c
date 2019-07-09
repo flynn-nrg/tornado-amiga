@@ -114,7 +114,7 @@ void demoSettings(demoParams *dp) {
   dp->fastMemPool = FAST_MEM_POOL_SIZE * 1024 * 1024;
   dp->chipMemPool = 2 * 1024;
   dp->chipScratch = 1024 * 128;
-  dp->packedData = 1 * 1024 * 1024; // The size of the biggest file's dictionary + streaming buffers.
+  dp->packedData = 2 * 1024 * 1024; // The size of the biggest file's dictionary + streaming buffers.
   my_dp = dp;
 }
 
