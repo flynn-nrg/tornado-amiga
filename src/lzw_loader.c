@@ -26,6 +26,7 @@ misrepresented as being the original software.
 #include <string.h>
 
 #include "lzw_loader.h"
+#include "lzw.h"
 #include "lzw_unpack_stream.h"
 #include "memory.h"
 #include "tndo_file.h"
