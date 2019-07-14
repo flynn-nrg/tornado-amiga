@@ -118,6 +118,8 @@ void lzss_uncompress(uint8_t *data, uint8_t *dst, uint32_t size) {
       produced += runSize;
       consumed += runSize;
     } else {
+      printf("Copiando %u de %p a %p\n", runSize, &dstBuffer[produced - offset],
+             &dstBuffer[produced]);
       memcpy(&dstBuffer[produced], &dstBuffer[produced - offset], runSize);
       produced += runSize;
     }

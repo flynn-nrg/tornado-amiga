@@ -27,25 +27,16 @@ misrepresented as being the original software.
 
 #include "lzss.h"
 #include "lzss_loader.h"
-#include "memory.h"
-#include "tndo_file.h"
+#include "lzss_unpack_stream.h"
 
 // Load a compressed asset. You have to allocate enough memory for the
 // uncompressed data or bad things will happen! You most likely do not want to
 // call this directly and should let the asset manager take care of things for
 // you.
 int lzssLoadFile(FILE *source, unsigned char *dest, int fileSize) {
-  void *compData = tndo_get_packed_data_buffer(fileSize);
-
-  // Consume payload.
-  int read = tndo_fread(compData, fileSize, 1, source);
-  if (read != 1) {
-    free(compData);
-    return 1;
-  }
 
   // Call the depack routine.
-  lzss_uncompress((uint8_t *)compData, (uint8_t *)dest, fileSize);
+  lzss_uncompress_stream(source, (uint8_t *)dest, fileSize);
 
   return 0;
 }

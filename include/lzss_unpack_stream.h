@@ -20,35 +20,9 @@ misrepresented as being the original software.
     3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "lzcommon.h"
+#ifndef LZSS_UNPACK_STREAM_H
+#define LZSS_UNPACK_STREAM_H
 
-#ifndef LZSS_H
-#define LZSS_H
-
-#define LZSS_LITERAL 0
-#define LZSS_WINDOW_255 1
-#define LZSS_WINDOW_4095_4 2
-#define LZSS_WINDOW_4095_12 3
-#define LZSS_WINDOW_65535 4
-
-#define LZSS_CODELEN_8_8 1
-#define LZSS_CODELEN_12_4 2
-#define LZSS_CODELEN_12_12 3
-#define LZSS_CODELEN_16_16 4
-
-#define LZSS_CODELEN_8_8_SIZE (2 * sizeof(uint8_t))
-#define LZSS_CODELEN_12_4_SIZE (2 * sizeof(uint8_t))
-#define LZSS_CODELEN_12_12_SIZE (3 * sizeof(uint8_t))
-#define LZSS_CODELEN_16_16_SIZE (4 * sizeof(uint8_t))
-
-typedef struct lzssCtx {
-  uint32_t consumed;
-  uint32_t usedBytes;
-  uint32_t nibbleFlag;
-} lzssCtx;
-
-compressedData *lzss_compress(void *data, uint32_t size, uint32_t windowSize,
-                              uint32_t verbose);
-void lzss_uncompress(uint8_t *data, uint8_t *dst, uint32_t size);
+void lzss_uncompress_stream(FILE *data, uint8_t *dst, uint32_t size);
 
 #endif
