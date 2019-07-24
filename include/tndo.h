@@ -33,7 +33,7 @@ misrepresented as being the original software.
 #define TNDO_COMPRESSION_NONE 1
 #define TNDO_COMPRESSION_DLTA 2
 #define TNDO_COMPRESSION_ZLIB 3
-#define TNDO_COMPRESSION_ADPCM 4
+#define TNDO_COMPRESSION_DDPCM 4
 #define TNDO_COMPRESSION_DLTA_14 5
 #define TNDO_COMPRESSION_CAPS 6
 #define TNDO_COMPRESSION_LZH 8
@@ -67,7 +67,7 @@ typedef struct {
   uint32_t maxBits;
   uint32_t segmentSize;
   uint32_t numSegments;
-  // CAPS encoding metadata.
+  // Audio encoding metadata.
   uint32_t numSamples;
   uint32_t numChannels;
   uint32_t bitsPerSample;
