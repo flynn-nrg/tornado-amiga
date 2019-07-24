@@ -25,20 +25,21 @@ misrepresented as being the original software.
 #define DDPCM_MAX_SCALING 64
 
 typedef struct {
-	uint32_t numSamples;
-	uint32_t numFrames;
-	uint32_t numQTables;
-	uint32_t framesPerQTable;
-	int16_t **qtablesLeft;
-	int16_t **qtablesRight;
-	uint8_t *scalesLeft;
-	uint8_t *scalesRight;
-	uint8_t *left;
-	uint8_t *right;
+  uint32_t numSamples;
+  uint32_t numFrames;
+  uint32_t numQTables;
+  uint32_t framesPerQTable;
+  int16_t **qtablesLeft;
+  int16_t **qtablesRight;
+  uint8_t *scalesLeft;
+  uint8_t *scalesRight;
+  uint8_t *left;
+  uint8_t *right;
 } ddpcmHeader;
 
 uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table);
 void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale);
-uint32_t framesPerQtable(uint32_t numFrames, uint32_t maxTables, uint32_t minTables);
+uint32_t framesPerQtable(uint32_t numFrames, uint32_t maxTables,
+                         uint32_t minTables);
 
 #endif

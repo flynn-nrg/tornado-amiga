@@ -97,127 +97,131 @@ WavHeader *parseWavHeader(void *data) {
   return wh;
 }
 
-
 AudioData *splitChannels(WavHeader *wh) {
-	AudioData *ad = calloc(1, sizeof(AudioData));
+  AudioData *ad = calloc(1, sizeof(AudioData));
 
-	ad->bitsPerSample = wh->bitsPerSample;
-	ad->numChannels = wh->numChannels;
-	ad->sampleRate = wh->sampleRate;
-	
-	switch(wh->bitsPerSample) {
-	case 8:
-		ad->sampleSize = 1;
-		break;
-	case 16:
-		ad->sampleSize = 2;
-		break;
-	default:
-		fprintf(stderr, "FATAL - Unsupported sample bitdepth <%i>. Aborthing.\n", wh->bitsPerSample);
-		abort();
-	}
-	
-	ad->numSamples = (wh->dataLen / wh->numChannels) / ad->sampleSize;
+  ad->bitsPerSample = wh->bitsPerSample;
+  ad->numChannels = wh->numChannels;
+  ad->sampleRate = wh->sampleRate;
 
-	uint32_t partial_frame = ad->numSamples % DDPCM_FRAME_NUMSAMPLES;
-	uint32_t padding = 0;
-	
-	if(partial_frame > 0) {
-		padding = DDPCM_FRAME_NUMSAMPLES - partial_frame;
-	}
+  switch (wh->bitsPerSample) {
+  case 8:
+    ad->sampleSize = 1;
+    break;
+  case 16:
+    ad->sampleSize = 2;
+    break;
+  default:
+    fprintf(stderr, "FATAL - Unsupported sample bitdepth <%i>. Aborthing.\n",
+            wh->bitsPerSample);
+    abort();
+  }
 
-	
-	uint32_t addSamples = 0;
+  ad->numSamples = (wh->dataLen / wh->numChannels) / ad->sampleSize;
 
-	// Pad a few extra frames to have an integer amount of frames per q_table.
-	for(;;) {
-		uint32_t numFrames = (ad->numSamples + padding + addSamples) / DDPCM_FRAME_NUMSAMPLES;
-		if(numFrames % DDPCM_MAX_TABLES == 0) {
-			break;
-		}
-		addSamples += DDPCM_FRAME_NUMSAMPLES;
-	}
+  uint32_t partial_frame = ad->numSamples % DDPCM_FRAME_NUMSAMPLES;
+  uint32_t padding = 0;
 
-	ad->left = calloc((wh->dataLen / wh->numChannels) + (DDPCM_FRAME_NUMSAMPLES * ad->sampleSize) + (addSamples * ad->sampleSize), 1);
-	ad->right = calloc((wh->dataLen / wh->numChannels) + (DDPCM_FRAME_NUMSAMPLES * ad->sampleSize)  + (addSamples * ad->sampleSize), 1);
-	
-	uint32_t r_index = 0;
-	uint32_t w_index = 0;
-	int16_t *left = (int16_t *) ad->left;
-	int16_t *right = (int16_t *) ad->right;
-	int16_t *payload = (int16_t *) wh->data;
-	
-	for(uint32_t i = 0; i < ad->numSamples; i++) {
-		left[i] = payload[r_index++];
-		right[i] = payload[r_index++];
-	}
+  if (partial_frame > 0) {
+    padding = DDPCM_FRAME_NUMSAMPLES - partial_frame;
+  }
 
-	ad->numSamples += padding;
-	ad->numSamples += addSamples;
-	
-	return ad;
+  uint32_t addSamples = 0;
 
+  // Pad a few extra frames to have an integer amount of frames per q_table.
+  for (;;) {
+    uint32_t numFrames =
+        (ad->numSamples + padding + addSamples) / DDPCM_FRAME_NUMSAMPLES;
+    if (numFrames % DDPCM_MAX_TABLES == 0) {
+      break;
+    }
+    addSamples += DDPCM_FRAME_NUMSAMPLES;
+  }
+
+  ad->left = calloc((wh->dataLen / wh->numChannels) +
+                        (DDPCM_FRAME_NUMSAMPLES * ad->sampleSize) +
+                        (addSamples * ad->sampleSize),
+                    1);
+  ad->right = calloc((wh->dataLen / wh->numChannels) +
+                         (DDPCM_FRAME_NUMSAMPLES * ad->sampleSize) +
+                         (addSamples * ad->sampleSize),
+                     1);
+
+  uint32_t r_index = 0;
+  uint32_t w_index = 0;
+  int16_t *left = (int16_t *)ad->left;
+  int16_t *right = (int16_t *)ad->right;
+  int16_t *payload = (int16_t *)wh->data;
+
+  for (uint32_t i = 0; i < ad->numSamples; i++) {
+    left[i] = payload[r_index++];
+    right[i] = payload[r_index++];
+  }
+
+  ad->numSamples += padding;
+  ad->numSamples += addSamples;
+
+  return ad;
 }
 
 WavHeader *joinChannels(AudioData *ad) {
-	WavHeader *wh = calloc(1, sizeof(WavHeader));
-	wh->format = WAV_PCM;
-	wh->numChannels = ad->numChannels;
-	wh->sampleRate = ad->sampleRate;
-	wh->bitsPerSample = ad->bitsPerSample;
-	wh->data = calloc(ad->numSamples * ad->numChannels * ad->sampleSize, 1);
-	wh->dataLen = ad->numSamples * ad->numChannels * ad->sampleSize;
+  WavHeader *wh = calloc(1, sizeof(WavHeader));
+  wh->format = WAV_PCM;
+  wh->numChannels = ad->numChannels;
+  wh->sampleRate = ad->sampleRate;
+  wh->bitsPerSample = ad->bitsPerSample;
+  wh->data = calloc(ad->numSamples * ad->numChannels * ad->sampleSize, 1);
+  wh->dataLen = ad->numSamples * ad->numChannels * ad->sampleSize;
 
-	int16_t *payload = (int16_t *) wh->data;
-	int16_t *left = (int16_t *) ad->left;
-	int16_t *right = (int16_t *) ad->right;
+  int16_t *payload = (int16_t *)wh->data;
+  int16_t *left = (int16_t *)ad->left;
+  int16_t *right = (int16_t *)ad->right;
 
-	uint32_t offset = 0;
-	for(uint32_t i = 0; i < ad->numSamples; i++) {
-		payload[offset++] = left[i];
-		payload[offset++] = right[i];
-	}
+  uint32_t offset = 0;
+  for (uint32_t i = 0; i < ad->numSamples; i++) {
+    payload[offset++] = left[i];
+    payload[offset++] = right[i];
+  }
 
-	return wh;
-
+  return wh;
 }
 
 // Save a WAV file with the data. This code is *LITTLE ENDIAN* only!
 int writeWAV(FILE *output, WavHeader *wh) {
-	uint32_t *header = calloc(1, WAVE_HEADER_SIZE);
-	uint16_t *header16 = (uint16_t *) header;
-	
-	header[0] = 0x46464952; // RIFF magic
-	header[1] = WAVE_HEADER_SIZE + wh->dataLen - 8; // Chunk size
-	header[2] = 0x45564157; // WAVE magic
-	
-	header[3] = 0x20746d66; // fmt. subchunk
-	header[4] = 16; // 16 for PCM data
+  uint32_t *header = calloc(1, WAVE_HEADER_SIZE);
+  uint16_t *header16 = (uint16_t *)header;
 
-	header16[10] = WAV_PCM; // PCM data
-	header16[11] = wh->numChannels; // NumChannels
+  header[0] = 0x46464952;                         // RIFF magic
+  header[1] = WAVE_HEADER_SIZE + wh->dataLen - 8; // Chunk size
+  header[2] = 0x45564157;                         // WAVE magic
 
-	header[6] = wh->sampleRate; // SampleRate
-	header[7] = wh->sampleRate * wh->numChannels * (wh->bitsPerSample / 8); // ByteRate
+  header[3] = 0x20746d66; // fmt. subchunk
+  header[4] = 16;         // 16 for PCM data
 
-	header16[16] = wh->numChannels * (wh->bitsPerSample / 8); // BlockAlign
-	header16[17] = wh->bitsPerSample; //BitsPerSample
+  header16[10] = WAV_PCM;         // PCM data
+  header16[11] = wh->numChannels; // NumChannels
 
-	header[9] = 0x61746164; // data magic
-	header[10] = wh->dataLen; // data size
+  header[6] = wh->sampleRate; // SampleRate
+  header[7] =
+      wh->sampleRate * wh->numChannels * (wh->bitsPerSample / 8); // ByteRate
 
-	int written = fwrite(header, WAVE_HEADER_SIZE, 1, output);
-	if(!written) {
-		fprintf(stderr, "FATAL - Could not write wave header to output file.\n");
-		return -1;
-	}
+  header16[16] = wh->numChannels * (wh->bitsPerSample / 8); // BlockAlign
+  header16[17] = wh->bitsPerSample;                         // BitsPerSample
 
-	written = fwrite(wh->data, wh->dataLen, 1, output);
-	if(!written) {
-		fprintf(stderr, "FATAL - Could not write wave data to output file.\n");
-		return -1;
-	}
-	
-	
-	return 0;
+  header[9] = 0x61746164;   // data magic
+  header[10] = wh->dataLen; // data size
+
+  int written = fwrite(header, WAVE_HEADER_SIZE, 1, output);
+  if (!written) {
+    fprintf(stderr, "FATAL - Could not write wave header to output file.\n");
+    return -1;
+  }
+
+  written = fwrite(wh->data, wh->dataLen, 1, output);
+  if (!written) {
+    fprintf(stderr, "FATAL - Could not write wave data to output file.\n");
+    return -1;
+  }
+
+  return 0;
 }

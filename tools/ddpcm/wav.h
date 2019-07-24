@@ -30,13 +30,13 @@ typedef struct {
 } WavHeader;
 
 typedef struct {
-	int numChannels;
-	int sampleRate;
-	int bitsPerSample;
-	int numSamples;
-	int sampleSize;
-	void *left;
-	void *right;
+  int numChannels;
+  int sampleRate;
+  int bitsPerSample;
+  int numSamples;
+  int sampleSize;
+  void *left;
+  void *right;
 } AudioData;
 
 #define WAV_PCM 1
@@ -47,6 +47,5 @@ AudioData *splitChannels(WavHeader *wh);
 WavHeader *joinChannels(AudioData *ad);
 
 int writeWAV(FILE *output, WavHeader *wh);
-
 
 #endif

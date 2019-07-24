@@ -22,8 +22,8 @@ misrepresented as being the original software.
 #define DELTA_MODE_TOP 1
 
 typedef struct {
-	int16_t value;
-	uint32_t score;
+  int16_t value;
+  uint32_t score;
 } q_entry;
 
 int16_t *quantiser(int16_t *data, uint32_t numSamples, uint32_t deltaMode);
