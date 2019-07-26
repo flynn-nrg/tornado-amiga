@@ -4,7 +4,7 @@
 
 #################################################################################
 TORNADO_OBJ = sdl_posix/assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o  sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
-TORNADO_OBJ += tndo.o debug.o wav_delta.o memory.o caps_loader.o de-encapsulator.o telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o
+TORNADO_OBJ += tndo.o debug.o wav_delta.o memory.o ddpcm_loader.o caps_loader.o de-encapsulator.o telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 
 LZW_BASE = $(TORNADO_BASE)/tools/compress
@@ -12,6 +12,9 @@ LZW_OBJS = lzw_unpack.o
 LZSS_OBJS = lzss_unpack.o
 LZH_OBJS = lzh_unpack.o
 LZW_INCDIR = $(LZW_BASE)
+
+DDPCM_BASE = $(TORNADO_BASE)/tools/ddpcm
+DDPCM_INCDIR = $(DDPCM_BASE)
 
 ROCKET_BASE = $(TORNADO_BASE)/third_party/rocket/lib
 ROCKET_INCDIR = $(ROCKET_BASE)
@@ -35,6 +38,7 @@ IMGUI_SDL_OBJS = $(addsuffix .o, $(basename $(notdir $(IMGUI_SDL_SOURCES))))
 
 INCDIR = $(TORNADO_BASE)/include
 INCDIR += $(LZW_INCDIR)
+INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(ROCKET_INCDIR)
 INCDIR += $(BASS_INCDIR)
 INCDIR += $(IMGUI_INCDIR)
