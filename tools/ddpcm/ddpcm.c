@@ -16,6 +16,7 @@ misrepresented as being the original software.
 */
 
 #include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,13 +84,15 @@ static inline uint32_t bestMatch(int16_t y1, int16_t y2, int16_t to,
   uint16_t bestDistance = USHRT_MAX;
 
   int16_t predicted = predict(y1, y2);
+  float inverseScale = 1.0f / scale;
 
   for (uint32_t i = 0; i < 63; i++) {
     uint16_t distance;
     uint16_t t, f;
 
     t = to + 32768;
-    f = (predicted + 32768) + (q_table[i] / scale);
+    float fdelta = floorf(((float)q_table[i]) * inverseScale);
+    f = (predicted + 32768) + (int16_t)fdelta;
     if (f >= t) {
       distance = f - t;
     } else {
@@ -121,12 +124,16 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
     uint32_t error;
 
     uint8_t scale;
+    float inverseScale;
+    float fdelta;
 
     scale = sc;
     error = 0;
 
     first[0] = htons(src[0]);
     first[1] = htons(src[1]);
+
+    inverseScale = 1.0f / (float)scale;
 
     y1 = src[0];
     y2 = src[1];
@@ -135,7 +142,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
     error += res >> 16;
     unpacked[0] = res & 0xff;
     p = predict(y1, y2);
-    buffer[0] = p + (q_table[unpacked[0]] / scale);
+    fdelta = ((float)q_table[unpacked[0]] * inverseScale);
+    buffer[0] = p + (int16_t)floorf(fdelta);
 
     y1 = src[1];
     y2 = buffer[0];
@@ -144,7 +152,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
     error += res >> 16;
     unpacked[1] = res & 0xff;
     p = predict(y1, y2);
-    buffer[1] = p + (q_table[unpacked[1]] / scale);
+    fdelta = ((float)q_table[unpacked[1]] * inverseScale);
+    buffer[1] = p + (int16_t)floorf(fdelta);
 
     for (uint32_t i = 4; i < DDPCM_FRAME_NUMSAMPLES; i++) {
       y1 = buffer[i - 4];
@@ -154,7 +163,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
       error += res >> 16;
       unpacked[i - 2] = res & 0xff;
       p = predict(y1, y2);
-      buffer[i - 2] = p + (q_table[unpacked[i - 2]] / scale);
+      fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale);
+      buffer[i - 2] = p + (int16_t)floorf(fdelta);
     }
 
     if (error < bestError) {
@@ -172,8 +182,13 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   uint32_t res;
   uint32_t error = 0;
 
+  float fDelta;
+  float inverseBestScale;
+
   first[0] = htons(src[0]);
   first[1] = htons(src[1]);
+
+  inverseBestScale = 1.0f / (float)bestScale;
 
   y1 = src[0];
   y2 = src[1];
@@ -182,7 +197,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   error += res >> 16;
   unpacked[0] = res & 0xff;
   p = predict(y1, y2);
-  buffer[0] = p + (q_table[unpacked[0]] / bestScale);
+  fDelta = ((float)q_table[unpacked[0]] * inverseBestScale);
+  buffer[0] = p + (int16_t)floorf(fDelta);
 
   y1 = src[1];
   y2 = buffer[0];
@@ -191,7 +207,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   error += res >> 16;
   unpacked[1] = res & 0xff;
   p = predict(y1, y2);
-  buffer[1] = p + (q_table[unpacked[1]] / bestScale);
+  fDelta = ((float)q_table[unpacked[1]] * inverseBestScale);
+  buffer[1] = p + (int16_t)floorf(fDelta);
 
   for (uint32_t i = 4; i < DDPCM_FRAME_NUMSAMPLES; i++) {
     y1 = buffer[i - 4];
@@ -201,7 +218,8 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
     error += res >> 16;
     unpacked[i - 2] = res & 0xff;
     p = predict(y1, y2);
-    buffer[i - 2] = p + (q_table[unpacked[i - 2]] / bestScale);
+    fDelta = ((float)q_table[unpacked[i - 2]] * inverseBestScale);
+    buffer[i - 2] = p + (int16_t)floorf(fDelta);
   }
 
   pack8to6(unpacked, &dst[4]);
@@ -230,11 +248,15 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   unpack6to8(&src[28], &unpacked[32]);
   unpack6to8(&src[34], &unpacked[40]);
 
+  float inverseScale = 1.0f / (float)scale;
+  float fdelta;
+
   for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++) {
     y1 = dst[i - 2];
     y2 = dst[i - 1];
     p = predict(y1, y2);
-    dst[i] = p + (q_table[unpacked[i - 2]] / scale);
+    fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale);
+    dst[i] = p + (int16_t)floorf(fdelta);
   }
 }
 
