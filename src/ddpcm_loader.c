@@ -80,7 +80,7 @@ ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
   ddpcmData->qtablesRight =
       (int16_t **)tndo_malloc(ddpcmData->numQTables * sizeof(int16_t *), 0);
 
-  uint8_t *buffer = calloc(size, sizeof(uint8_t));
+  uint8_t *buffer = tndo_malloc(size * sizeof(uint8_t), 0);
   tndo_fread(buffer, size, sizeof(uint8_t), fd);
 
   int16_t *qtablesLeft;

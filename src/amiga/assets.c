@@ -26,6 +26,8 @@ misrepresented as being the original software.
 
 #include "assets.h"
 #include "caps_loader.h"
+#include "ddpcm.h"
+#include "ddpcm_loader.h"
 #include "lzh_loader.h"
 #include "lzss_loader.h"
 #include "lzw_loader.h"
@@ -41,6 +43,7 @@ static const char *fileList[256];
 static int numFiles = 0;
 
 static capsData_t *audioData;
+static ddpcmHeader *ddpcmData;
 
 void emit_container_script(const char *fileName, const char *containerName) {
   FILE *fd = fopen(fileName, "w");
@@ -119,7 +122,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           printf("DEBUG - Loading Audio asset...\n");
         }
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf(" Sample rate: %i\n", ENDI4(th->sampleRate));
+          printf("DEBUG - Sample rate: %i\n", ENDI4(th->sampleRate));
         }
         switch (ENDI4(th->sampleRate)) {
         case 11025:
@@ -140,7 +143,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         }
 
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf(" Bits per sample: %i\n", ENDI4(th->bitsPerSample));
+          printf("DEBUG - Bits per sample: %i\n", ENDI4(th->bitsPerSample));
         }
         switch (ENDI4(th->bitsPerSample)) {
         case 8:
@@ -157,7 +160,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         switch (ENDI4(th->compression)) {
         case TNDO_COMPRESSION_CAPS:
           if (tornadoOptions & VERBOSE_DEBUGGING) {
-            printf(" Using CAPS encoding.\n");
+            printf("DEBUG - Using CAPS encoding.\n");
           }
           audioData = loadCaps(fd, ENDI4(th->numSamples),
                                ENDI4(th->bitsPerSample), ENDI4(th->addBits),
@@ -170,6 +173,22 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           dp->bitsPerSample = ENDI4(th->bitsPerSample);
           dp->mixState = &audioData->left_buffer;
           dp->mixState2 = &audioData->right_buffer;
+          demoAssets[i] = (unsigned int *)0xdeadbeef;
+          assetSizes[i] = 4;
+          break;
+        case TNDO_COMPRESSION_DDPCM:
+          if (tornadoOptions & VERBOSE_DEBUGGING) {
+            printf("DEBUG - Using DDPCM encoding.\n");
+          }
+          ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
+          if (!ddpcmData) {
+            printf("FATAL - Loading audio assets failed. Aborting.\n");
+            abort();
+          }
+          dp->sampleRate = ENDI4(th->sampleRate);
+          dp->bitsPerSample = ENDI4(th->bitsPerSample);
+          dp->mixState = (char **)&ddpcmData->left;
+          dp->mixState2 = (char **)&ddpcmData->right;
           demoAssets[i] = (unsigned int *)0xdeadbeef;
           assetSizes[i] = 4;
           break;

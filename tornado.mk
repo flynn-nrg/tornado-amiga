@@ -3,13 +3,16 @@
 #################################################################################
 
 #################################################################################
-TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o amiga/assets.o hardware_check.o amiga/graphics.o memory.o amiga/system.o amiga/copper.o debug.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o amiga/c2p1x1_4_c5_16_9.o amiga/audio.o amiga/paula_output.o amiga/audio_lowlevel.o wav_delta.o tndo.o amiga/splash.o amiga/c2p1x1_8_c5_bm.o amiga/mod_replay.o amiga/c2p1x1_4_c5_16_9_h.o amiga/chrono.o amiga/freq_estimation.o caps_loader.o de-encapsulator.o telemetry.o prof.o lzw_loader.o amiga/lzw_unpack.o amiga/lzw_unpack_inner.o amiga/time.o amiga/mod_replay_os_legal.o lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o lzw_unpack_stream.o lzss_unpack_stream.o
+TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o amiga/assets.o hardware_check.o amiga/graphics.o memory.o amiga/system.o amiga/copper.o debug.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o amiga/c2p1x1_4_c5_16_9.o amiga/audio.o amiga/paula_output.o amiga/audio_lowlevel.o wav_delta.o tndo.o amiga/splash.o amiga/c2p1x1_8_c5_bm.o amiga/mod_replay.o amiga/c2p1x1_4_c5_16_9_h.o amiga/chrono.o amiga/freq_estimation.o caps_loader.o de-encapsulator.o telemetry.o prof.o lzw_loader.o amiga/lzw_unpack.o amiga/lzw_unpack_inner.o amiga/time.o amiga/mod_replay_os_legal.o lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o lzw_unpack_stream.o lzss_unpack_stream.o ddpcm_loader.o
 
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 TORNADO_THIRD_PARTY_DIR = $(TORNADO_BASE)/third_party
 
 #################################################################################
 LZW_BASE = $(TORNADO_BASE)/tools/compress
+
+DDPCM_BASE = $(TORNADO_BASE)/tools/ddpcm
+DDPCM_INCDIR = $(DDPCM_BASE)
 
 ROCKET_BASE = $(TORNADO_BASE)/third_party/rocket/lib
 ROCKET_INCDIR = $(ROCKET_BASE)
@@ -22,6 +25,7 @@ endif
 INCDIR += $(TORNADO_BASE)/third_party
 INCDIR += $(ROCKET_INCDIR)
 INCDIR += $(LZW_BASE)
+INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
 #################################################################################
 
