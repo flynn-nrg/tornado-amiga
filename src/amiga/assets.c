@@ -27,6 +27,7 @@ misrepresented as being the original software.
 #include "assets.h"
 #include "caps_loader.h"
 #include "ddpcm.h"
+#include "ddpcm_decode.h"
 #include "ddpcm_loader.h"
 #include "lzh_loader.h"
 #include "lzss_loader.h"
@@ -44,6 +45,7 @@ static int numFiles = 0;
 
 static capsData_t *audioData;
 static ddpcmHeader *ddpcmData;
+static ddpcmDecodedData *decodedData;
 
 void emit_container_script(const char *fileName, const char *containerName) {
   FILE *fd = fopen(fileName, "w");
@@ -185,10 +187,13 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             printf("FATAL - Loading audio assets failed. Aborting.\n");
             abort();
           }
+
+          decodedData = decodeDDPCMStream(ddpcmData);
+
           dp->sampleRate = ENDI4(th->sampleRate);
           dp->bitsPerSample = ENDI4(th->bitsPerSample);
-          dp->mixState = (char **)&ddpcmData->left;
-          dp->mixState2 = (char **)&ddpcmData->right;
+          dp->mixState = (char **)&decodedData->left;
+          dp->mixState2 = (char **)&decodedData->right;
           demoAssets[i] = (unsigned int *)0xdeadbeef;
           assetSizes[i] = 4;
           break;

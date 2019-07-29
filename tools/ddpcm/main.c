@@ -284,6 +284,16 @@ int main(int argc, char **argv) {
   fwrite(&numQTablesBE, sizeof(uint32_t), 1, outfile);
   fwrite(&framesPerQTableBE, sizeof(uint32_t), 1, outfile);
 
+  // q_table data is stored in network order.
+  for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
+    int16_t *ql = ddpcmh->qtablesLeft[i];
+    int16_t *qr = ddpcmh->qtablesRight[i];
+    for (uint32_t j = 0; j < DDPCM_QTABLE_ENTRIES; j++) {
+      ql[j] = htons(ql[j]);
+      qr[j] = htons(qr[j]);
+    }
+  }
+
   for (int i = 0; i < ddpcmh->numQTables; i++) {
     fwrite(ddpcmh->qtablesLeft[i], sizeof(int16_t), 64, outfile);
   }

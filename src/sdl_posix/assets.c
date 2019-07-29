@@ -27,6 +27,7 @@ misrepresented as being the original software.
 #include "assets.h"
 #include "caps_loader.h"
 #include "ddpcm.h"
+#include "ddpcm_decode.h"
 #include "ddpcm_loader.h"
 #include "lzh_loader.h"
 #include "lzss_loader.h"
@@ -41,6 +42,7 @@ misrepresented as being the original software.
 
 static capsData_t *audioData;
 static ddpcmHeader *ddpcmData;
+static ddpcmDecodedData *decodedData;
 
 static const char *fileList[256];
 static int numFiles = 0;
@@ -179,19 +181,21 @@ static int loadAsset(void **asset, char *assetName, int *assetSize,
         if (tornadoOptions & VERBOSE_DEBUGGING) {
           printf("DEBUG - Using DDPCM encoding.\n");
         }
-        ddpcmData =
-            ddpcmLoadFile(fd, tornadoOptions);
+        ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
         if (!ddpcmData) {
           printf("FATAL - Loading audio assets failed. Aborting.\n");
           abort();
         }
+
+        decodedData = decodeDDPCMStream(ddpcmData);
+
         dp->sampleRate = ENDI4(th->sampleRate);
         dp->bitsPerSample = ENDI4(th->bitsPerSample);
-        dp->mixState = (char **) &ddpcmData->left;
-        dp->mixState2 = (char **) &ddpcmData->right;
+        dp->mixState = (char **)&decodedData->left;
+        dp->mixState2 = (char **)&decodedData->right;
         *asset = (unsigned int *)0xdeadbeef;
         *assetSize = 4;
-        break;	      
+        break;
       default:
         printf("FATAL - Unsupported compression setting. Aborting.\n");
         abort();

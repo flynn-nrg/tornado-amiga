@@ -24,6 +24,10 @@ misrepresented as being the original software.
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef __AMIGA__
+#include <arpa/inet.h>
+#endif
+
 #include "ddpcm.h"
 #include "ddpcm_loader.h"
 #include "memory.h"
@@ -97,8 +101,20 @@ ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
     qtablesRight += DDPCM_QTABLE_ENTRIES;
   }
 
+#ifndef __AMIGA__
+  // q_table data is stored in network order.
+  for (uint32_t i = 0; i < ddpcmData->numQTables; i++) {
+    int16_t *ql = ddpcmData->qtablesLeft[i];
+    int16_t *qr = ddpcmData->qtablesRight[i];
+    for (uint32_t j = 0; j < DDPCM_QTABLE_ENTRIES; j++) {
+      ql[j] = ntohs(ql[j]);
+      qr[j] = ntohs(qr[j]);
+    }
+  }
+#endif
+
   uint8_t *scales = (uint8_t *)buffer;
-  *scales += ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t) * 2;
+  scales += ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t) * 2;
   ddpcmData->scalesLeft = scales;
   ddpcmData->scalesRight = scales + ddpcmData->numFrames;
 
