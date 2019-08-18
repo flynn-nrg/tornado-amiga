@@ -119,7 +119,8 @@ ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
   ddpcmData->scalesRight = scales + ddpcmData->numFrames;
 
   ddpcmData->left = ddpcmData->scalesRight + ddpcmData->numFrames;
-  ddpcmData->right = ddpcmData->left + ddpcmData->numSamples * sizeof(int16_t);
+  ddpcmData->right =
+      ddpcmData->left + (ddpcmData->numFrames * DDPCM_COMPRESSED_FRAME_SIZE);
 
   return ddpcmData;
 }

@@ -96,51 +96,55 @@ end8i:
 	movem.l	(sp)+,d2-d3/a5-a6
 	rts
 	
-;;; 14bit Stereo mix routine
+;;; 14bit Stereo mix routine for big endian
+;;; non-interleaved audio data.
 ;;; d0 = number of samples to mix
 ;;; d1 = current mix position  (??)
 ;;; a0, a1, a2, a3 = output samples
 ;;; a4 = state
-
+;;; a6 = state2
+	
 read_smp    macro
-	move.w  (a5)+,d1        ; low : high
-	move.b  d1,\1           ; highs
+	move.w  (\1)+,d1        ; low : high
+	lsr.w   #8, d1
+	move.b  d1,\2           ; highs
 	lsr.w   d2,d1
-	move.b  d1,\2           ; lows
+	move.b  d1,\3           ; lows
 	endm
 
 _mixRoutine16:
 	movem.l	d2-d6/a5-a6,-(sp)
 	move.l	(a4),a5 ; sample ptr
-    
+	move.l  a4, d7
+	move.l  (a6), a4
 	moveq.l #10,d2
 	cmp.l   #4, d0
 	blt     tail
 
 word_loop:	
-	read_smp    d3,d4   ; chann left
+	read_smp    a5, d3,d4   ; chann left
 	lsl.w   #8,d3
 	lsl.w   #8,d4
-	read_smp    d5,d6   ; chann right
+	read_smp    a4, d5,d6   ; chann right
 	lsl.w   #8,d5
 	lsl.w   #8,d6
 
-	read_smp    d3,d4
+	read_smp    a5, d3,d4
 	swap    d3
 	swap    d4
-	read_smp    d5,d6
+	read_smp    a4, d5,d6
 	swap    d5
 	swap    d6
 
-	read_smp    d3,d4   ; chann left
+	read_smp    a5, d3,d4   ; chann left
 	lsl.w   #8,d3
 	lsl.w   #8,d4
-	read_smp    d5,d6   ; chann right
+	read_smp    a4, d5,d6   ; chann right
 	lsl.w   #8,d5
 	lsl.w   #8,d6
 
-	read_smp    d3,d4   ; chann left
-	read_smp    d5,d6   ; chann right
+	read_smp    a5, d3,d4   ; chann left
+	read_smp    a4, d5,d6   ; chann right
 
 	move.l	d3,(a0)+ 
 	move.l	d4,(a1)+ 
@@ -157,18 +161,22 @@ tail:
 
 tail_loop:	
 	move.w  (a5)+,d1        ; low : high
+	lsr.w   #8, d1
 	move.b	d1,(a0)+        ; high
 	lsr.w   d2,d1
 	move.b	d1,(a1)+
 	
-	move.w  (a5)+,d1        ; low : high
+	move.w  (a4)+,d1        ; low : high
+	lsr.w   #8, d1
 	move.b	d1,(a2)+        ; high
 	lsr.w	d2,d1
 	move.b	d1,(a3)+
 
 	subq.l	#1,d0
 	bne.s	tail_loop
-end:	
+end:
+	move.l  a4, (a6)
+	move.l  d7, a4
 	move.l	a5,(a4)     ; save current smp ptr
 	movem.l	(sp)+,d2-d6/a5-a6
 	rts

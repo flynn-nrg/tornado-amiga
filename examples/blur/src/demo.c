@@ -224,7 +224,8 @@ void demoSettings(demoParams *dp) {
   dp->fastMemPool = FAST_MEM_POOL_SIZE * 1024 * 1024;
   dp->chipMemPool = 2 * 1024;
   dp->chipScratch = 1024 * 700;
-  dp->packedData = 128 * 1024; // Enough space for the LZW dictionary + stream buffers.
+  dp->packedData =
+      128 * 1024; // Enough space for the LZW dictionary + stream buffers.
   dp->tndoContainerPath = dataPath;
   dp->numDisplays = 1;
   // dp->vfsLoaderCallback = loaderCallback;
@@ -241,9 +242,7 @@ static void **audioAssets;
 // SDL/Posix soundtrack
 #define bassTrack "data/brut_blur.mp3"
 
-// LOW QUALITY AUDIO TRACK FOR DEVELOPMENT ONLY!!!!!
-#warning "Using low quality audio track!!!"
-const char *audioList[] = {"data/brut_11025_8.tndo"};
+const char *audioList[] = {"data/brut_ddpcm.tndo"};
 
 void demoAudioInit(unsigned int tornadoOptions) {
   if (tornadoOptions & USE_AUDIO) {
