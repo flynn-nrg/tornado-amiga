@@ -31,6 +31,10 @@ misrepresented as being the original software.
 #include "ddpcm.h"
 #include "ddpcm_decode.h"
 
+#ifdef __AMIGA__
+#include "ddpcm_lowlevel.h"
+#endif
+
 // Linear extrapolation predictor.
 // y = y1 + (y2 - y1) * t.
 static inline int16_t predict(int16_t y1, int16_t y2) {
@@ -90,12 +94,16 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   dst[1] = ntohs((int16_t)first[1]);
 #endif
 
+#ifdef __AMIGA__
+  unpack6to8_asm(&src[4], unpacked);
+#else
   unpack6to8(&src[4], unpacked);
   unpack6to8(&src[10], &unpacked[8]);
   unpack6to8(&src[16], &unpacked[16]);
   unpack6to8(&src[22], &unpacked[24]);
   unpack6to8(&src[28], &unpacked[32]);
   unpack6to8(&src[34], &unpacked[40]);
+#endif
 
   float inverseScale = 1.0f / (float)scale;
   float fdelta;
