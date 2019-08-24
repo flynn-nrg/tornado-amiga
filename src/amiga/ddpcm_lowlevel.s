@@ -165,11 +165,14 @@ _decodeFrame_asm:
 	
 	;; for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++)
 	moveq.l #2, d7
+	moveq.l #DDPCM_FRAME_NUMSAMPLES, d6
 _decodeLoop:
 	move.l d7, d3
 	lsl.l #1, d3
 	lea (a6, d3.l), a2
+	;; y1 = dst[i - 2];
 	move.w (-4, a2), d0
+	;; y2 = dst[i - 1];
 	move.w (-2, a2), d1
 	
 ;;; Linear extrapolation predictor.
@@ -209,12 +212,13 @@ _p2:
 	fmove.w fp0, d3
 	;;  p + (int16_t)floorf(fdelta)
 	add.w d3, d0
+	
+	addq.l #1, d7	       ; i++
+	
 	;; dst[i] = p + (int16_t)floorf(fdelta)
 	move.w d0, (a2)
 
-	addq.l #1, d7
-	moveq #50, d0
-	cmp.l d7, d0
+	cmp.l d7, d6
 	bhi   _decodeLoop
 	
 	movem.l (sp)+,d2-d7/a2-a6
