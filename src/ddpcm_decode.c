@@ -35,6 +35,8 @@ misrepresented as being the original software.
 #include "ddpcm_lowlevel.h"
 #endif
 
+#include <tndo_assert.h>
+
 // Linear extrapolation predictor.
 // y = y1 + (y2 - y1) * t.
 static inline int16_t predict(int16_t y1, int16_t y2) {
@@ -82,7 +84,7 @@ static inline void unpack6to8(uint8_t *src, uint8_t *dst) {
 // Decodes a single frame from src to dst using the provided q_table.
 void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   uint8_t unpacked[DDPCM_FRAME_NUMSAMPLES - 2];
-  int16_t y1, y2, p;
+  int16_t y1, y2, p, p2;
 
   int16_t *first = (int16_t *)src;
 
@@ -94,16 +96,12 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   dst[1] = ntohs((int16_t)first[1]);
 #endif
 
-#ifdef __AMIGA__
-  unpack6to8_asm(&src[4], unpacked);
-#else
   unpack6to8(&src[4], unpacked);
   unpack6to8(&src[10], &unpacked[8]);
   unpack6to8(&src[16], &unpacked[16]);
   unpack6to8(&src[22], &unpacked[24]);
   unpack6to8(&src[28], &unpacked[32]);
   unpack6to8(&src[34], &unpacked[40]);
-#endif
 
   float inverseScale = 1.0f / (float)scale;
   float fdelta;
@@ -112,6 +110,7 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
     y1 = dst[i - 2];
     y2 = dst[i - 1];
     p = predict(y1, y2);
+    
     fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale);
     dst[i] = p + (int16_t)floorf(fdelta);
   }
@@ -135,8 +134,13 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh) {
   uint32_t ulFrame = 0;
   for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
+#ifdef __AMIGA__
+      decodeFrame_asm(&uleftSrc[ulOffset], &ulDest[ulDstOffset],
+                  ddpcmh->qtablesLeft[i], ddpcmh->scalesLeft[ulFrame++]);
+#else
       decodeFrame(&uleftSrc[ulOffset], &ulDest[ulDstOffset],
                   ddpcmh->qtablesLeft[i], ddpcmh->scalesLeft[ulFrame++]);
+#endif      
       ulOffset += DDPCM_COMPRESSED_FRAME_SIZE;
       ulDstOffset += DDPCM_FRAME_NUMSAMPLES;
     }
@@ -151,8 +155,14 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh) {
   uint32_t urFrame = 0;
   for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
+#ifdef __AMIGA__
+      decodeFrame_asm(&urightSrc[urOffset], &urDest[urDstOffset],
+                  ddpcmh->qtablesRight[i], ddpcmh->scalesRight[urFrame++]);
+#else
       decodeFrame(&urightSrc[urOffset], &urDest[urDstOffset],
                   ddpcmh->qtablesRight[i], ddpcmh->scalesRight[urFrame++]);
+      
+#endif      
       urOffset += DDPCM_COMPRESSED_FRAME_SIZE;
       urDstOffset += DDPCM_FRAME_NUMSAMPLES;
     }

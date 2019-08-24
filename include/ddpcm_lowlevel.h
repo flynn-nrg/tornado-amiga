@@ -28,4 +28,11 @@ misrepresented as being the original software.
 void unpack6to8_asm(__ASMPARM("a0", uint8_t *src),
                     __ASMPARM("a1", uint8_t *dst));
 
+int16_t predict_asm(__ASMPARM("d0", int16_t y1), __ASMPARM("d1", int16_t y2));
+
+void decodeFrame_asm(__ASMPARM("a0", uint8_t *src),
+                     __ASMPARM("a6", int16_t *dst),
+                     __ASMPARM("a5", int16_t *q_table),
+                     __ASMPARM("d7", uint8_t scale));
+
 #endif
