@@ -29,6 +29,7 @@ misrepresented as being the original software.
 #include "ddpcm.h"
 #include "ddpcm_decode.h"
 #include "ddpcm_loader.h"
+#include "ddpcm_lowlevel.h"
 #include "lzh_loader.h"
 #include "lzss_loader.h"
 #include "lzw_loader.h"
@@ -188,12 +189,17 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             abort();
           }
 
-          decodedData = decodeDDPCMStream(ddpcmData);
+          initDDPCM_Decoder(ddpcmData->qtablesLeft, ddpcmData->qtablesRight,
+                            ddpcmData->scalesLeft, ddpcmData->scalesRight,
+                            ddpcmData->left, ddpcmData->right,
+                            ddpcmData->numFrames, ddpcmData->framesPerQTable);
 
+          dp->tornadoOptions |= DDPCM_STREAMING;
           dp->sampleRate = ENDI4(th->sampleRate);
           dp->bitsPerSample = ENDI4(th->bitsPerSample);
-          dp->mixState = (char **)&decodedData->left;
-          dp->mixState2 = (char **)&decodedData->right;
+          // Dummy mix states to make the Paula output routines happy.
+          dp->mixState = (char **)&decodedData;
+          dp->mixState2 = (char **)&decodedData;
           demoAssets[i] = (unsigned int *)0xdeadbeef;
           assetSizes[i] = 4;
           break;

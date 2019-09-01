@@ -25,6 +25,17 @@ misrepresented as being the original software.
 
 #include "asmparm.h"
 
+void initDDPCM_Decoder(__ASMPARM("a0", int16_t **qtablesLeft),
+                       __ASMPARM("a1", int16_t **qtablesRight),
+                       __ASMPARM("a2", uint8_t *scalesLeft),
+                       __ASMPARM("a3", uint8_t *scalesRight),
+                       __ASMPARM("a4", uint8_t *left),
+                       __ASMPARM("a5", uint8_t *right),
+                       __ASMPARM("d0", uint32_t numFrames),
+                       __ASMPARM("d1", uint32_t framesPerQTable));
+
+void *getDDPCMMixRoutine16(void);
+
 void decodeFrame_asm(__ASMPARM("a0", uint8_t *src),
                      __ASMPARM("a6", int16_t *dst),
                      __ASMPARM("a5", int16_t *q_table),

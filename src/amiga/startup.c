@@ -38,6 +38,7 @@ misrepresented as being the original software.
 #include "copper.h"
 #include "cpu.h"
 #include "custom_regs.h"
+#include "ddpcm_lowlevel.h"
 #include "debug.h"
 #include "display.h"
 #include "graphics.h"
@@ -191,7 +192,11 @@ int main(int argc, char **argv) {
     void *mixRoutine;
     switch (dp->audioMode) {
     case OUTPUT_14_BIT_STEREO:
-      mixRoutine = getMixRoutine16();
+      if (dp->tornadoOptions & DDPCM_STREAMING) {
+        mixRoutine = getDDPCMMixRoutine16();
+      } else {
+        mixRoutine = getMixRoutine16();
+      }
       break;
     case OUTPUT_8_BIT_STEREO:
       if (dp->tornadoOptions & INTERLEAVED_AUDIO) {

@@ -148,6 +148,9 @@ misrepresented as being the original software.
 // Generate container script
 #define EMIT_CONTAINER_SCRIPT 1 << 23
 
+// DDPCM streaming
+#define DDPCM_STREAMING 1 << 24
+
 // -----------------------------------------------------------------------------
 // Demo parameter struct.
 // -----------------------------------------------------------------------------
