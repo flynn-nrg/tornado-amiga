@@ -190,13 +190,13 @@ _decodeLoop:
 	sub.l d0, d1
 	lsl.l #1, d1
 	add.l d1, d0
-	cmp.l #32767, d0
+	cmp.l #INT16_MAX, d0
 	ble   _p1
-	move.w  #16383, d0
+	move.w  #INT16_MAX/2, d0
 	bra.s _p2
-_p1:	cmp.l   #-32768, d0
+_p1:	cmp.l   #INT16_MIN, d0
 	bge     _p2
-	move.w  #-16384, d0
+	move.w  #INT16_MIN/2, d0
 _p2:
 	;; unpacked[i - 2]
 	moveq   #0, d2
@@ -306,7 +306,7 @@ _no_avail:
 	beq	_have_enough
 _not_enough:
 	add.l	#DDPCM_FRAME_NUMSAMPLES, d3
-	addq  	#1, d4
+	addq.l 	#1, d4
 	cmp.l	d3, d0
 	bhi	_not_enough
 _have_enough:
@@ -333,7 +333,7 @@ _decode_frames:
 	bcs	_inside_qtable
 	moveq 	#0, d3
 	move.l	d3, frame_in_qtable
-	addq	#1, d6
+	addq.l	#1, d6
 	move.l	d6, current_qtable
 _inside_qtable:
 	;; d7 -> scale
