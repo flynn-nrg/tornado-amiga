@@ -4,7 +4,7 @@ Music
 No demo would be complete without a soundtrack.  Tornado provides two ways to play music:
 
 * Old school [Amiga modules](https://modarchive.org/index.php?article-modules) using [The Player](http://www.pouet.net/prod.php?which=64049) by Sahara Surfers.
-* Lossless compressed stereo 8bit audio up to 28150Hz.
+* DDPCM compressed stereo 14bit audio up to 22050Hz.
 
 Using modules
 ---------------------
@@ -22,22 +22,21 @@ A few things to keep in mind:
 * Module replay **only** works on the Amiga target. You will not hear anything when running your demo on the posix/SDL target.
 * Because profiling needs the CIAB timer which is used by the module replay routine, it is not possible to have profiling and music at the same time on Amiga. Please refer to the [Performance Monitoring](PerformanceMonitoring.md) section for more information on this topic.
 
-Using lossless compressed music
+Using DDPCM compressed music
 ----------------------------------------------
 
-As a composer myself, the idea of our music being butchered by the [ADPCM](https://en.wikipedia.org/wiki/Adaptive_differential_pulse-code_modulation) compression wasn't very appealing. While this algorithm results in small audio assets, it does not sound good. I always say that ADPCM-encoded music sounds nice if you've never listened to the original.
+As a composer myself, the idea of our music being butchered by the 4bit [ADPCM](https://en.wikipedia.org/wiki/Adaptive_differential_pulse-code_modulation) compression wasn't very appealing. While this algorithm results in small audio assets, it does not sound good. I always say that ADPCM-encoded music sounds nice if you've never listened to the original.
 
-For that reason we decided to come up with a [lossless compression](https://en.wikipedia.org/wiki/Lossless_compression) system that would work well on the Amiga.
+For that reason I've developed my own [DPCM](https://en.wikipedia.org/wiki/Differential_pulse-code_modulation) encoder that delivers very good quality with low decoding overhead and a reasonable compression ratio of about 2.4:1. 
 
-Luis "Peskanov" Pons wrote the compression tool (```flencoder``` in the tools directory) by borrowing ideas from [FLAC](https://en.wikipedia.org/wiki/FLAC) and I added replay support in Tornado.
+A highly optimised replay routine is provided with the framework.
 
-The first thing you need is an 8bit WAV file with data saved at one of these supported sampling rates:
+The first thing you need is a 16bit stereo WAV file with data saved at one of these supported sampling rates:
 
 * 11025Hz
 * 22050Hz
-* 28150Hz
 
-A 11025Hz version of the music is practical during development as it minimises loading times. For the release version of your demo we recommend that you create a 28150Hz file to obtain the highest quality. We found out that this was the most stable setting when approaching the limits of the Amiga audio hardware. [Audacity](https://www.audacityteam.org/)'s resampling algorithm produces excellent results and can be used to create these files.
+A 11025Hz version of the music is practical during development as it minimises loading times. For the release version of your demo we recommend that you create a 22050Hz file to obtain the highest quality.
 
 You are also going to need an [MP3](https://en.wikipedia.org/wiki/MP3) or [OGG](https://xiph.org/ogg/) version of your track to be used by the posix/SDL target. This one can be the full 16bit 44100Hz version of your music as it came out of your DAW.
 
@@ -45,43 +44,43 @@ You are also going to need an [MP3](https://en.wikipedia.org/wiki/MP3) or [OGG](
 Let's convert a WAV file to a TNDO audio file:
 
 ```
-mmendez$ flencoder < brut_final_28150.wav > brut_final_28150.tndo
-TEXT: 'RIFF'
-Full data size 12611236
-TEXT: 'WAVE'
-TEXT: 'fmt '
-fmt  chunk size 16
-audio_format 1
-num_channels 2
-sample_rate 28150
-byte_rate 56300
-block_align 2
-bits_per_sample 8
-TEXT: 'data'
-data chunk size 12611200
-num_samples 6305600, rounded to 6305664
-Compressing signal for 8 bits
-Bit encoding: average 4.5 bits
-Bit encoding: average 4.6 bits
+thunderball:~ mmendez$ tndo_ddcpm -i brut_final_22050_16.wav -o brut_final_22050_16_ddpcm.tndo
 
-Lossless test passed, checksum 0xe27fd00
+Tornado DDPCM encoder. (C) 2019 Miguel Mendez.
 
-mmendez$ ls -la brut_final_28150.*
--rw-r--r--  1 mmendez  staff   7190564 17 Jun 14:30 brut_final_28150.tndo
--rw-r--r--  1 mmendez  staff  12611244 19 Apr 18:23 brut_final_28150.wav
+Audio data information:
+-----------------------
+Bits per sample: 16
+Sample rate: 22050Hz
+Size: 19756800
+
+Per channel data:
+-----------------
+Number of samples: 4966400
+Sample size: 2
+Frame size: 50 samples
+Number of frames: 99328
+Frames per quantisation table: 97
+
+Compressing left channel: 99327/99328
+Compressing right channel: 99327/99328
+
+Uncompressed size: 19756800 bytes
+Compressed size: 8407040 bytes (262144 bytes in qtables, 198656 bytes in scale tables, 7946240 bytes in compressed frames)
+thunderball:~ mmendez$ ls -la brut_final_22050_16*
+-rw-r--r--  1 mmendez  staff  19798440  7 Sep 13:41 brut_final_22050_16.wav
+-rw-r--r--  1 mmendez  staff   8407128  7 Sep 13:45 brut_final_22050_16_ddpcm.tndo
 ```
  
-The WAV header parser can be a bit temperamental and doesn't like files generated by certain programs. Opening the file with [Audacity](https://www.audacityteam.org/) and resaving it will take care of that.
-
 Now let's take a look at what we did in the ```blur``` example to play music:
 
 
 We have the two versions of our music in the data directory:
 
 ```
-bash-5.0$ ls -al data/brut_*
--rw-r--r--  1 mmendez  staff  349968 17 May 16:20 data/brut_11025_8.tndo
--rw-r--r--  1 mmendez  staff  966447 17 May 16:15 data/brut_blur.mp3
+thunderball:blur mmendez$ ls -la data/brut*
+-rw-r--r--  1 mmendez  staff   966447 23 Jun 15:12 data/brut_blur.mp3
+-rw-r--r--  1 mmendez  staff  1185880 18 Aug 15:56 data/brut_ddpcm.tndo
 ```
 
 We have also set the ```USE_AUDIO``` flag in our demo settings function:
@@ -106,9 +105,7 @@ static void **audioAssets;
 // SDL/Posix soundtrack
 #define bassTrack "data/brut_blur.mp3"
 
-// LOW QUALITY AUDIO TRACK FOR DEVELOPMENT ONLY!!!!!
-#warning "Using low quality audio track!!!"
-const char *audioList[] = {"data/brut_11025_8.tndo"};
+const char *audioList[] = {"data/brut_ddpcm.tndo"};
 
 void demoAudioInit(unsigned int tornadoOptions) {
   if (tornadoOptions & USE_AUDIO) {
