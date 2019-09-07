@@ -25,7 +25,6 @@ misrepresented as being the original software.
 #include <stdlib.h>
 
 #include "assets.h"
-#include "caps_loader.h"
 #include "ddpcm.h"
 #include "ddpcm_decode.h"
 #include "ddpcm_loader.h"
@@ -44,7 +43,6 @@ misrepresented as being the original software.
 static const char *fileList[256];
 static int numFiles = 0;
 
-static capsData_t *audioData;
 static ddpcmHeader *ddpcmData;
 static ddpcmDecodedData *decodedData;
 
@@ -125,7 +123,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           printf("DEBUG - Loading Audio asset...\n");
         }
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf("DEBUG - Sample rate: %i\n", ENDI4(th->sampleRate));
+          printf("DEBUG - Sample rate: %u\n", ENDI4(th->sampleRate));
         }
         switch (ENDI4(th->sampleRate)) {
         case 11025:
@@ -134,19 +132,13 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         case 22050:
           dp->audioPeriod = REPLAY_PERIOD_22050;
           break;
-        case 28150:
-          dp->audioPeriod = REPLAY_PERIOD_28150;
-          break;
-        case 28867:
-          dp->audioPeriod = REPLAY_PERIOD_28867;
-          break;
         default:
           printf("FATAL - Unsupported sample rate. Aborting.\n");
           abort();
         }
 
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf("DEBUG - Bits per sample: %i\n", ENDI4(th->bitsPerSample));
+          printf("DEBUG - Bits per sample: %u\n", ENDI4(th->bitsPerSample));
         }
         switch (ENDI4(th->bitsPerSample)) {
         case 8:
@@ -161,24 +153,6 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         }
 
         switch (ENDI4(th->compression)) {
-        case TNDO_COMPRESSION_CAPS:
-          if (tornadoOptions & VERBOSE_DEBUGGING) {
-            printf("DEBUG - Using CAPS encoding.\n");
-          }
-          audioData = loadCaps(fd, ENDI4(th->numSamples),
-                               ENDI4(th->bitsPerSample), ENDI4(th->addBits),
-                               ENDI4(th->capsModel), tornadoOptions);
-          if (!audioData) {
-            printf("FATAL - Loading audio assets failed. Aborting.\n");
-            abort();
-          }
-          dp->sampleRate = ENDI4(th->sampleRate);
-          dp->bitsPerSample = ENDI4(th->bitsPerSample);
-          dp->mixState = &audioData->left_buffer;
-          dp->mixState2 = &audioData->right_buffer;
-          demoAssets[i] = (unsigned int *)0xdeadbeef;
-          assetSizes[i] = 4;
-          break;
         case TNDO_COMPRESSION_DDPCM:
           if (tornadoOptions & VERBOSE_DEBUGGING) {
             printf("DEBUG - Using DDPCM encoding.\n");
