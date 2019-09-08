@@ -296,6 +296,18 @@ void display_flip(int instance) {
     c2p1x1_4_c5_16_9(instances[instance].chunky + instances[instance].c2pSkip,
                      instances[instance].planar[instances[instance].p]);
     break;
+  case SCR_16_9_6BPL:
+    c2p1x1_6_c5_gen(instances[instance].chunky + instances[instance].c2pSkip,
+                    instances[instance].planar[instances[instance].p],
+                    instances[instance].graph->w *
+                        instances[instance].graph->h);
+    break;
+  case SCR_16_9_5BPL:
+    c2p1x1_5_c5_060(instances[instance].chunky + instances[instance].c2pSkip,
+                    instances[instance].planar[instances[instance].p],
+                    instances[instance].graph->w *
+                        instances[instance].graph->h);
+    break;
   }
 
   copper_switch_choose(instances[instance].graph->switch_bpls,
