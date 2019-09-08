@@ -44,6 +44,8 @@ The 3rd parameter is the mode. At this time the 3 supported modes are:
 
 * `SCR_NORMAL` : 320x256 8 bitplanes (256 colours).
 * `SCR_16_9`: 320x180 8 bitplanes (256 colours).
+* `SCR_16_9_6BPL`: 320x180 6 bitplanes (64 colours).
+* `SCR_16_9_5BPL`: 320x180 5 bitplanes (32 colours).
 * `SCR_16_9_4BPL`: 320x180 4 bitplanes (16 colours).
 
 All these modes provide a chunky buffer.
