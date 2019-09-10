@@ -7,7 +7,7 @@ Note that it is always easier to debug code on the posix/SDL side than it is on 
 
 I strongly recommend that you implement most of your demo in C so that you can run the same code on both platforms and only re-write things in 68060 assembler once you are sure everything is ok.
 
-Clang's sanitisers
+Sanitisers
 -----------------------
 Tornado builds the posix version of your demo with [memory](https://clang.llvm.org/docs/MemorySanitizer.html) and [address](https://clang.llvm.org/docs/AddressSanitizer.html) sanitisers enabled. You can see them in action in the ```buffer_overflow``` example. If you run this code on Amiga your effect will happily write past the end of the allocated buffer. On posix this will be caught by the sanitiser:
 

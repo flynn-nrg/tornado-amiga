@@ -86,7 +86,7 @@ void demoSettings(demoParams *dp) {
   dp->fastMemPool = FAST_MEM_POOL_SIZE * 1024 * 1024;
   dp->chipMemPool = 2 * 1024;
   dp->chipScratch = 1024 * 700;
-  dp->packedData = 1 * 1024 * 1024; // The size of the biggest packed file.
+  dp->packedData = 1 * 1024 * 1024; // Enough rooom to hold LZW-compressed assets' dictionaries plus streaming buffers.
   dp->numDisplays = 1;
   my_dp = dp;
 }
@@ -102,7 +102,7 @@ The following settings are all related to the [Memory Manager](MemoryManager.md)
 * ```fastMemPool``` is a pool of Fast RAM that can be allocated at run time, i.e. once the demo is running. Please refer to the [Memory Manager](MemoryManager.md) for more details.
 * ```chipMemPool``` is being phased out in favour of the ```chipScratch``` scratch pad and should not be used at this point. At this point it still cannot be zero, so set it to a couple of KiB.
 * ```chipScratch``` provides a Chip RAM scratch pad that effects and displays can use during the execution of the demo.  Please refer to the [Memory Manager](MemoryManager.md) section for more details.
-* ```packedData``` needs to be at least as big as your biggest compressed file. This will be phased out in future releases once streaming is added to the decompression routines. Please refer to the [Tools](Tools.md) section for more information on how to compress your assets.
+* ```packedData``` needs to be at least as big as the largest LZW dictionary plus enough room for the streaming buffers. While both LZSS and LZW assets are streamed and unpacked in chunks, the LZW dictionary needs to be held in memory.
 
 And the last setting:
 
