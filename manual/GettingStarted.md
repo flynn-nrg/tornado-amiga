@@ -19,9 +19,9 @@ Building the compiler
 
 The current versions are:
 
-* (vbcc 0.9g)[http://sun.hasenbraten.de/vbcc/]
-* (vasm 1.8g)[http://sun.hasenbraten.de/vasm/]
-* (vlink 0.16c)[http://sun.hasenbraten.de/vlink/]
+* [(vbcc 0.9g](http://sun.hasenbraten.de/vbcc/)
+* [vasm 1.8g](http://sun.hasenbraten.de/vasm/)
+* [vlink 0.16c](http://sun.hasenbraten.de/vlink/)
 
 Tornado is guaranteed to work with these. Please make sure you stay up to date.
 
