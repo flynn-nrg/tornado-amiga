@@ -32,6 +32,7 @@ INCDIR += $(LOCAL_INCDIR)
 OBJECTS = $(TORNADO_OBJ)
 OBJECTS += $(LZW_OBJS)
 OBJECTS += $(DEMO_OBJS)
+OBJECTS += $(DEMO_OBJS_TARGET_AMIGA)
 
 #################################################################################
 
@@ -68,7 +69,9 @@ TOOL_BIN = bin
 endif 
 
 ifdef VBCC_HOST
-INCDIR  += $(TORNADO_BASE)/third_party/ndk
+#INCDIR  += $(TORNADO_BASE)/third_party/ndk
+INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_h
+INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_i
 INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/include
 LIBDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/lib
 STARTUP := $(TOOLCHAIN)/targets/m68k-amigaos/lib/startup.o
