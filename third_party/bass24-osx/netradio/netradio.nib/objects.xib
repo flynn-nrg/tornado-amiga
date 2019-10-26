@@ -1,0 +1,213 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="26" name="allObjects">
+    <object class="IBCarbonButton" id="239">
+      <int name="controlID">18</int>
+      <string name="title">5</string>
+      <string name="bounds">24 308 44 348 </string>
+    </object>
+    <object class="IBCarbonButton" id="235">
+      <int name="controlID">14</int>
+      <string name="title">3</string>
+      <string name="bounds">24 204 44 244 </string>
+    </object>
+    <object class="IBCarbonButton" id="231">
+      <int name="controlID">11</int>
+      <string name="title">1</string>
+      <string name="bounds">52 100 72 140 </string>
+    </object>
+    <object class="IBCarbonStaticText" id="247">
+      <int name="controlID">31</int>
+      <int name="controlSize">1</int>
+      <string name="title">not playing</string>
+      <int name="justification">1</int>
+      <string name="bounds">198 15 228 345 </string>
+    </object>
+    <object class="IBCarbonStaticText" id="230">
+      <int name="controlSize">1</int>
+      <string name="title">High quality</string>
+      <string name="bounds">27 20 40 92 </string>
+    </object>
+    <object class="IBCarbonCheckBox" id="253">
+      <int name="controlID">41</int>
+      <string name="title">Direct connection</string>
+      <string name="bounds">310 26 328 163 </string>
+    </object>
+    <object class="IBCarbonButton" id="234">
+      <int name="controlID">13</int>
+      <string name="title">2</string>
+      <string name="bounds">52 152 72 192 </string>
+    </object>
+    <object class="IBCarbonButton" id="237">
+      <int name="controlID">16</int>
+      <string name="title">4</string>
+      <string name="bounds">24 256 44 296 </string>
+    </object>
+    <object class="IBCarbonRootControl" id="167">
+      <array count="4" name="subviews">
+        <object class="IBCarbonGroupBox" id="228">
+          <string name="title">Presets</string>
+          <array count="12" name="subviews">
+            <reference idRef="230"/>
+            <object class="IBCarbonStaticText" id="232">
+              <int name="controlSize">1</int>
+              <string name="title">Low quality</string>
+              <string name="bounds">55 20 68 92 </string>
+            </object>
+            <object class="IBCarbonButton" id="229">
+              <int name="controlID">10</int>
+              <string name="title">1</string>
+              <string name="bounds">24 100 44 140 </string>
+            </object>
+            <object class="IBCarbonButton" id="233">
+              <int name="controlID">12</int>
+              <string name="title">2</string>
+              <string name="bounds">24 152 44 192 </string>
+            </object>
+            <reference idRef="235"/>
+            <reference idRef="237"/>
+            <reference idRef="239"/>
+            <reference idRef="231"/>
+            <reference idRef="234"/>
+            <object class="IBCarbonButton" id="236">
+              <int name="controlID">15</int>
+              <string name="title">3</string>
+              <string name="bounds">52 204 72 244 </string>
+            </object>
+            <object class="IBCarbonButton" id="238">
+              <int name="controlID">17</int>
+              <string name="title">4</string>
+              <string name="bounds">52 256 72 296 </string>
+            </object>
+            <object class="IBCarbonButton" id="240">
+              <int name="controlID">19</int>
+              <string name="title">5</string>
+              <string name="bounds">52 308 72 348 </string>
+            </object>
+          </array>
+          <string name="bounds">2 10 82 360 </string>
+        </object>
+        <object class="IBCarbonGroupBox" id="255">
+          <string name="title">Custom</string>
+          <array count="2" name="subviews">
+            <object class="IBCarbonEditText" id="258">
+              <int name="controlID">50</int>
+              <boolean name="isUnicode">TRUE</boolean>
+              <string name="bounds">114 20 130 279 </string>
+            </object>
+            <object class="IBCarbonButton" id="259">
+              <int name="controlID">51</int>
+              <int name="iconPosition">0</int>
+              <string name="title">Open</string>
+              <string name="bounds">111 289 131 349 </string>
+            </object>
+          </array>
+          <string name="bounds">85 10 143 360 </string>
+        </object>
+        <object class="IBCarbonGroupBox" id="249">
+          <string name="title">Currently playing</string>
+          <array count="3" name="subviews">
+            <object class="IBCarbonStaticText" id="246">
+              <int name="controlID">30</int>
+              <int name="controlSize">1</int>
+              <int name="justification">1</int>
+              <string name="bounds">166 15 196 345 </string>
+            </object>
+            <reference idRef="247"/>
+            <object class="IBCarbonStaticText" id="248">
+              <int name="controlID">32</int>
+              <int name="controlSize">1</int>
+              <int name="justification">1</int>
+              <string name="bounds">231 15 247 345 </string>
+            </object>
+          </array>
+          <string name="bounds">145 10 255 360 </string>
+        </object>
+        <object class="IBCarbonGroupBox" id="250">
+          <string name="title">Proxy server</string>
+          <array count="3" name="subviews">
+            <object class="IBCarbonEditText" id="251">
+              <int name="controlID">40</int>
+              <boolean name="isUnicode">TRUE</boolean>
+              <string name="bounds">286 20 302 350 </string>
+            </object>
+            <object class="IBCarbonStaticText" id="252">
+              <int name="controlSize">1</int>
+              <string name="title">[user:pass@]server:port</string>
+              <string name="bounds">307 225 320 355 </string>
+            </object>
+            <reference idRef="253"/>
+          </array>
+          <string name="bounds">257 10 337 360 </string>
+        </object>
+      </array>
+      <string name="bounds">0 0 345 370 </string>
+    </object>
+    <reference idRef="246"/>
+    <reference idRef="228"/>
+    <reference idRef="251"/>
+    <reference idRef="233"/>
+    <reference idRef="259"/>
+    <reference idRef="232"/>
+    <reference idRef="248"/>
+    <reference idRef="238"/>
+    <reference idRef="258"/>
+    <reference idRef="249"/>
+    <reference idRef="229"/>
+    <reference idRef="252"/>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="hasHorizontalZoom">TRUE</boolean>
+      <boolean name="hasVerticalZoom">TRUE</boolean>
+      <boolean name="hasCloseBox">FALSE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+      <string name="title">BASS internet radio tuner</string>
+      <reference name="rootControl" idRef="167"/>
+      <string name="windowRect">200 200 545 570 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+    <reference idRef="250"/>
+    <reference idRef="240"/>
+    <reference idRef="236"/>
+    <reference idRef="255"/>
+  </array>
+  <array count="26" name="allParents">
+    <reference idRef="228"/>
+    <reference idRef="228"/>
+    <reference idRef="228"/>
+    <reference idRef="255"/>
+    <reference idRef="228"/>
+    <reference idRef="167"/>
+    <reference idRef="228"/>
+    <reference idRef="228"/>
+    <reference idRef="166"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="249"/>
+    <reference idRef="228"/>
+    <reference idRef="250"/>
+    <reference idRef="228"/>
+    <reference idRef="255"/>
+    <reference idRef="228"/>
+    <reference idRef="250"/>
+    <reference idRef="167"/>
+    <reference idRef="228"/>
+    <reference idRef="249"/>
+    <reference idRef="1"/>
+    <reference idRef="249"/>
+    <reference idRef="228"/>
+    <reference idRef="228"/>
+    <reference idRef="250"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">260</unsigned_int>
+</object>

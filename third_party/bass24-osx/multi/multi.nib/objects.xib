@@ -1,0 +1,136 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <string name="targetFramework">IBCarbonFramework</string>
+  <object name="rootObject" class="NSCustomObject" id="1">
+    <string name="customClass">NSApplication</string>
+  </object>
+  <array count="12" name="allObjects">
+    <object class="IBCarbonWindow" id="166">
+      <string name="windowRect">100 97 228 642 </string>
+      <string name="title">BASS multiple output example</string>
+      <object name="rootControl" class="IBCarbonRootControl" id="167">
+        <string name="bounds">0 0 128 545 </string>
+        <array count="3" name="subviews">
+          <object class="IBCarbonGroupBox" id="225">
+            <string name="bounds">2 10 60 485 </string>
+            <array count="2" name="subviews">
+              <object class="IBCarbonButton" id="226">
+                <string name="bounds">27 20 47 380 </string>
+                <int name="controlID">10</int>
+                <string name="title">click here to open a file...</string>
+              </object>
+              <object class="IBCarbonButton" id="246">
+                <string name="bounds">27 390 47 475 </string>
+                <int name="controlID">15</int>
+                <string name="title">clone #2</string>
+              </object>
+            </array>
+            <int name="controlID">20</int>
+            <string name="title">-</string>
+          </object>
+          <object class="IBCarbonButton" id="229">
+            <string name="bounds">57 490 77 540 </string>
+            <int name="controlID">30</int>
+            <string name="title">swap</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="227">
+            <string name="bounds">62 10 120 485 </string>
+            <array count="2" name="subviews">
+              <object class="IBCarbonButton" id="228">
+                <string name="bounds">87 20 107 380 </string>
+                <int name="controlID">11</int>
+                <string name="title">click here to open a file...</string>
+              </object>
+              <object class="IBCarbonButton" id="247">
+                <string name="bounds">87 390 107 475 </string>
+                <int name="controlID">16</int>
+                <string name="title">clone #1</string>
+              </object>
+            </array>
+            <int name="controlID">21</int>
+            <string name="title">-</string>
+          </object>
+        </array>
+      </object>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+    </object>
+    <reference idRef="167"/>
+    <reference idRef="225"/>
+    <reference idRef="226"/>
+    <reference idRef="227"/>
+    <reference idRef="228"/>
+    <reference idRef="229"/>
+    <object class="IBCarbonWindow" id="241">
+      <string name="windowRect">218 249 338 589 </string>
+      <string name="title"></string>
+      <object name="rootControl" class="IBCarbonRootControl" id="242">
+        <string name="bounds">0 0 120 340 </string>
+        <string name="viewFrame">0 0 340 120 </string>
+        <array count="2" name="subviews">
+          <object class="IBCarbonDBListView" id="243">
+            <string name="bounds">10 10 80 330 </string>
+            <string name="viewFrame">10 10 320 70 </string>
+            <int name="controlID">10</int>
+            <int name="hiliteStyle">1</int>
+            <int name="columnWidth">320</int>
+            <boolean name="variableWidthColumns">FALSE</boolean>
+            <boolean name="horzScrollBar">FALSE</boolean>
+            <int name="selectionFlags">98</int>
+            <int name="listViewHeaderBtnHeight">0</int>
+            <array count="1" name="listViewColumns">
+              <object class="IBCarbonDBListViewColumn">
+                <ostype name="propertyID">blah</ostype>
+                <int name="propertyFlags">65536</int>
+                <int name="sortOrder">1</int>
+                <int name="minWidth">320</int>
+                <int name="maxWidth">320</int>
+                <int name="textAlignment">0</int>
+              </object>
+            </array>
+          </object>
+          <object class="IBCarbonButton">
+            <string name="bounds">88 200 108 320 </string>
+            <int name="controlID">1</int>
+            <string name="title">OK</string>
+            <ostype name="command">ok  </ostype>
+            <int name="buttonType">1</int>
+          </object>
+        </array>
+      </object>
+      <boolean name="isResizable">FALSE</boolean>
+      <boolean name="compositing">TRUE</boolean>
+      <int name="carbonWindowClass">4</int>
+    </object>
+    <reference idRef="242"/>
+    <reference idRef="243"/>
+    <reference idRef="246"/>
+    <reference idRef="247"/>
+  </array>
+  <array count="12" name="allParents">
+    <reference idRef="1"/>
+    <reference idRef="166"/>
+    <reference idRef="167"/>
+    <reference idRef="225"/>
+    <reference idRef="167"/>
+    <reference idRef="227"/>
+    <reference idRef="167"/>
+    <reference idRef="1"/>
+    <reference idRef="241"/>
+    <reference idRef="242"/>
+    <reference idRef="225"/>
+    <reference idRef="227"/>
+  </array>
+  <dictionary count="4" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>ListView</string>
+    <reference idRef="243"/>
+    <string>Selector</string>
+    <reference idRef="241"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <unsigned_int name="nextObjectID">248</unsigned_int>
+</object>

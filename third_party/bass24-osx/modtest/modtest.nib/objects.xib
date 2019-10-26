@@ -1,0 +1,191 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="25" name="allObjects">
+    <object class="IBCarbonSlider" id="238">
+      <int name="controlID">20</int>
+      <boolean name="isLive">TRUE</boolean>
+      <int name="orientation">2</int>
+      <int name="maximumValue">0</int>
+      <string name="bounds">99 11 121 389 </string>
+    </object>
+    <object class="IBCarbonMenuItem" id="241">
+      <string name="title">off</string>
+      <boolean name="notPreviousAlternate">TRUE</boolean>
+    </object>
+    <object class="IBCarbonMenuItem" id="248">
+      <string name="title">sensitive</string>
+      <boolean name="notPreviousAlternate">TRUE</boolean>
+    </object>
+    <object class="IBCarbonButton" id="184">
+      <int name="controlID">10</int>
+      <string name="title">click here to open a file...</string>
+      <string name="bounds">10 10 30 390 </string>
+    </object>
+    <object class="IBCarbonStaticText" id="246">
+      <string name="title">Ramping</string>
+      <int name="justification">1</int>
+      <string name="bounds">136 149 152 249 </string>
+    </object>
+    <object class="IBCarbonStaticText" id="235">
+      <int name="controlID">11</int>
+      <int name="fontStyle">-2</int>
+      <int name="justification">1</int>
+      <string name="bounds">38 20 54 390 </string>
+    </object>
+    <object class="IBCarbonPopupButton" id="239">
+      <int name="controlID">21</int>
+      <int name="selectedItem">2</int>
+      <object name="menu" class="IBCarbonMenu" id="240">
+        <array count="3" name="items">
+          <reference idRef="241"/>
+          <object class="IBCarbonMenuItem" id="242">
+            <string name="title">linear</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+          <object class="IBCarbonMenuItem" id="243">
+            <string name="title">sinc</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+        </array>
+      </object>
+      <int name="titleJustification">0</int>
+      <string name="bounds">158 19 178 120 </string>
+    </object>
+    <object class="IBCarbonPopupButton" id="251">
+      <int name="controlID">23</int>
+      <object name="menu" class="IBCarbonMenu" id="253">
+        <array count="3" name="items">
+          <object class="IBCarbonMenuItem" id="256">
+            <string name="title">off</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+          <object class="IBCarbonMenuItem" id="255">
+            <string name="title">mode 1</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+          <object class="IBCarbonMenuItem" id="254">
+            <string name="title">mode 2</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+        </array>
+      </object>
+      <int name="titleJustification">0</int>
+      <string name="bounds">158 278 178 379 </string>
+    </object>
+    <object class="IBCarbonPopupButton" id="245">
+      <int name="controlID">22</int>
+      <int name="selectedItem">3</int>
+      <object name="menu" class="IBCarbonMenu" id="247">
+        <array count="3" name="items">
+          <object class="IBCarbonMenuItem" id="250">
+            <string name="title">off</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+          <object class="IBCarbonMenuItem" id="249">
+            <string name="title">normal</string>
+            <boolean name="notPreviousAlternate">TRUE</boolean>
+          </object>
+          <reference idRef="248"/>
+        </array>
+      </object>
+      <int name="titleJustification">0</int>
+      <string name="bounds">158 148 178 249 </string>
+    </object>
+    <reference idRef="254"/>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="hasCloseBox">TRUE</boolean>
+      <boolean name="hasHorizontalZoom">TRUE</boolean>
+      <boolean name="hasVerticalZoom">TRUE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+      <string name="title">BASS MOD music test</string>
+      <object name="rootControl" class="IBCarbonRootControl" id="167">
+        <array count="11" name="subviews">
+          <reference idRef="184"/>
+          <reference idRef="235"/>
+          <object class="IBCarbonStaticText" id="236">
+            <int name="controlID">15</int>
+            <int name="justification">1</int>
+            <string name="bounds">64 20 80 120 </string>
+          </object>
+          <object class="IBCarbonButton" id="237">
+            <int name="controlID">12</int>
+            <int name="iconPosition">0</int>
+            <string name="title">Play / Pause</string>
+            <string name="bounds">62 279 82 379 </string>
+          </object>
+          <reference idRef="238"/>
+          <reference idRef="239"/>
+          <object class="IBCarbonStaticText" id="244">
+            <string name="title">Interpolation</string>
+            <int name="justification">1</int>
+            <string name="bounds">136 20 152 120 </string>
+          </object>
+          <reference idRef="245"/>
+          <reference idRef="246"/>
+          <reference idRef="251"/>
+          <object class="IBCarbonStaticText" id="252">
+            <string name="title">Surround</string>
+            <int name="justification">1</int>
+            <string name="bounds">134 279 150 379 </string>
+          </object>
+        </array>
+        <string name="bounds">0 0 193 400 </string>
+      </object>
+      <string name="windowRect">200 200 393 600 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+    <reference idRef="237"/>
+    <reference idRef="167"/>
+    <reference idRef="242"/>
+    <reference idRef="255"/>
+    <reference idRef="253"/>
+    <reference idRef="236"/>
+    <reference idRef="240"/>
+    <reference idRef="252"/>
+    <reference idRef="250"/>
+    <reference idRef="243"/>
+    <reference idRef="244"/>
+    <reference idRef="249"/>
+    <reference idRef="256"/>
+    <reference idRef="247"/>
+  </array>
+  <array count="25" name="allParents">
+    <reference idRef="167"/>
+    <reference idRef="240"/>
+    <reference idRef="247"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="253"/>
+    <reference idRef="1"/>
+    <reference idRef="167"/>
+    <reference idRef="166"/>
+    <reference idRef="240"/>
+    <reference idRef="253"/>
+    <reference idRef="251"/>
+    <reference idRef="167"/>
+    <reference idRef="239"/>
+    <reference idRef="167"/>
+    <reference idRef="247"/>
+    <reference idRef="240"/>
+    <reference idRef="167"/>
+    <reference idRef="247"/>
+    <reference idRef="253"/>
+    <reference idRef="245"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">257</unsigned_int>
+</object>

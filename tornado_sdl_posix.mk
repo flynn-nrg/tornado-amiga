@@ -21,7 +21,6 @@ ROCKET_INCDIR = $(ROCKET_BASE)
 ROCKET_SRCS = $(ROCKET_BASE)/device.c $(ROCKET_BASE)/track.c
 ROCKET_OBJS = device.o track.o
 
-BASS_INCDIR = $(TORNADO_BASE)/third_party/bass24-linux
 BASS_OSX = $(TORNADO_BASE)/third_party/bass24-osx
 BASS_LINUX = $(TORNADO_BASE)/third_party/bass24-linux
 
@@ -40,7 +39,8 @@ INCDIR = $(TORNADO_BASE)/include
 INCDIR += $(LZW_INCDIR)
 INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(ROCKET_INCDIR)
-INCDIR += $(BASS_INCDIR)
+# BASS includes are platform-dependant below.
+#INCDIR += $(BASS_INCDIR)
 INCDIR += $(IMGUI_INCDIR)
 INCDIR += $(IMGUI_SDL_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
@@ -67,10 +67,12 @@ ifdef OSX_BREW_HOST
 INCDIR   += /usr/local/include/SDL2/
 endif
 ifdef OSX_HOST
-INCDIR   += /Library/Frameworks/SDL2.framework/Versions/Current/Headers/
+INCDIR += /Library/Frameworks/SDL2.framework/Versions/Current/Headers/
+INCDIR += $(BASS_OSX)
 endif
 ifdef LINUX_HOST
-INCDIR   += /usr/include/SDL2/ 
+INCDIR += /usr/include/SDL2/ 
+INCDIR += $(BASS_LINUX)
 endif
 LIBDIR   = lib
 

@@ -1,0 +1,122 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="12" name="allObjects">
+    <object class="IBCarbonRootControl" id="167">
+      <array count="10" name="subviews">
+        <object class="IBCarbonButton" id="184">
+          <int name="controlID">10</int>
+          <string name="title">click here to open a file...</string>
+          <string name="bounds">10 10 30 390 </string>
+        </object>
+        <object class="IBCarbonSlider" id="226">
+          <int name="controlID">20</int>
+          <boolean name="isLive">TRUE</boolean>
+          <int name="numTickMarks">3</int>
+          <int name="minimumValue">-10</int>
+          <int name="maximumValue">10</int>
+          <string name="bounds">50 86 170 108 </string>
+        </object>
+        <object class="IBCarbonStaticText" id="227">
+          <int name="fontStyle">-2</int>
+          <string name="title">125 hz</string>
+          <int name="justification">1</int>
+          <string name="bounds">178 60 194 138 </string>
+        </object>
+        <object class="IBCarbonSlider" id="228">
+          <int name="controlID">21</int>
+          <boolean name="isLive">TRUE</boolean>
+          <int name="numTickMarks">3</int>
+          <int name="minimumValue">-10</int>
+          <int name="maximumValue">10</int>
+          <string name="bounds">50 144 170 166 </string>
+        </object>
+        <object class="IBCarbonStaticText" id="229">
+          <int name="fontStyle">-2</int>
+          <string name="title">1 khz</string>
+          <int name="justification">1</int>
+          <string name="bounds">178 118 194 196 </string>
+        </object>
+        <object class="IBCarbonSlider" id="230">
+          <int name="controlID">22</int>
+          <boolean name="isLive">TRUE</boolean>
+          <int name="numTickMarks">3</int>
+          <int name="minimumValue">-10</int>
+          <int name="maximumValue">10</int>
+          <string name="bounds">50 202 170 224 </string>
+        </object>
+        <object class="IBCarbonStaticText" id="231">
+          <int name="fontStyle">-2</int>
+          <string name="title">8 khz</string>
+          <int name="justification">1</int>
+          <string name="bounds">178 176 194 254 </string>
+        </object>
+        <object class="IBCarbonSlider" id="232">
+          <int name="controlID">23</int>
+          <boolean name="isLive">TRUE</boolean>
+          <int name="numTickMarks">2</int>
+          <int name="maximumValue">20</int>
+          <string name="bounds">50 288 170 310 </string>
+        </object>
+        <object class="IBCarbonStaticText" id="233">
+          <int name="fontStyle">-2</int>
+          <string name="title">reverb</string>
+          <int name="justification">1</int>
+          <string name="bounds">178 262 194 340 </string>
+        </object>
+        <object class="IBCarbonCheckBox" id="234">
+          <int name="controlID">30</int>
+          <int name="controlSize">1</int>
+          <string name="title">Apply effects to final output instead of file</string>
+          <string name="bounds">210 10 224 250 </string>
+        </object>
+      </array>
+      <string name="bounds">0 0 235 400 </string>
+    </object>
+    <reference idRef="228"/>
+    <reference idRef="227"/>
+    <reference idRef="226"/>
+    <reference idRef="233"/>
+    <reference idRef="231"/>
+    <reference idRef="232"/>
+    <reference idRef="233"/>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="hasCloseBox">TRUE</boolean>
+      <boolean name="hasHorizontalZoom">TRUE</boolean>
+      <boolean name="hasVerticalZoom">TRUE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+      <string name="title">BASS &quot;DX8&quot; effects test</string>
+      <reference name="rootControl" idRef="167"/>
+      <string name="windowRect">200 200 435 600 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+    <reference idRef="230"/>
+    <reference idRef="229"/>
+    <reference idRef="184"/>
+  </array>
+  <array count="12" name="allParents">
+    <reference idRef="166"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="1"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">234</unsigned_int>
+</object>

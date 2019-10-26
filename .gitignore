@@ -1,0 +1,5 @@
+!/third_party/bass24-linux/libbass.so
+!/third_party/bass24-linux/mp3-free/libbass.so
+!/third_party/bass24-linux/x64/**
+!/third_party/bass24-osx/libbass.dylib
+!/third_party/bass24-osx/mp3-free/libbass.dylib

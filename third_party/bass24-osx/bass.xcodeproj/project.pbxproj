@@ -1,0 +1,1527 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3C23D3FC12875F7100154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D40012875FA800154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D4151287618600154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D4391287630100154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D43A1287630100154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D43C1287630100154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D458128763C400154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D459128763C400154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D45B128763C400154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5331287677700154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5341287677700154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D5361287677700154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D54E128767EC00154057 /* fxtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D54C128767EC00154057 /* fxtest.c */; };
+		3C23D54F128767EC00154057 /* fxtest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D54D128767EC00154057 /* fxtest.nib */; };
+		3C23D55A1287687D00154057 /* basstest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5581287687D00154057 /* basstest.c */; };
+		3C23D55B1287687D00154057 /* basstest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5591287687D00154057 /* basstest.nib */; };
+		3C23D55F1287689700154057 /* dsptest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D55D1287689700154057 /* dsptest.c */; };
+		3C23D5601287689700154057 /* dsptest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D55E1287689700154057 /* dsptest.nib */; };
+		3C23D561128768AA00154057 /* 3dtest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5571287687300154057 /* 3dtest.nib */; };
+		3C23D562128768B000154057 /* 3dtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5561287687300154057 /* 3dtest.c */; };
+		3C23D569128768BB00154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D56A128768BB00154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D56C128768BB00154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D577128768D500154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D578128768D500154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D57A128768D500154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D585128768DE00154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D586128768DE00154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D588128768DE00154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D593128768E800154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D594128768E800154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D596128768E800154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5A1128768F000154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5A2128768F000154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D5A4128768F000154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5AF128768F800154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5B0128768F800154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D5B2128768F800154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5CA1287691300154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5CB1287691300154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D5CD1287691300154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D5E11287699800154057 /* livespec.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5E01287699800154057 /* livespec.c */; };
+		3C23D5E4128769AD00154057 /* multi.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5E2128769AD00154057 /* multi.c */; };
+		3C23D5E5128769AD00154057 /* multi.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5E3128769AD00154057 /* multi.nib */; };
+		3C23D5E8128769BA00154057 /* netradio.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5E6128769BA00154057 /* netradio.c */; };
+		3C23D5E9128769BA00154057 /* netradio.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5E7128769BA00154057 /* netradio.nib */; };
+		3C23D5EC128769CB00154057 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5EA128769CB00154057 /* plugins.c */; };
+		3C23D5ED128769CB00154057 /* plugins.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5EB128769CB00154057 /* plugins.nib */; };
+		3C23D5F0128769DA00154057 /* rectest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5EE128769DA00154057 /* rectest.c */; };
+		3C23D5F1128769DA00154057 /* rectest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5EF128769DA00154057 /* rectest.nib */; };
+		3C23D5F4128769E800154057 /* speakers.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5F2128769E800154057 /* speakers.c */; };
+		3C23D5F5128769E800154057 /* speakers.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D5F3128769E800154057 /* speakers.nib */; };
+		3C23D5F812876A0800154057 /* spectrum.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D5F6128769FA00154057 /* spectrum.c */; };
+		3C23D60112876AD100154057 /* contest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D60012876AD100154057 /* contest.c */; };
+		3C23D60612876AEF00154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D60A12876B1A00154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D61212876B2500154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D61412876B2500154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D61E12876B2E00154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D61F12876B2E00154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D62112876B2E00154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D62912876BBB00154057 /* writewav.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D62812876BBB00154057 /* writewav.c */; };
+		3C23D62C12876C0800154057 /* synth.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D62A12876C0800154057 /* synth.c */; };
+		3C23D62D12876C0800154057 /* synth.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3C23D62B12876C0800154057 /* synth.nib */; };
+		3C23D67312877EA500154057 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D67412877EA500154057 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3C23D67612877EA500154057 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3C23D67B12877EC600154057 /* custloop.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C23D55C1287688800154057 /* custloop.c */; };
+		3CD901B21A4491EC00394CC9 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3CD901B31A4491EC00394CC9 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FF12875FA800154057 /* Carbon.framework */; };
+		3CD901B51A4491EC00394CC9 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3CD901BA1A44922100394CC9 /* modtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CD901AA1A4491CA00394CC9 /* modtest.c */; };
+		3CD901BB1A44922900394CC9 /* modtest.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3CD901AB1A4491CA00394CC9 /* modtest.nib */; };
+		3CD902831A45CE8000394CC9 /* libbass.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3CD902851A45CE8000394CC9 /* libbass.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C23D3FB12875F7100154057 /* libbass.dylib */; };
+		3CD9028C1A45CEA900394CC9 /* devlist.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CD9027E1A45CE7B00394CC9 /* devlist.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3C23D4141287618600154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D4151287618600154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D43B1287630100154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D43C1287630100154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D45A128763C400154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D45B128763C400154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5351287677700154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D5361287677700154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D56B128768BB00154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D56C128768BB00154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D579128768D500154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D57A128768D500154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D587128768DE00154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D588128768DE00154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D595128768E800154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D596128768E800154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5A3128768F000154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D5A4128768F000154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5B1128768F800154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D5B2128768F800154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5CC1287691300154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D5CD1287691300154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D60D12876B2500154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D60A12876B1A00154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D61312876B2500154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D61412876B2500154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D62012876B2E00154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D62112876B2E00154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D67512877EA500154057 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3C23D67612877EA500154057 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD901B41A4491EC00394CC9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3CD901B51A4491EC00394CC9 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD902841A45CE8000394CC9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				3CD902851A45CE8000394CC9 /* libbass.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		3C23D3C61287577A00154057 /* 3dtest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 3dtest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D3FB12875F7100154057 /* libbass.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libbass.dylib; sourceTree = SOURCE_ROOT; };
+		3C23D3FF12875FA800154057 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		3C23D43F1287630100154057 /* basstest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = basstest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D45E128763C400154057 /* dsptest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = dsptest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D5391287677700154057 /* fxtest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fxtest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D54C128767EC00154057 /* fxtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fxtest.c; sourceTree = "<group>"; };
+		3C23D54D128767EC00154057 /* fxtest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = fxtest.nib; sourceTree = "<group>"; };
+		3C23D5561287687300154057 /* 3dtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = 3dtest.c; sourceTree = "<group>"; };
+		3C23D5571287687300154057 /* 3dtest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = 3dtest.nib; sourceTree = "<group>"; };
+		3C23D5581287687D00154057 /* basstest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = basstest.c; sourceTree = "<group>"; };
+		3C23D5591287687D00154057 /* basstest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = basstest.nib; sourceTree = "<group>"; };
+		3C23D55C1287688800154057 /* custloop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = custloop.c; sourceTree = "<group>"; };
+		3C23D55D1287689700154057 /* dsptest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dsptest.c; sourceTree = "<group>"; };
+		3C23D55E1287689700154057 /* dsptest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = dsptest.nib; sourceTree = "<group>"; };
+		3C23D56F128768BB00154057 /* multi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = multi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D57D128768D500154057 /* netradio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = netradio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D58B128768DE00154057 /* plugins.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = plugins.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D599128768E800154057 /* rectest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = rectest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D5A7128768F000154057 /* speakers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = speakers.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D5B5128768F800154057 /* spectrum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spectrum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D5D01287691300154057 /* livespec.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = livespec.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D5E01287699800154057 /* livespec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = livespec.c; path = livespec/livespec.c; sourceTree = "<group>"; };
+		3C23D5E2128769AD00154057 /* multi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = multi.c; path = multi/multi.c; sourceTree = "<group>"; };
+		3C23D5E3128769AD00154057 /* multi.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = multi.nib; path = multi/multi.nib; sourceTree = "<group>"; };
+		3C23D5E6128769BA00154057 /* netradio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = netradio.c; path = netradio/netradio.c; sourceTree = "<group>"; };
+		3C23D5E7128769BA00154057 /* netradio.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = netradio.nib; path = netradio/netradio.nib; sourceTree = "<group>"; };
+		3C23D5EA128769CB00154057 /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plugins.c; path = plugins/plugins.c; sourceTree = "<group>"; };
+		3C23D5EB128769CB00154057 /* plugins.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = plugins.nib; path = plugins/plugins.nib; sourceTree = "<group>"; };
+		3C23D5EE128769DA00154057 /* rectest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rectest.c; path = rectest/rectest.c; sourceTree = "<group>"; };
+		3C23D5EF128769DA00154057 /* rectest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = rectest.nib; path = rectest/rectest.nib; sourceTree = "<group>"; };
+		3C23D5F2128769E800154057 /* speakers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = speakers.c; path = speakers/speakers.c; sourceTree = "<group>"; };
+		3C23D5F3128769E800154057 /* speakers.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = speakers.nib; path = speakers/speakers.nib; sourceTree = "<group>"; };
+		3C23D5F6128769FA00154057 /* spectrum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = spectrum.c; path = spectrum/spectrum.c; sourceTree = "<group>"; };
+		3C23D5FC12876A8B00154057 /* contest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = contest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D60012876AD100154057 /* contest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = contest.c; sourceTree = "<group>"; };
+		3C23D61712876B2500154057 /* writewav */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = writewav; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D62412876B2E00154057 /* synth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = synth.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C23D62812876BBB00154057 /* writewav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = writewav.c; sourceTree = "<group>"; };
+		3C23D62A12876C0800154057 /* synth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = synth.c; sourceTree = "<group>"; };
+		3C23D62B12876C0800154057 /* synth.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = synth.nib; sourceTree = "<group>"; };
+		3C23D67912877EA500154057 /* custloop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = custloop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CD901AA1A4491CA00394CC9 /* modtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = modtest.c; path = modtest/modtest.c; sourceTree = "<group>"; };
+		3CD901AB1A4491CA00394CC9 /* modtest.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = modtest.nib; path = modtest/modtest.nib; sourceTree = "<group>"; };
+		3CD901B81A4491EC00394CC9 /* modtest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modtest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CD9027E1A45CE7B00394CC9 /* devlist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = devlist.c; path = devlist/devlist.c; sourceTree = "<group>"; };
+		3CD902881A45CE8000394CC9 /* devlist */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = devlist; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3C23D3C41287577A00154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D3FC12875F7100154057 /* libbass.dylib in Frameworks */,
+				3C23D40012875FA800154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D4381287630100154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D4391287630100154057 /* libbass.dylib in Frameworks */,
+				3C23D43A1287630100154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D457128763C400154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D458128763C400154057 /* libbass.dylib in Frameworks */,
+				3C23D459128763C400154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5321287677700154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5331287677700154057 /* libbass.dylib in Frameworks */,
+				3C23D5341287677700154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D568128768BB00154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D569128768BB00154057 /* libbass.dylib in Frameworks */,
+				3C23D56A128768BB00154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D576128768D500154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D577128768D500154057 /* libbass.dylib in Frameworks */,
+				3C23D578128768D500154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D584128768DE00154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D585128768DE00154057 /* libbass.dylib in Frameworks */,
+				3C23D586128768DE00154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D592128768E800154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D593128768E800154057 /* libbass.dylib in Frameworks */,
+				3C23D594128768E800154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5A0128768F000154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5A1128768F000154057 /* libbass.dylib in Frameworks */,
+				3C23D5A2128768F000154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5AE128768F800154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5AF128768F800154057 /* libbass.dylib in Frameworks */,
+				3C23D5B0128768F800154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5C91287691300154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5CA1287691300154057 /* libbass.dylib in Frameworks */,
+				3C23D5CB1287691300154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5FA12876A8B00154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D60612876AEF00154057 /* libbass.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D61112876B2500154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D61212876B2500154057 /* libbass.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D61D12876B2E00154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D61E12876B2E00154057 /* libbass.dylib in Frameworks */,
+				3C23D61F12876B2E00154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D67212877EA500154057 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D67312877EA500154057 /* libbass.dylib in Frameworks */,
+				3C23D67412877EA500154057 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD901B11A4491EC00394CC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD901B21A4491EC00394CC9 /* libbass.dylib in Frameworks */,
+				3CD901B31A4491EC00394CC9 /* Carbon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD902821A45CE8000394CC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD902831A45CE8000394CC9 /* libbass.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3C23D3B61287572E00154057 = {
+			isa = PBXGroup;
+			children = (
+				3C23D3E912875B3500154057 /* 3dtest */,
+				3C23D4411287632400154057 /* basstest */,
+				3C23D460128763D000154057 /* contest */,
+				3C23D462128763E600154057 /* custloop */,
+				3C23D461128763DD00154057 /* dsptest */,
+				3C23D463128763F200154057 /* fxtest */,
+				3CD9027D1A45CE6B00394CC9 /* devlist */,
+				3C23D4F51287652A00154057 /* livespec */,
+				3CD901A71A4491AC00394CC9 /* modtest */,
+				3C23D4F61287653400154057 /* multi */,
+				3C23D4F71287654200154057 /* netradio */,
+				3C23D4F81287654A00154057 /* plugins */,
+				3C23D4F91287655200154057 /* rectest */,
+				3C23D4FA1287655900154057 /* speakers */,
+				3C23D4FB1287655F00154057 /* spectrum */,
+				3C23D62712876B8300154057 /* synth */,
+				3C23D4FC1287656600154057 /* writewav */,
+				3C23D3C71287577A00154057 /* Products */,
+				3C23D3FB12875F7100154057 /* libbass.dylib */,
+				3C23D3FF12875FA800154057 /* Carbon.framework */,
+			);
+			sourceTree = "<group>";
+		};
+		3C23D3C71287577A00154057 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D3C61287577A00154057 /* 3dtest.app */,
+				3C23D43F1287630100154057 /* basstest.app */,
+				3C23D5FC12876A8B00154057 /* contest */,
+				3C23D67912877EA500154057 /* custloop.app */,
+				3C23D45E128763C400154057 /* dsptest.app */,
+				3C23D5391287677700154057 /* fxtest.app */,
+				3CD902881A45CE8000394CC9 /* devlist */,
+				3C23D5D01287691300154057 /* livespec.app */,
+				3CD901B81A4491EC00394CC9 /* modtest.app */,
+				3C23D56F128768BB00154057 /* multi.app */,
+				3C23D57D128768D500154057 /* netradio.app */,
+				3C23D58B128768DE00154057 /* plugins.app */,
+				3C23D599128768E800154057 /* rectest.app */,
+				3C23D5A7128768F000154057 /* speakers.app */,
+				3C23D5B5128768F800154057 /* spectrum.app */,
+				3C23D62412876B2E00154057 /* synth.app */,
+				3C23D61712876B2500154057 /* writewav */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3C23D3E912875B3500154057 /* 3dtest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5561287687300154057 /* 3dtest.c */,
+				3C23D5571287687300154057 /* 3dtest.nib */,
+			);
+			path = 3dtest;
+			sourceTree = "<group>";
+		};
+		3C23D4411287632400154057 /* basstest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5581287687D00154057 /* basstest.c */,
+				3C23D5591287687D00154057 /* basstest.nib */,
+			);
+			path = basstest;
+			sourceTree = "<group>";
+		};
+		3C23D460128763D000154057 /* contest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D60012876AD100154057 /* contest.c */,
+			);
+			path = contest;
+			sourceTree = "<group>";
+		};
+		3C23D461128763DD00154057 /* dsptest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D55D1287689700154057 /* dsptest.c */,
+				3C23D55E1287689700154057 /* dsptest.nib */,
+			);
+			path = dsptest;
+			sourceTree = "<group>";
+		};
+		3C23D462128763E600154057 /* custloop */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D55C1287688800154057 /* custloop.c */,
+			);
+			path = custloop;
+			sourceTree = "<group>";
+		};
+		3C23D463128763F200154057 /* fxtest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D54C128767EC00154057 /* fxtest.c */,
+				3C23D54D128767EC00154057 /* fxtest.nib */,
+			);
+			path = fxtest;
+			sourceTree = "<group>";
+		};
+		3C23D4F51287652A00154057 /* livespec */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5E01287699800154057 /* livespec.c */,
+			);
+			name = livespec;
+			sourceTree = "<group>";
+		};
+		3C23D4F61287653400154057 /* multi */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5E2128769AD00154057 /* multi.c */,
+				3C23D5E3128769AD00154057 /* multi.nib */,
+			);
+			name = multi;
+			sourceTree = "<group>";
+		};
+		3C23D4F71287654200154057 /* netradio */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5E6128769BA00154057 /* netradio.c */,
+				3C23D5E7128769BA00154057 /* netradio.nib */,
+			);
+			name = netradio;
+			sourceTree = "<group>";
+		};
+		3C23D4F81287654A00154057 /* plugins */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5EA128769CB00154057 /* plugins.c */,
+				3C23D5EB128769CB00154057 /* plugins.nib */,
+			);
+			name = plugins;
+			sourceTree = "<group>";
+		};
+		3C23D4F91287655200154057 /* rectest */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5EE128769DA00154057 /* rectest.c */,
+				3C23D5EF128769DA00154057 /* rectest.nib */,
+			);
+			name = rectest;
+			sourceTree = "<group>";
+		};
+		3C23D4FA1287655900154057 /* speakers */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5F2128769E800154057 /* speakers.c */,
+				3C23D5F3128769E800154057 /* speakers.nib */,
+			);
+			name = speakers;
+			sourceTree = "<group>";
+		};
+		3C23D4FB1287655F00154057 /* spectrum */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D5F6128769FA00154057 /* spectrum.c */,
+			);
+			name = spectrum;
+			sourceTree = "<group>";
+		};
+		3C23D4FC1287656600154057 /* writewav */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D62812876BBB00154057 /* writewav.c */,
+			);
+			path = writewav;
+			sourceTree = "<group>";
+		};
+		3C23D62712876B8300154057 /* synth */ = {
+			isa = PBXGroup;
+			children = (
+				3C23D62A12876C0800154057 /* synth.c */,
+				3C23D62B12876C0800154057 /* synth.nib */,
+			);
+			path = synth;
+			sourceTree = "<group>";
+		};
+		3CD901A71A4491AC00394CC9 /* modtest */ = {
+			isa = PBXGroup;
+			children = (
+				3CD901AA1A4491CA00394CC9 /* modtest.c */,
+				3CD901AB1A4491CA00394CC9 /* modtest.nib */,
+			);
+			name = modtest;
+			sourceTree = "<group>";
+		};
+		3CD9027D1A45CE6B00394CC9 /* devlist */ = {
+			isa = PBXGroup;
+			children = (
+				3CD9027E1A45CE7B00394CC9 /* devlist.c */,
+			);
+			name = devlist;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3C23D3C51287577A00154057 /* 3dtest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D3CC1287577B00154057 /* Build configuration list for PBXNativeTarget "3dtest" */;
+			buildPhases = (
+				3C23D3C21287577A00154057 /* Resources */,
+				3C23D3C31287577A00154057 /* Sources */,
+				3C23D3C41287577A00154057 /* Frameworks */,
+				3C23D4141287618600154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = 3dtest;
+			productName = 3dtest;
+			productReference = 3C23D3C61287577A00154057 /* 3dtest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D4331287630100154057 /* basstest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D43D1287630100154057 /* Build configuration list for PBXNativeTarget "basstest" */;
+			buildPhases = (
+				3C23D4341287630100154057 /* Resources */,
+				3C23D4361287630100154057 /* Sources */,
+				3C23D4381287630100154057 /* Frameworks */,
+				3C23D43B1287630100154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = basstest;
+			productName = basstest;
+			productReference = 3C23D43F1287630100154057 /* basstest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D452128763C400154057 /* dsptest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D45C128763C400154057 /* Build configuration list for PBXNativeTarget "dsptest" */;
+			buildPhases = (
+				3C23D453128763C400154057 /* Resources */,
+				3C23D455128763C400154057 /* Sources */,
+				3C23D457128763C400154057 /* Frameworks */,
+				3C23D45A128763C400154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = dsptest;
+			productName = dsptest;
+			productReference = 3C23D45E128763C400154057 /* dsptest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D52D1287677700154057 /* fxtest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D5371287677700154057 /* Build configuration list for PBXNativeTarget "fxtest" */;
+			buildPhases = (
+				3C23D52E1287677700154057 /* Resources */,
+				3C23D5301287677700154057 /* Sources */,
+				3C23D5321287677700154057 /* Frameworks */,
+				3C23D5351287677700154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = fxtest;
+			productName = fxtest;
+			productReference = 3C23D5391287677700154057 /* fxtest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D563128768BB00154057 /* multi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D56D128768BB00154057 /* Build configuration list for PBXNativeTarget "multi" */;
+			buildPhases = (
+				3C23D564128768BB00154057 /* Resources */,
+				3C23D566128768BB00154057 /* Sources */,
+				3C23D568128768BB00154057 /* Frameworks */,
+				3C23D56B128768BB00154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = multi;
+			productName = multi;
+			productReference = 3C23D56F128768BB00154057 /* multi.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D571128768D500154057 /* netradio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D57B128768D500154057 /* Build configuration list for PBXNativeTarget "netradio" */;
+			buildPhases = (
+				3C23D572128768D500154057 /* Resources */,
+				3C23D574128768D500154057 /* Sources */,
+				3C23D576128768D500154057 /* Frameworks */,
+				3C23D579128768D500154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = netradio;
+			productName = netradio;
+			productReference = 3C23D57D128768D500154057 /* netradio.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D57F128768DE00154057 /* plugins */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D589128768DE00154057 /* Build configuration list for PBXNativeTarget "plugins" */;
+			buildPhases = (
+				3C23D580128768DE00154057 /* Resources */,
+				3C23D582128768DE00154057 /* Sources */,
+				3C23D584128768DE00154057 /* Frameworks */,
+				3C23D587128768DE00154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			comments = "To install plugins, add the DYLIBs to the \"Copy Files\" branch (or manually place them in the app's /Contents/MacOS/ directory).";
+			dependencies = (
+			);
+			name = plugins;
+			productName = plugins;
+			productReference = 3C23D58B128768DE00154057 /* plugins.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D58D128768E800154057 /* rectest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D597128768E800154057 /* Build configuration list for PBXNativeTarget "rectest" */;
+			buildPhases = (
+				3C23D58E128768E800154057 /* Resources */,
+				3C23D590128768E800154057 /* Sources */,
+				3C23D592128768E800154057 /* Frameworks */,
+				3C23D595128768E800154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = rectest;
+			productName = rectest;
+			productReference = 3C23D599128768E800154057 /* rectest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D59B128768F000154057 /* speakers */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D5A5128768F000154057 /* Build configuration list for PBXNativeTarget "speakers" */;
+			buildPhases = (
+				3C23D59C128768F000154057 /* Resources */,
+				3C23D59E128768F000154057 /* Sources */,
+				3C23D5A0128768F000154057 /* Frameworks */,
+				3C23D5A3128768F000154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = speakers;
+			productName = speakers;
+			productReference = 3C23D5A7128768F000154057 /* speakers.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D5A9128768F800154057 /* spectrum */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D5B3128768F800154057 /* Build configuration list for PBXNativeTarget "spectrum" */;
+			buildPhases = (
+				3C23D5AA128768F800154057 /* Resources */,
+				3C23D5AC128768F800154057 /* Sources */,
+				3C23D5AE128768F800154057 /* Frameworks */,
+				3C23D5B1128768F800154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = spectrum;
+			productName = spectrum;
+			productReference = 3C23D5B5128768F800154057 /* spectrum.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D5C51287691300154057 /* livespec */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D5CE1287691300154057 /* Build configuration list for PBXNativeTarget "livespec" */;
+			buildPhases = (
+				3C23D5C61287691300154057 /* Resources */,
+				3C23D5C71287691300154057 /* Sources */,
+				3C23D5C91287691300154057 /* Frameworks */,
+				3C23D5CC1287691300154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = livespec;
+			productName = livespec;
+			productReference = 3C23D5D01287691300154057 /* livespec.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D5FB12876A8B00154057 /* contest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D5FF12876AAA00154057 /* Build configuration list for PBXNativeTarget "contest" */;
+			buildPhases = (
+				3C23D5F912876A8B00154057 /* Sources */,
+				3C23D5FA12876A8B00154057 /* Frameworks */,
+				3C23D60D12876B2500154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = contest;
+			productName = contest;
+			productReference = 3C23D5FC12876A8B00154057 /* contest */;
+			productType = "com.apple.product-type.tool";
+		};
+		3C23D60E12876B2500154057 /* writewav */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D61512876B2500154057 /* Build configuration list for PBXNativeTarget "writewav" */;
+			buildPhases = (
+				3C23D60F12876B2500154057 /* Sources */,
+				3C23D61112876B2500154057 /* Frameworks */,
+				3C23D61312876B2500154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = writewav;
+			productName = writewav;
+			productReference = 3C23D61712876B2500154057 /* writewav */;
+			productType = "com.apple.product-type.tool";
+		};
+		3C23D61912876B2E00154057 /* synth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D62212876B2E00154057 /* Build configuration list for PBXNativeTarget "synth" */;
+			buildPhases = (
+				3C23D61A12876B2E00154057 /* Resources */,
+				3C23D61B12876B2E00154057 /* Sources */,
+				3C23D61D12876B2E00154057 /* Frameworks */,
+				3C23D62012876B2E00154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = synth;
+			productName = synth;
+			productReference = 3C23D62412876B2E00154057 /* synth.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3C23D66D12877EA500154057 /* custloop */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C23D67712877EA500154057 /* Build configuration list for PBXNativeTarget "custloop" */;
+			buildPhases = (
+				3C23D66E12877EA500154057 /* Resources */,
+				3C23D67012877EA500154057 /* Sources */,
+				3C23D67212877EA500154057 /* Frameworks */,
+				3C23D67512877EA500154057 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = custloop;
+			productName = custloop;
+			productReference = 3C23D67912877EA500154057 /* custloop.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3CD901AC1A4491EC00394CC9 /* modtest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CD901B61A4491EC00394CC9 /* Build configuration list for PBXNativeTarget "modtest" */;
+			buildPhases = (
+				3CD901AD1A4491EC00394CC9 /* Resources */,
+				3CD901AF1A4491EC00394CC9 /* Sources */,
+				3CD901B11A4491EC00394CC9 /* Frameworks */,
+				3CD901B41A4491EC00394CC9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = modtest;
+			productName = modtest;
+			productReference = 3CD901B81A4491EC00394CC9 /* modtest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3CD9027F1A45CE8000394CC9 /* devlist */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CD902861A45CE8000394CC9 /* Build configuration list for PBXNativeTarget "list" */;
+			buildPhases = (
+				3CD902801A45CE8000394CC9 /* Sources */,
+				3CD902821A45CE8000394CC9 /* Frameworks */,
+				3CD902841A45CE8000394CC9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = devlist;
+			productName = devlist;
+			productReference = 3CD902881A45CE8000394CC9 /* devlist */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3C23D3B81287572E00154057 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 3C23D3BB1287572E00154057 /* Build configuration list for PBXProject "bass" */;
+			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 3C23D3B61287572E00154057;
+			productRefGroup = 3C23D3C71287577A00154057 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3C23D3C51287577A00154057 /* 3dtest */,
+				3C23D4331287630100154057 /* basstest */,
+				3C23D5FB12876A8B00154057 /* contest */,
+				3C23D66D12877EA500154057 /* custloop */,
+				3C23D452128763C400154057 /* dsptest */,
+				3C23D52D1287677700154057 /* fxtest */,
+				3CD9027F1A45CE8000394CC9 /* devlist */,
+				3C23D5C51287691300154057 /* livespec */,
+				3CD901AC1A4491EC00394CC9 /* modtest */,
+				3C23D563128768BB00154057 /* multi */,
+				3C23D571128768D500154057 /* netradio */,
+				3C23D57F128768DE00154057 /* plugins */,
+				3C23D58D128768E800154057 /* rectest */,
+				3C23D59B128768F000154057 /* speakers */,
+				3C23D5A9128768F800154057 /* spectrum */,
+				3C23D61912876B2E00154057 /* synth */,
+				3C23D60E12876B2500154057 /* writewav */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3C23D3C21287577A00154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D561128768AA00154057 /* 3dtest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D4341287630100154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D55B1287687D00154057 /* basstest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D453128763C400154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5601287689700154057 /* dsptest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D52E1287677700154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D54F128767EC00154057 /* fxtest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D564128768BB00154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5E5128769AD00154057 /* multi.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D572128768D500154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5E9128769BA00154057 /* netradio.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D580128768DE00154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5ED128769CB00154057 /* plugins.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D58E128768E800154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5F1128769DA00154057 /* rectest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D59C128768F000154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5F5128769E800154057 /* speakers.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5AA128768F800154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5C61287691300154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D61A12876B2E00154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D62D12876C0800154057 /* synth.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D66E12877EA500154057 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD901AD1A4491EC00394CC9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD901BB1A44922900394CC9 /* modtest.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3C23D3C31287577A00154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D562128768B000154057 /* 3dtest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D4361287630100154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D55A1287687D00154057 /* basstest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D455128763C400154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D55F1287689700154057 /* dsptest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5301287677700154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D54E128767EC00154057 /* fxtest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D566128768BB00154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5E4128769AD00154057 /* multi.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D574128768D500154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5E8128769BA00154057 /* netradio.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D582128768DE00154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5EC128769CB00154057 /* plugins.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D590128768E800154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5F0128769DA00154057 /* rectest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D59E128768F000154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5F4128769E800154057 /* speakers.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5AC128768F800154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5F812876A0800154057 /* spectrum.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5C71287691300154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D5E11287699800154057 /* livespec.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D5F912876A8B00154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D60112876AD100154057 /* contest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D60F12876B2500154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D62912876BBB00154057 /* writewav.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D61B12876B2E00154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D62C12876C0800154057 /* synth.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C23D67012877EA500154057 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C23D67B12877EC600154057 /* custloop.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD901AF1A4491EC00394CC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD901BA1A44922100394CC9 /* modtest.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CD902801A45CE8000394CC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD9028C1A45CEA900394CC9 /* devlist.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3C23D3B91287572E00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3C23D3CA1287577B00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D43E1287630100154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D45D128763C400154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D5381287677700154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D56E128768BB00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D57C128768D500154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D58A128768DE00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D598128768E800154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D5A6128768F000154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D5B4128768F800154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D5CF1287691300154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D5FE12876A8C00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D61612876B2500154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D62312876B2E00154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3C23D67812877EA500154057 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3CD901B71A4491EC00394CC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3CD902871A45CE8000394CC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3C23D3BB1287572E00154057 /* Build configuration list for PBXProject "bass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D3B91287572E00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D3CC1287577B00154057 /* Build configuration list for PBXNativeTarget "3dtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D3CA1287577B00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D43D1287630100154057 /* Build configuration list for PBXNativeTarget "basstest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D43E1287630100154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D45C128763C400154057 /* Build configuration list for PBXNativeTarget "dsptest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D45D128763C400154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D5371287677700154057 /* Build configuration list for PBXNativeTarget "fxtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D5381287677700154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D56D128768BB00154057 /* Build configuration list for PBXNativeTarget "multi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D56E128768BB00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D57B128768D500154057 /* Build configuration list for PBXNativeTarget "netradio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D57C128768D500154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D589128768DE00154057 /* Build configuration list for PBXNativeTarget "plugins" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D58A128768DE00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D597128768E800154057 /* Build configuration list for PBXNativeTarget "rectest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D598128768E800154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D5A5128768F000154057 /* Build configuration list for PBXNativeTarget "speakers" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D5A6128768F000154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D5B3128768F800154057 /* Build configuration list for PBXNativeTarget "spectrum" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D5B4128768F800154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D5CE1287691300154057 /* Build configuration list for PBXNativeTarget "livespec" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D5CF1287691300154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D5FF12876AAA00154057 /* Build configuration list for PBXNativeTarget "contest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D5FE12876A8C00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D61512876B2500154057 /* Build configuration list for PBXNativeTarget "writewav" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D61612876B2500154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D62212876B2E00154057 /* Build configuration list for PBXNativeTarget "synth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D62312876B2E00154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C23D67712877EA500154057 /* Build configuration list for PBXNativeTarget "custloop" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C23D67812877EA500154057 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CD901B61A4491EC00394CC9 /* Build configuration list for PBXNativeTarget "modtest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CD901B71A4491EC00394CC9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CD902861A45CE8000394CC9 /* Build configuration list for PBXNativeTarget "list" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CD902871A45CE8000394CC9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3C23D3B81287572E00154057 /* Project object */;
+}

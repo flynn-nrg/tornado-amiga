@@ -1,0 +1,105 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="10" name="allObjects">
+    <object class="IBCarbonGroupBox" id="227">
+      <int name="fontStyle">0</int>
+      <string name="title">Press these keys to play</string>
+      <boolean name="autoToggle">FALSE</boolean>
+      <boolean name="primary">FALSE</boolean>
+      <int name="selectedItem">0</int>
+      <array count="1" name="subviews">
+        <object class="IBCarbonStaticText" id="228">
+          <int name="controlID">21</int>
+          <int name="fontStyle">-1</int>
+          <string name="title">2 3  5 6 7  9 0  =&#10;Q W ER T Y UI O P[ ]</string>
+          <int name="justification">1</int>
+          <string name="bounds">38 36 78 309 </string>
+        </object>
+      </array>
+      <string name="bounds">12 20 93 325 </string>
+    </object>
+    <reference idRef="228"/>
+    <object class="IBCarbonCheckBox" id="229">
+      <int name="controlID">14</int>
+      <string name="title">reverb</string>
+      <string name="bounds">128 34 146 116 </string>
+    </object>
+    <object class="IBCarbonCheckBox" id="223">
+      <int name="controlID">11</int>
+      <string name="title">distortion</string>
+      <string name="bounds">152 131 170 213 </string>
+    </object>
+    <object class="IBCarbonCheckBox" id="222">
+      <int name="controlID">10</int>
+      <string name="title">chorus</string>
+      <string name="bounds">128 227 146 309 </string>
+    </object>
+    <object class="IBCarbonGroupBox" id="231">
+      <int name="fontStyle">0</int>
+      <string name="title">Effects</string>
+      <boolean name="autoToggle">FALSE</boolean>
+      <boolean name="primary">FALSE</boolean>
+      <int name="selectedItem">0</int>
+      <array count="5" name="subviews">
+        <reference idRef="222"/>
+        <reference idRef="223"/>
+        <object class="IBCarbonCheckBox" id="224">
+          <int name="controlID">12</int>
+          <string name="title">echo</string>
+          <string name="bounds">128 131 146 213 </string>
+        </object>
+        <reference idRef="229"/>
+        <object class="IBCarbonCheckBox" id="230">
+          <int name="controlID">13</int>
+          <string name="title">flanger</string>
+          <string name="bounds">152 34 170 116 </string>
+        </object>
+      </array>
+      <string name="bounds">98 20 186 325 </string>
+    </object>
+    <object class="IBCarbonRootControl" id="167">
+      <array count="2" name="subviews">
+        <reference idRef="227"/>
+        <reference idRef="231"/>
+      </array>
+      <string name="bounds">0 0 207 345 </string>
+    </object>
+    <reference idRef="224"/>
+    <reference idRef="230"/>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="hasCloseBox">FALSE</boolean>
+      <boolean name="hasCollapseBox">FALSE</boolean>
+      <boolean name="hasHorizontalZoom">FALSE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <boolean name="hasVerticalZoom">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+      <string name="title">BASS simple sinewave synth</string>
+      <reference name="rootControl" idRef="167"/>
+      <string name="windowRect">200 200 407 545 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+  </array>
+  <array count="10" name="allParents">
+    <reference idRef="167"/>
+    <reference idRef="231"/>
+    <reference idRef="231"/>
+    <reference idRef="227"/>
+    <reference idRef="231"/>
+    <reference idRef="167"/>
+    <reference idRef="166"/>
+    <reference idRef="231"/>
+    <reference idRef="231"/>
+    <reference idRef="1"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">237</unsigned_int>
+</object>

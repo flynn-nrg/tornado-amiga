@@ -1,0 +1,209 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <string name="targetFramework">IBCarbonFramework</string>
+  <object name="rootObject" class="NSCustomObject" id="1">
+    <string name="customClass">NSApplication</string>
+  </object>
+  <array count="20" name="allObjects">
+    <object class="IBCarbonWindow" id="166">
+      <string name="windowRect">121 121 429 613 </string>
+      <string name="title">BASS 3D Test</string>
+      <object name="rootControl" class="IBCarbonRootControl" id="167">
+        <string name="bounds">0 0 308 492 </string>
+        <string name="viewFrame">0 0 492 308 </string>
+        <array count="4" name="subviews">
+          <object class="IBCarbonGroupBox" id="225">
+            <string name="bounds">2 10 238 230 </string>
+            <string name="viewFrame">10 2 220 236 </string>
+            <array count="6" name="subviews">
+              <object class="IBCarbonDBListView" id="246">
+                <string name="bounds">22 15 124 225 </string>
+                <string name="viewFrame">5 20 210 102 </string>
+                <int name="controlID">10</int>
+                <int name="hiliteStyle">1</int>
+                <int name="columnWidth">210</int>
+                <boolean name="variableWidthColumns">FALSE</boolean>
+                <boolean name="horzScrollBar">FALSE</boolean>
+                <int name="selectionFlags">98</int>
+                <int name="listViewHeaderBtnHeight">0</int>
+                <array count="1" name="listViewColumns">
+                  <object class="IBCarbonDBListViewColumn">
+                    <ostype name="propertyID">blah</ostype>
+                    <int name="propertyFlags">0</int>
+                    <int name="sortOrder">1</int>
+                    <int name="minWidth">210</int>
+                    <int name="maxWidth">210</int>
+                    <int name="textAlignment">0</int>
+                  </object>
+                </array>
+              </object>
+              <object class="IBCarbonButton" id="253">
+                <string name="bounds">128 20 148 116 </string>
+                <string name="viewFrame">10 126 96 20 </string>
+                <int name="controlID">11</int>
+                <string name="title">Add</string>
+              </object>
+              <object class="IBCarbonButton" id="254">
+                <string name="bounds">128 124 148 220 </string>
+                <string name="viewFrame">114 126 96 20 </string>
+                <int name="controlID">12</int>
+                <string name="title">Remove</string>
+              </object>
+              <object class="IBCarbonButton" id="255">
+                <string name="bounds">156 20 176 116 </string>
+                <string name="viewFrame">10 154 96 20 </string>
+                <int name="controlID">13</int>
+                <string name="title">Play</string>
+              </object>
+              <object class="IBCarbonButton" id="256">
+                <string name="bounds">156 124 176 220 </string>
+                <string name="viewFrame">114 154 96 20 </string>
+                <int name="controlID">14</int>
+                <string name="title">Stop</string>
+              </object>
+              <object class="IBCarbonGroupBox" id="251">
+                <string name="bounds">180 10 240 230 </string>
+                <string name="viewFrame">0 178 220 60 </string>
+                <array count="5" name="subviews">
+                  <object class="IBCarbonStaticText" id="258">
+                    <string name="bounds">207 22 223 38 </string>
+                    <string name="viewFrame">12 27 16 16 </string>
+                    <string name="title">x:</string>
+                  </object>
+                  <object class="IBCarbonEditText" id="259">
+                    <string name="bounds">208 38 224 68 </string>
+                    <string name="viewFrame">28 28 30 16 </string>
+                    <int name="controlID">15</int>
+                    <boolean name="isUnicode">TRUE</boolean>
+                    <boolean name="isSingleLine">TRUE</boolean>
+                  </object>
+                  <object class="IBCarbonStaticText" id="262">
+                    <string name="bounds">207 83 223 99 </string>
+                    <string name="viewFrame">73 27 16 16 </string>
+                    <string name="title">z:</string>
+                  </object>
+                  <object class="IBCarbonEditText" id="263">
+                    <string name="bounds">208 99 224 129 </string>
+                    <string name="viewFrame">89 28 30 16 </string>
+                    <int name="controlID">16</int>
+                    <boolean name="isUnicode">TRUE</boolean>
+                    <boolean name="isSingleLine">TRUE</boolean>
+                  </object>
+                  <object class="IBCarbonButton" id="264">
+                    <string name="bounds">206 156 226 216 </string>
+                    <string name="viewFrame">146 26 60 20 </string>
+                    <int name="controlID">17</int>
+                    <string name="title">reset</string>
+                  </object>
+                </array>
+                <string name="title">Movement</string>
+              </object>
+            </array>
+            <int name="controlID">20</int>
+            <string name="title">Channels (sample/music)</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="270">
+            <string name="bounds">240 10 296 240 </string>
+            <string name="viewFrame">10 240 230 56 </string>
+            <array count="1" name="subviews">
+              <object class="IBCarbonSlider" id="272">
+                <string name="bounds">261 20 287 230 </string>
+                <string name="viewFrame">10 21 210 26 </string>
+                <int name="controlID">20</int>
+                <boolean name="isLive">TRUE</boolean>
+                <int name="numTickMarks">3</int>
+                <int name="initialValue">10</int>
+                <int name="maximumValue">20</int>
+              </object>
+            </array>
+            <string name="title">Rolloff factor</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="271">
+            <string name="bounds">240 250 296 480 </string>
+            <string name="viewFrame">250 240 230 56 </string>
+            <array count="1" name="subviews">
+              <object class="IBCarbonSlider" id="274">
+                <string name="bounds">261 260 287 470 </string>
+                <string name="viewFrame">10 21 210 26 </string>
+                <int name="controlID">21</int>
+                <boolean name="isLive">TRUE</boolean>
+                <int name="numTickMarks">3</int>
+                <int name="initialValue">10</int>
+                <int name="maximumValue">20</int>
+              </object>
+            </array>
+            <string name="title">Doppler factor</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="252">
+            <string name="bounds">16 240 238 480 </string>
+            <string name="viewFrame">240 16 240 222 </string>
+            <array count="1" name="subviews">
+              <object class="IBCarbonHIView" id="268">
+                <string name="bounds">28 250 227 469 </string>
+                <string name="viewFrame">10 12 219 199 </string>
+                <int name="controlID">30</int>
+              </object>
+            </array>
+          </object>
+        </array>
+      </object>
+      <boolean name="receiveUpdates">FALSE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <boolean name="compositing">TRUE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+    </object>
+    <reference idRef="167"/>
+    <reference idRef="225"/>
+    <reference idRef="246"/>
+    <reference idRef="251"/>
+    <reference idRef="252"/>
+    <reference idRef="253"/>
+    <reference idRef="254"/>
+    <reference idRef="255"/>
+    <reference idRef="256"/>
+    <reference idRef="258"/>
+    <reference idRef="259"/>
+    <reference idRef="262"/>
+    <reference idRef="263"/>
+    <reference idRef="264"/>
+    <reference idRef="268"/>
+    <reference idRef="270"/>
+    <reference idRef="271"/>
+    <reference idRef="272"/>
+    <reference idRef="274"/>
+  </array>
+  <array count="20" name="allParents">
+    <reference idRef="1"/>
+    <reference idRef="166"/>
+    <reference idRef="167"/>
+    <reference idRef="225"/>
+    <reference idRef="225"/>
+    <reference idRef="167"/>
+    <reference idRef="225"/>
+    <reference idRef="225"/>
+    <reference idRef="225"/>
+    <reference idRef="225"/>
+    <reference idRef="251"/>
+    <reference idRef="251"/>
+    <reference idRef="251"/>
+    <reference idRef="251"/>
+    <reference idRef="251"/>
+    <reference idRef="252"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="270"/>
+    <reference idRef="271"/>
+  </array>
+  <dictionary count="4" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>ListView</string>
+    <reference idRef="246"/>
+    <string>View1</string>
+    <reference idRef="268"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <unsigned_int name="nextObjectID">275</unsigned_int>
+</object>

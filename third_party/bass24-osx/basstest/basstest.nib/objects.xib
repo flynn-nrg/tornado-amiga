@@ -1,0 +1,295 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <string name="targetFramework">IBCarbonFramework</string>
+  <object name="rootObject" class="NSCustomObject" id="1">
+    <string name="customClass">NSApplication</string>
+  </object>
+  <array count="24" name="allObjects">
+    <object class="IBCarbonWindow" id="166">
+      <string name="windowRect">241 15 501 715 </string>
+      <string name="title">BASS - simple playback test</string>
+      <object name="rootControl" class="IBCarbonRootControl" id="167">
+        <string name="bounds">0 0 260 700 </string>
+        <array count="10" name="subviews">
+          <object class="IBCarbonGroupBox" id="229">
+            <string name="bounds">1 10 217 230 </string>
+            <array count="8" name="subviews">
+              <object class="IBCarbonDBListView" id="222">
+                <string name="bounds">20 20 120 220 </string>
+                <int name="controlID">10</int>
+                <int name="hiliteStyle">1</int>
+                <int name="columnWidth">200</int>
+                <boolean name="variableWidthColumns">FALSE</boolean>
+                <boolean name="horzScrollBar">FALSE</boolean>
+                <int name="selectionFlags">98</int>
+                <int name="listViewHeaderBtnHeight">0</int>
+                <array count="1" name="listViewColumns">
+                  <object class="IBCarbonDBListViewColumn">
+                    <ostype name="propertyID">blah</ostype>
+                    <int name="propertyFlags">65536</int>
+                    <int name="sortOrder">1</int>
+                    <int name="minWidth">200</int>
+                    <int name="maxWidth">200</int>
+                    <int name="textAlignment">0</int>
+                  </object>
+                </array>
+              </object>
+              <object class="IBCarbonButton" id="187">
+                <string name="bounds">126 20 146 80 </string>
+                <int name="controlID">11</int>
+                <string name="title">Play</string>
+              </object>
+              <object class="IBCarbonButton" id="188">
+                <string name="bounds">126 90 146 150 </string>
+                <int name="controlID">12</int>
+                <string name="title">Stop</string>
+              </object>
+              <object class="IBCarbonButton" id="224">
+                <string name="bounds">126 160 146 220 </string>
+                <int name="controlID">13</int>
+                <string name="title">Restart</string>
+              </object>
+              <object class="IBCarbonButton" id="225">
+                <string name="bounds">155 20 175 116 </string>
+                <int name="controlID">14</int>
+                <string name="title">Add ...</string>
+              </object>
+              <object class="IBCarbonButton" id="226">
+                <string name="bounds">155 124 175 220 </string>
+                <int name="controlID">15</int>
+                <string name="title">Remove</string>
+              </object>
+              <object class="IBCarbonStaticText" id="236">
+                <int name="controlSize">1</int>
+                <string name="title">global volume:</string>
+                <string name="bounds">179 20 192 98 </string>
+              </object>
+              <object class="IBCarbonSlider" id="237">
+                <int name="controlID">16</int>
+                <boolean name="isLive">TRUE</boolean>
+                <int name="orientation">2</int>
+                <string name="bounds">194 25 210 215 </string>
+              </object>
+            </array>
+            <string name="title">Stream</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="232">
+            <string name="bounds">1 240 217 460 </string>
+            <array count="8" name="subviews">
+              <object class="IBCarbonDBListView" id="243">
+                <string name="bounds">20 250 120 450 </string>
+                <int name="controlID">20</int>
+                <int name="hiliteStyle">1</int>
+                <int name="columnWidth">200</int>
+                <boolean name="variableWidthColumns">FALSE</boolean>
+                <boolean name="horzScrollBar">FALSE</boolean>
+                <int name="selectionFlags">98</int>
+                <int name="listViewHeaderBtnHeight">0</int>
+                <array count="1" name="listViewColumns">
+                  <object class="IBCarbonDBListViewColumn">
+                    <ostype name="propertyID">blah</ostype>
+                    <int name="propertyFlags">65536</int>
+                    <int name="sortOrder">1</int>
+                    <int name="minWidth">200</int>
+                    <int name="maxWidth">200</int>
+                    <int name="textAlignment">0</int>
+                  </object>
+                </array>
+              </object>
+              <object class="IBCarbonButton" id="244">
+                <string name="bounds">126 250 146 310 </string>
+                <int name="controlID">21</int>
+                <string name="title">Play</string>
+              </object>
+              <object class="IBCarbonButton" id="245">
+                <string name="bounds">126 320 146 380 </string>
+                <int name="controlID">22</int>
+                <string name="title">Stop</string>
+              </object>
+              <object class="IBCarbonButton" id="246">
+                <string name="bounds">126 390 146 450 </string>
+                <int name="controlID">23</int>
+                <string name="title">Restart</string>
+              </object>
+              <object class="IBCarbonButton" id="247">
+                <string name="bounds">155 250 175 346 </string>
+                <int name="controlID">24</int>
+                <string name="title">Add ...</string>
+              </object>
+              <object class="IBCarbonButton" id="248">
+                <string name="bounds">155 354 175 450 </string>
+                <int name="controlID">25</int>
+                <string name="title">Remove</string>
+              </object>
+              <object class="IBCarbonStaticText" id="238">
+                <int name="controlSize">1</int>
+                <string name="title">global volume:</string>
+                <string name="bounds">179 250 192 328 </string>
+              </object>
+              <object class="IBCarbonSlider" id="239">
+                <int name="controlID">26</int>
+                <boolean name="isLive">TRUE</boolean>
+                <int name="orientation">2</int>
+                <string name="bounds">194 255 210 445 </string>
+              </object>
+            </array>
+            <string name="title">MOD Music</string>
+          </object>
+          <object class="IBCarbonGroupBox" id="233">
+            <string name="bounds">1 470 217 690 </string>
+            <array count="6" name="subviews">
+              <object class="IBCarbonDBListView" id="249">
+                <string name="bounds">20 480 120 680 </string>
+                <int name="controlID">30</int>
+                <int name="hiliteStyle">1</int>
+                <int name="columnWidth">200</int>
+                <boolean name="variableWidthColumns">FALSE</boolean>
+                <boolean name="horzScrollBar">FALSE</boolean>
+                <int name="selectionFlags">98</int>
+                <int name="listViewHeaderBtnHeight">0</int>
+                <array count="1" name="listViewColumns">
+                  <object class="IBCarbonDBListViewColumn">
+                    <ostype name="propertyID">blah</ostype>
+                    <int name="propertyFlags">65536</int>
+                    <int name="sortOrder">1</int>
+                    <int name="minWidth">200</int>
+                    <int name="maxWidth">200</int>
+                    <int name="textAlignment">0</int>
+                  </object>
+                </array>
+              </object>
+              <object class="IBCarbonButton" id="250">
+                <string name="bounds">126 480 146 680 </string>
+                <int name="controlID">31</int>
+                <string name="title">Play</string>
+              </object>
+              <object class="IBCarbonButton" id="251">
+                <string name="bounds">155 480 175 576 </string>
+                <int name="controlID">32</int>
+                <string name="title">Add ...</string>
+              </object>
+              <object class="IBCarbonButton" id="252">
+                <string name="bounds">155 584 175 680 </string>
+                <int name="controlID">33</int>
+                <string name="title">Remove</string>
+              </object>
+              <object class="IBCarbonStaticText" id="240">
+                <int name="controlSize">1</int>
+                <string name="title">global volume:</string>
+                <string name="bounds">179 480 192 558 </string>
+              </object>
+              <object class="IBCarbonSlider" id="241">
+                <int name="controlID">34</int>
+                <boolean name="isLive">TRUE</boolean>
+                <int name="orientation">2</int>
+                <string name="bounds">194 485 210 675 </string>
+              </object>
+            </array>
+            <string name="title">Sample</string>
+          </object>
+          <object class="IBCarbonButton" id="230">
+            <string name="bounds">227 40 247 160 </string>
+            <int name="controlID">41</int>
+            <string name="title">Stop Output</string>
+          </object>
+          <object class="IBCarbonButton" id="231">
+            <string name="bounds">227 170 247 290 </string>
+            <int name="controlID">42</int>
+            <string name="title">Resume</string>
+          </object>
+          <object class="IBCarbonStaticText" id="234">
+            <int name="controlSize">1</int>
+            <string name="title">volume:</string>
+            <string name="bounds">220 320 233 398 </string>
+          </object>
+          <object class="IBCarbonSlider" id="235">
+            <int name="controlID">43</int>
+            <boolean name="isLive">TRUE</boolean>
+            <int name="orientation">2</int>
+            <string name="bounds">235 325 251 525 </string>
+          </object>
+          <object class="IBCarbonCheckBox" id="242">
+            <int name="controlID">44</int>
+            <int name="controlSize">1</int>
+            <string name="title">2 update threads</string>
+            <string name="bounds">222 554 236 670 </string>
+          </object>
+          <object class="IBCarbonStaticText" id="228">
+            <string name="bounds">238 592 251 626 </string>
+            <boolean name="small">TRUE</boolean>
+            <int name="controlSize">1</int>
+            <string name="title">CPU%</string>
+          </object>
+          <object class="IBCarbonStaticText" id="227">
+            <string name="bounds">238 630 251 690 </string>
+            <int name="controlID">40</int>
+            <boolean name="small">TRUE</boolean>
+            <int name="controlSize">1</int>
+            <string name="title">-</string>
+          </object>
+        </array>
+      </object>
+      <int name="carbonWindowClass">4</int>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="windowPosition">1</int>
+    </object>
+    <reference idRef="167"/>
+    <reference idRef="187"/>
+    <reference idRef="188"/>
+    <reference idRef="222"/>
+    <reference idRef="224"/>
+    <reference idRef="225"/>
+    <reference idRef="226"/>
+    <reference idRef="227"/>
+    <reference idRef="228"/>
+    <reference idRef="229"/>
+    <reference idRef="230"/>
+    <reference idRef="231"/>
+    <reference idRef="232"/>
+    <reference idRef="233"/>
+    <reference idRef="234"/>
+    <reference idRef="235"/>
+    <reference idRef="236"/>
+    <reference idRef="237"/>
+    <reference idRef="238"/>
+    <reference idRef="239"/>
+    <reference idRef="240"/>
+    <reference idRef="241"/>
+    <reference idRef="242"/>
+  </array>
+  <array count="24" name="allParents">
+    <reference idRef="1"/>
+    <reference idRef="166"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+  </array>
+  <dictionary count="3" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>ListView</string>
+    <reference idRef="222"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <unsigned_int name="nextObjectID">243</unsigned_int>
+</object>

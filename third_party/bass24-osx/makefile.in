@@ -1,0 +1,34 @@
+BASSPATH = ..
+BASSLIB = $(BASSPATH)/libbass.dylib
+FLAGS = -Os -I$(BASSPATH) -mmacosx-version-min=10.4 -Wno-deprecated-declarations
+
+# the examples use Carbon which isn't supported by 64-bit OSX
+FLAGS += -arch i386
+
+CC = gcc
+RM = rm -Rf
+
+define BUILDAPP
+@mkdir -p $@/Contents/MacOS/
+$(CC) $(FLAGS) $*.c $(BASSLIB) -framework Carbon -o $@/Contents/MacOS/$*
+cp -f $(BASSLIB) $@/Contents/MacOS/
+endef
+
+define COPYNIB
+@mkdir -p $@/Contents/Resources/
+cp -Rf $*.nib $@/Contents/Resources/
+endef
+
+.PHONY: all clean
+
+%: %.c $(BASSLIB)
+	$(CC) $(FLAGS) $*.c $(BASSLIB) -o $@
+
+%.app: %.c %.nib $(BASSLIB)
+	$(BUILDAPP)
+	$(COPYNIB)
+	touch $@
+
+%.app: %.c $(BASSLIB)
+	$(BUILDAPP)
+	touch $@

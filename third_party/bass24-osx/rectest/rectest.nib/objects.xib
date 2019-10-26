@@ -1,0 +1,102 @@
+<?xml version="1.0" standalone="yes"?>
+<object class="NSIBObjectData">
+  <object name="rootObject" class="NSCustomObject" id="1">
+  </object>
+  <array count="11" name="allObjects">
+    <object class="IBCarbonButton" id="232">
+      <int name="controlID">12</int>
+      <boolean name="enabled">FALSE</boolean>
+      <string name="title">Save</string>
+      <string name="bounds">10 360 30 430 </string>
+    </object>
+    <object class="IBCarbonSlider" id="246">
+      <int name="controlID">14</int>
+      <boolean name="isLive">TRUE</boolean>
+      <int name="orientation">2</int>
+      <string name="bounds">39 11 61 140 </string>
+    </object>
+    <object class="IBCarbonButton" id="231">
+      <int name="controlID">11</int>
+      <boolean name="enabled">FALSE</boolean>
+      <string name="title">Play</string>
+      <string name="bounds">10 280 30 350 </string>
+    </object>
+    <object class="IBCarbonButton" id="230">
+      <int name="controlID">10</int>
+      <string name="title">Record</string>
+      <string name="bounds">10 150 30 270 </string>
+    </object>
+    <object class="IBCarbonPopupButton" id="236">
+      <int name="controlID">13</int>
+      <object name="menu" class="IBCarbonMenu" id="237">
+        <string name="title">Popup</string>
+        <array count="1" name="items">
+          <object class="IBCarbonMenuItem" id="240">
+            <boolean name="checked">TRUE</boolean>
+            <boolean name="updateSingleItem">TRUE</boolean>
+          </object>
+        </array>
+      </object>
+      <string name="bounds">10 10 30 140 </string>
+    </object>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="hasCloseBox">TRUE</boolean>
+      <boolean name="hasHorizontalZoom">TRUE</boolean>
+      <boolean name="hasVerticalZoom">TRUE</boolean>
+      <boolean name="isResizable">FALSE</boolean>
+      <int name="carbonWindowClass">4</int>
+      <int name="windowPosition">1</int>
+      <string name="title">BASS recording test</string>
+      <object name="rootControl" class="IBCarbonRootControl" id="167">
+        <array count="6" name="subviews">
+          <reference idRef="230"/>
+          <reference idRef="231"/>
+          <reference idRef="232"/>
+          <reference idRef="236"/>
+          <object class="IBCarbonPlacard" id="243">
+            <array count="1" name="subviews">
+              <object class="IBCarbonStaticText" id="244">
+                <int name="controlID">20</int>
+                <int name="controlSize">1</int>
+                <string name="title">-</string>
+                <int name="justification">1</int>
+                <string name="bounds">43 160 56 420 </string>
+              </object>
+            </array>
+            <string name="bounds">40 150 59 430 </string>
+          </object>
+          <reference idRef="246"/>
+        </array>
+        <string name="bounds">0 0 66 440 </string>
+      </object>
+      <string name="windowRect">146 136 212 576 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
+    <reference idRef="243"/>
+    <reference idRef="237"/>
+    <reference idRef="244"/>
+    <reference idRef="167"/>
+    <reference idRef="240"/>
+  </array>
+  <array count="11" name="allParents">
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="167"/>
+    <reference idRef="1"/>
+    <reference idRef="167"/>
+    <reference idRef="236"/>
+    <reference idRef="243"/>
+    <reference idRef="166"/>
+    <reference idRef="237"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>Window</string>
+    <reference idRef="166"/>
+  </dictionary>
+  <string name="targetFramework">IBCarbonFramework</string>
+  <unsigned_int name="nextObjectID">247</unsigned_int>
+</object>
