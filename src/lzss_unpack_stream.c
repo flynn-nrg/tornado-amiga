@@ -135,7 +135,7 @@ void lzss_uncompress_stream(FILE *src, uint8_t *dst, uint32_t fileSize) {
 
     read = tndo_fread(data, toRead, 1, src);
     if (!read) {
-      fprintf(stderr, "FATAL - Failed to read compressed data. Aborting.\n");
+      fprintf(stderr, "FATAL - Failed to read LZSS compressed data. Aborting.\n");
       abort();
     }
 
@@ -155,7 +155,7 @@ void lzss_uncompress_stream(FILE *src, uint8_t *dst, uint32_t fileSize) {
         read = tndo_fread(&data[LZSS_STREAM_CHUNK], overflow, 1, src);
         if (!read) {
           fprintf(stderr,
-                  "FATAL - Failed to read compressed data. Aborting.\n");
+                  "FATAL - Failed to read LZSS compressed data. Aborting.\n");
           abort();
         }
         left -= overflow;
@@ -193,7 +193,7 @@ void lzss_uncompress_stream(FILE *src, uint8_t *dst, uint32_t fileSize) {
               tndo_fread(&data[LZSS_STREAM_CHUNK + overflow], deficit, 1, src);
           if (!read) {
             fprintf(stderr,
-                    "FATAL - Failed to read compressed data. Aborting.\n");
+                    "FATAL - Failed to read LZSS compressed data. Aborting.\n");
             abort();
           }
           left -= deficit;

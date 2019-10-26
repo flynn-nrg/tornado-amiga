@@ -40,6 +40,7 @@ int lzhLoadFile(FILE *source, unsigned char *dest, int fileSize) {
   // Consume payload.
   int read = tndo_fread(compData, fileSize, 1, source);
   if (read != 1) {
+    fprintf(stderr, "FATAL - Failed to read LZW compressed data. Aborting.\n");
     free(compData);
     return 1;
   }

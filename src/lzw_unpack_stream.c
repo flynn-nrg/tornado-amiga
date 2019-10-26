@@ -160,7 +160,7 @@ void lzw_uncompress_stream(FILE *source, uint8_t *dst, uint32_t fileSize) {
 
     uint32_t read = tndo_fread(buffer, toRead, 1, source);
     if (!read) {
-      fprintf(stderr, "FATAL - Failed to read compressed data. Aborting.\n");
+      fprintf(stderr, "FATAL - Failed to read LZW compressed data. Aborting.\n");
       abort();
     }
 
