@@ -129,33 +129,26 @@ Submodule path '../rocket': checked out '901db86412a0d57600cb072c16deac9c3ebc709
 Adding the NDK
 ----------------------
 
-Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha) and unpack it. Move the contents of the ```include/include_h``` and  ```include/include_i``` directories to the ```third_party/ndk``` directory. You should end up with a directory structure like this:
+Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha) and unpack it inside of the ```third_party/ndk``` directory. You should end up with a directory structure like this:
 
 ```
 mmendez$ cd third_party/ndk
-mmendez$ ls
-classes		devices		exec		hardware	libraries	prefs		resources	workbench
-clib		diskfont	gadgets		images		pragma		proto		rexx
-datatypes	dos		graphics	intuition	pragmas		reaction	utility
+thunderball:ndk mmendez$ tree -d .
+.
+└── ndk_3.9
+    ├── documentation
+    │   ├── autodocs
+    │   ├── releasenotes
+    │   └── workbench
+    ├── examples
+    │   ├── asynchio
+    │   ├── datatypes
+    │   │   ├── aiff
+    │   │   ├── cdxl
+    │   │   └── memory
+    │   ├── hdwrench
+[...]    
 ```
-
-Installing BASS
----------------
-
-Download [BASS](https://www.un4seen.com) for OSX and GNU/Linux and unpack it in the ```third_party``` directory.
-
-```
-mmendez$ ls -la
-total 24
-drwxr-xr-x  12 mmendez  staff    384 19 May 16:28 .
-drwxr-xr-x  13 mmendez  staff    416 22 Jun 16:57 ..
--rw-r--r--@  1 mmendez  staff  10244 27 Apr 12:15 .DS_Store
-drwx------@ 28 mmendez  staff    896 27 Apr 12:15 bass24-linux
-drwx------@ 29 mmendez  staff    928 27 Apr 12:15 bass24-osx
-[...]
-```
-
-**IMPORTANT**: You need both if you use Mac OSX because Tornado will pick up the include files from the bass24-linux directory.
 
 Let's do a quick test:
 
