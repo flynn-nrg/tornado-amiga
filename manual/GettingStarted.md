@@ -9,7 +9,6 @@ Before you can use Tornado there's a few things you need to setup:
 
 * A working [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) compiler with [AddressSanitizer](https://en.wikipedia.org/wiki/AddressSanitizer) support. Mac OS X uses clang by default and it's available in every GNU/Linux distribution as a package.
 * [SDL2](https://www.libsdl.org/). This is used by the posix/SDL target and it's a dependency for ImGui and ImGuiSDL.
-* [BASS](https://www.un4seen.com/). BASS is used by the posix/SDL target to play the music.
 * A working [vbcc](http://sun.hasenbraten.de/vbcc/index.php?view=main) setup.
 
 I suggest that you build your vbcc toolchain and add it to your repo. This makes everyone use the same set of tools.
@@ -133,7 +132,7 @@ Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha)
 
 ```
 mmendez$ cd third_party/ndk
-thunderball:ndk mmendez$ tree -d .
+mmendez$ tree -d .
 .
 └── ndk_3.9
     ├── documentation
