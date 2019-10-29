@@ -169,7 +169,7 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
                         .flags = CHUNKY_BUFFERS | REUSE_PLANAR_BUFFERS |
                                  CUSTOM_C2P | PALETTE_IN_COPPER,
                         .tornadoOptions = options,
-                        .copperSize = 610, // Obtained from the logs.
+                        .copperSize = 680, // Obtained from the logs.
                         .customPal = pal,
                         .numSprites = so->num_sprites};
 
@@ -237,6 +237,14 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
                             (instances[lastInstance].graph->w *
                              instances[lastInstance].graph->h) /
                                 8);
+      break;
+    case SCR_16_9_HL_8BPL:
+      c2p1x1_8_c5_040_16_9_init(instances[lastInstance].graph->w,
+                                instances[lastInstance].graph->h, 0, 0, 0,
+                                (instances[lastInstance].graph->w *
+                                 instances[lastInstance].graph->h) /
+                                    8,
+                                0);
       break;
     }
     c2pInitDone[mode] = 1;
@@ -307,6 +315,11 @@ void display_flip(int instance) {
                     instances[instance].planar[instances[instance].p],
                     instances[instance].graph->w *
                         instances[instance].graph->h);
+  case SCR_16_9_HL_8BPL:
+    c2p1x1_8_c5_040_16_9(instances[instance].chunky +
+                             instances[instance].c2pSkip,
+                         instances[instance].planar[instances[instance].p]);
+    break;
     break;
   }
 

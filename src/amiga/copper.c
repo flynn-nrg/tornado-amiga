@@ -161,7 +161,7 @@ void doCopper(graphics_t *graph, unsigned int tornadoOptions) {
     disp_win_x_size = graph->w / (lores_pixel_speed / lores_pixel_speed);
   }
 
-  disp_win_y_size = graph->h;
+  disp_win_y_size = interlace ? (graph->h / 2) : graph->h;
   disp_win_hstop = disp_win_hstart + disp_win_x_size;
   disp_win_vstop = disp_win_vstart + disp_win_y_size;
   diwstop = ((disp_win_vstop & 0xff) * 0x100) + (disp_win_hstop & 0xff);
