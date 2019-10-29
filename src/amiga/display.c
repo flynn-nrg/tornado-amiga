@@ -315,11 +315,11 @@ void display_flip(int instance) {
                     instances[instance].planar[instances[instance].p],
                     instances[instance].graph->w *
                         instances[instance].graph->h);
+    break;
   case SCR_16_9_HL_8BPL:
     c2p1x1_8_c5_040_16_9(instances[instance].chunky +
                              instances[instance].c2pSkip,
                          instances[instance].planar[instances[instance].p]);
-    break;
     break;
   }
 
