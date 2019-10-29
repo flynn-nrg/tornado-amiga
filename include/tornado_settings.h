@@ -42,6 +42,7 @@ misrepresented as being the original software.
 #define SCR_16_9_H_4BPL 8
 #define SCR_FLOAT 9
 #define SCR_16_9_5BPL 10
+#define SCR_16_9_HL_8BPL 11
 
 // Graphics init options
 #define CHUNKY_BUFFERS 1

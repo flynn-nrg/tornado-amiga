@@ -100,6 +100,7 @@ void doCopper(graphics_t *graph, unsigned int tornadoOptions) {
   int color = 1 << 9;
   int hires = 0;
   int superhires = 0;
+  int interlace = 0;
   int sprctl = 0;
   int coef = 4;
 
@@ -119,6 +120,19 @@ void doCopper(graphics_t *graph, unsigned int tornadoOptions) {
   default:
     fprintf(stderr, "WARNING - Unknown horizontal size %i\n", graph->w);
     pixel_speed = lores_pixel_speed;
+  }
+
+  switch (graph->h) {
+  case 180:
+  case 256:
+      interlace = 0;
+      break;
+  case 360:
+  case 512:
+      interlace = 1 << 4;
+      break;
+  default:
+    fprintf(stderr, "WARNING - Unknown vertical size %i\n", graph->h);
   }
 
   data_fetch_clocks = (pixel_per_data_fetch * pixel_speed) / color_clock_speed;
@@ -178,7 +192,7 @@ void doCopper(graphics_t *graph, unsigned int tornadoOptions) {
 
   CI(graph->copper, BPLCON0_OFFS,
      ((graph->depth & 0x7) << 12) | ((graph->depth & 0x8) << 1) | color |
-         ecsena | hires | superhires);
+         ecsena | hires | superhires | interlace);
 
   CI(graph->copper, BPLCON1_OFFS, 0x0000); // Scrolls
   CI(graph->copper, BPLCON2_OFFS, 0x0224); // Priority over sprites and scroll?
@@ -201,8 +215,13 @@ void doCopper(graphics_t *graph, unsigned int tornadoOptions) {
     insertZeroedSprites(graph->copper);
   }
 
-  CI(graph->copper, BPL1MOD_OFFS, 0x0); // Bitplanes modules
-  CI(graph->copper, BPL2MOD_OFFS, 0x0);
+  if (interlace) {
+    CI(graph->copper, BPL1MOD_OFFS, wd8); // Bitplanes modules
+    CI(graph->copper, BPL2MOD_OFFS, wd8);
+  } else {
+    CI(graph->copper, BPL1MOD_OFFS, 0x0); // Bitplanes modules
+    CI(graph->copper, BPL2MOD_OFFS, 0x0);
+  }
 
   copper_switch_start(graph->switch_bpls, graph->copper);
 
