@@ -6,6 +6,7 @@
 typedef struct
 {
     int w, h;
+    int sx, sy;
     int bypp;  // bytes per pixel
     union
     {

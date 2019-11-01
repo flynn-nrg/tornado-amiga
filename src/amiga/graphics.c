@@ -243,6 +243,15 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     graph->depth = 4;
     break;
 
+  case SCR_16_9_HL_8BPL:
+    if (!(graph->options & CUSTOM_C2P)) {
+      c2p1x1_4_c5_16_9_h_init(640, 360, 0, 0, 0, 640 * 360 / 8);
+    }
+    graph->w = 640;
+    graph->h = 360;
+    graph->depth = 8;
+    break;
+
     // 640x512 8 bitplanes to debug multipass effects.
   case SCR_DEBUG4:
     if (!(graph->options & CUSTOM_C2P)) {

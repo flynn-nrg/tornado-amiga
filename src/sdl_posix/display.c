@@ -84,6 +84,8 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
 
   tndo_assert(display_last_instance < maxDisplayInstances);
 
+  int scale_x = 0;
+  int scale_y = 0;
   int width = 0;
   int height = 0;
   int bypp = 1;
@@ -92,14 +94,25 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   switch (mode) {
   case SCR_NORMAL:
   case SCR_NORMAL_6BPL:
+    scale_x = 2;
+    scale_y = 2;
     width = 320;
     height = 256;
+    break;
+  case SCR_16_9_HL_8BPL:
+    scale_x = 1;
+    scale_y = 1;
+    width = 640;
+    height = 360;
+    is16_9 = 1;
     break;
   case SCR_16_9:
   case SCR_16_9_6BPL:
   case SCR_16_9_6_4_BPL:
   case SCR_16_9_5BPL:
   case SCR_16_9_4BPL:
+    scale_x = 2;
+    scale_y = 2;
     width = 320;
     height = 180;
     is16_9 = 1;
@@ -108,6 +121,8 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
 
   di[display_last_instance].fb.w = width;
   di[display_last_instance].fb.h = height;
+  di[display_last_instance].fb.sx = scale_x;
+  di[display_last_instance].fb.sy = scale_y;
   di[display_last_instance].fb.bypp = bypp;
   di[display_last_instance].is16_9 = is16_9;
   di[display_last_instance].fb.p.pixels = tndo_malloc(
@@ -149,8 +164,8 @@ void display_flip(int instance) {
   int modulo = 0;
 
   t_canvas *out = dev_window_get_canvas();
-  tndo_assert((di[instance].fb.w * 2) <= out->w);
-  tndo_assert((di[instance].fb.h * 2) <= out->h);
+  tndo_assert((di[instance].fb.w * di[instance].fb.sx) <= out->w);
+  tndo_assert((di[instance].fb.h * di[instance].fb.sy) <= out->h);
 
   if (di[instance].is16_9) {
     y_delta = ((out->h / 2) - (di[instance].fb.h)) / 2;
@@ -162,6 +177,7 @@ void display_flip(int instance) {
     modulo = 640;
   }
 
+#if 0
   for (y = 0; y < di[instance].fb.h; y++) {
     unsigned int *dst_a = out->p.pix32 + (y + y_delta) * 2 * (out->w + modulo);
     unsigned int *dst_b =
@@ -180,6 +196,27 @@ void display_flip(int instance) {
       dst_b[x * 2 + 1] = c;
     }
   }
+#else
+  int yStart = 0;
+  int yStop = out->h;
+  int yOffset = 0;
+  if (di[instance].is16_9) {
+      yStop = yStop * 9 / 16;
+      yOffset += (out->h - yStop) / 2;
+  }
+  for (y = yStart ; y < yStop ; y++) {
+      int ySrc = y / di[instance].fb.sy;
+      tndo_assert(ySrc < di[instance].fb.h);
+      unsigned int *dst = out->p.pix32 + (yOffset + y) * (out->w + modulo);
+      uint8_t      *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
+      for (x = 0 ; x < out->w ; x++) {
+          int xSrc = x / di[instance].fb.sx;
+          tndo_assert(xSrc < di[instance].fb.w);
+          unsigned int og = src[xSrc];
+          dst[x] = di[instance].pal256[og];
+      }
+  }
+#endif
 
   dev_window_output_flip();
 }
