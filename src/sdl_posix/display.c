@@ -21,6 +21,8 @@ misrepresented as being the original software.
 #include <stdlib.h>
 #include <string.h>
 
+#include <arpa/inet.h>
+
 #include <SDL.h>
 
 #include <assets.h>
@@ -93,13 +95,16 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
 
   switch (mode) {
   case SCR_NORMAL:
+  case RTG_NORMAL:
   case SCR_NORMAL_6BPL:
+  case RTG_NORMAL_6BPL:
     scale_x = 2;
     scale_y = 2;
     width = 320;
     height = 256;
     break;
   case SCR_16_9_HL_8BPL:
+  case RTG_16_9_HL_8BPL:
     scale_x = 1;
     scale_y = 1;
     width = 640;
@@ -107,10 +112,14 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
     is16_9 = 1;
     break;
   case SCR_16_9:
+  case RTG_16_9:
   case SCR_16_9_6BPL:
+  case RTG_16_9_6BPL:
   case SCR_16_9_6_4_BPL:
   case SCR_16_9_5BPL:
+  case RTG_16_9_5BPL:
   case SCR_16_9_4BPL:
+  case RTG_16_9_4BPL:
     scale_x = 2;
     scale_y = 2;
     width = 320;
@@ -138,8 +147,33 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
          di[display_last_instance].fb.w * di[display_last_instance].fb.h *
              di[display_last_instance].fb.bypp);
 
-  for (int i = 0; i < 256; i++) {
-    di[display_last_instance].pal256[i] = pal[i];
+  uint32_t numCols, k;
+  // Convert from LoadRGB32 to rgb.
+  switch (mode) {
+  case RTG_NORMAL:
+  case RTG_NORMAL_6BPL:
+  case RTG_16_9_HL_8BPL:
+  case RTG_16_9:
+  case RTG_16_9_6BPL:
+  case RTG_16_9_5BPL:
+  case RTG_16_9_4BPL:
+    numCols = htonl(pal[0]) >> 16;
+    pal++;
+    k = 0;
+    for (uint32_t i = 0; i < numCols; i++) {
+      uint32_t r = htonl(pal[k]) >> 24;
+      k++;
+      uint32_t g = htonl(pal[k]) >> 24;
+      k++;
+      uint32_t b = htonl(pal[k]) >> 24;
+      k++;
+      di[display_last_instance].pal256[i] = b | (g << 8) | (r << 16);
+    }
+    break;
+  default:
+    for (int i = 0; i < 256; i++) {
+      di[display_last_instance].pal256[i] = pal[i];
+    }
   }
 
   if (options & ENABLE_ROCKET) {
@@ -201,20 +235,20 @@ void display_flip(int instance) {
   int yStop = out->h;
   int yOffset = 0;
   if (di[instance].is16_9) {
-      yStop = yStop * 9 / 16;
-      yOffset += (out->h - yStop) / 2;
+    yStop = yStop * 9 / 16;
+    yOffset += (out->h - yStop) / 2;
   }
-  for (y = yStart ; y < yStop ; y++) {
-      int ySrc = y / di[instance].fb.sy;
-      tndo_assert(ySrc < di[instance].fb.h);
-      unsigned int *dst = out->p.pix32 + (yOffset + y) * (out->w + modulo);
-      uint8_t      *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
-      for (x = 0 ; x < out->w ; x++) {
-          int xSrc = x / di[instance].fb.sx;
-          tndo_assert(xSrc < di[instance].fb.w);
-          unsigned int og = src[xSrc];
-          dst[x] = di[instance].pal256[og];
-      }
+  for (y = yStart; y < yStop; y++) {
+    int ySrc = y / di[instance].fb.sy;
+    tndo_assert(ySrc < di[instance].fb.h);
+    unsigned int *dst = out->p.pix32 + (yOffset + y) * (out->w + modulo);
+    uint8_t *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
+    for (x = 0; x < out->w; x++) {
+      int xSrc = x / di[instance].fb.sx;
+      tndo_assert(xSrc < di[instance].fb.w);
+      unsigned int og = src[xSrc];
+      dst[x] = di[instance].pal256[og];
+    }
   }
 #endif
 

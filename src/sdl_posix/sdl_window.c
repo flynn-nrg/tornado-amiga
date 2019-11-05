@@ -242,6 +242,8 @@ void dev_window_output_flip() {
 
 int mousePressL(void) { return mouse_left; }
 
+int display_checkinput(void) { return mouse_left; }
+
 int mousePressR(void) { return mouse_right; }
 
 int mousePosX(void) { return mouse_x; }

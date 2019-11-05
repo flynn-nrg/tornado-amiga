@@ -36,6 +36,8 @@ typedef struct {
   int spriteSize;
   int copperSize;
   int bplcon3;
+  // RTG support
+  int systemScreen;
   unsigned char *chunky;
   unsigned char *planar1;
   unsigned char *planar2;
