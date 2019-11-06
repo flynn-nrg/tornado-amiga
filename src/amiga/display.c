@@ -282,6 +282,7 @@ static uint32_t *rtgPal;
 static uint32_t rtgCurScreen = 0;
 static uint32_t rtgIsChunkyBuffer = 0;
 static uint32_t rtgScreenSizeX, rtgScreenSizeY, rtgScreenDepth, rtgScreenOffset;
+static uint32_t rtgModeSizeX, rtgModeSizeY, rtgModeDepth;
 static uint8_t *rtgChunkyBuffer;
 
 static struct Screen *rtgScreen = 0;
@@ -349,12 +350,15 @@ static int display_init_rtg(unsigned int *pal, unsigned int options, int mode,
     rtgScreenSizeY = 256;
     rtgScreenDepth = 8;
     rtgScreenOffset = 0;
+    rtgModeSizeX = 320;
+    rtgModeSizeY = 256;
+    rtgModeDepth = 8;
     break;
   }
 
-  rtgScreenModeTagList[0].ti_Data = rtgScreenSizeX;
-  rtgScreenModeTagList[1].ti_Data = rtgScreenSizeY;
-  rtgScreenModeTagList[2].ti_Data = rtgScreenDepth;
+  rtgScreenModeTagList[0].ti_Data = rtgModeSizeX;
+  rtgScreenModeTagList[1].ti_Data = rtgModeSizeY;
+  rtgScreenModeTagList[2].ti_Data = rtgModeDepth;
 
   rtgScreenTagList[1].ti_Data = rtgScreenSizeX;
   rtgScreenTagList[2].ti_Data = rtgScreenSizeY;
@@ -458,9 +462,9 @@ static int display_init_rtg(unsigned int *pal, unsigned int options, int mode,
   instances[lastInstance].graph->w = rtgScreenSizeX;
   instances[lastInstance].graph->h = rtgScreenSizeY;
 
-  int currentInstance = lastInstance;
+  rtgInstance = lastInstance;
   lastInstance++;
-  return currentInstance;
+  return rtgInstance;
 }
 
 int display_init(unsigned int *pal, unsigned int options, int mode,
