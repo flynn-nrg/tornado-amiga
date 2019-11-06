@@ -67,7 +67,7 @@ static int fenv;
 static unsigned int scratch_pal[256];
 
 // OS friendly VBL interrupt.
-struct Interrupt tndoVBL;
+static struct Interrupt tndoVBL;
 
 int main(int argc, char **argv) {
 
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
     }
   } else {
     if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
-      printf("DEBUG - Tornado is running in system friend mode. No direct "
+      printf("DEBUG - Tornado is running in system friendly mode. No direct "
              "hardware access!\n");
     }
 
