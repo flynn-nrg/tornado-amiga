@@ -345,7 +345,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 #ifdef __AMIGA__
   p61InitOSLegal(chipBuffer, 0, 0, 0);
 #endif
-  
+
   for (;;) {
     if (loadEffect) {
       loadEffect = 0;
@@ -355,7 +355,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
     oldTime = epoch;
     oldTime += getMasterTimer();
     if (lastFrame == oldTime) {
-	    continue;
+      continue;
     }
 
     int effectLocalTime = oldTime - e->minTime;
@@ -384,7 +384,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 
     requires_forefront = 0;
 
-    // Note how we use disaply_checkinput instead of mousePressL here.
+    // Note how we use display_checkinput instead of mousePressL here.
     mustExit = display_checkinput();
     if (mustExit || (e->render == renderNull)) {
       mustExit = 1;
