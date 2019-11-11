@@ -69,7 +69,7 @@ static int display_1x2 = 0;
 static int rocketControl = 0;
 
 void display_subsystem_init(int numInstances) {
-  di = tndo_malloc(numInstances * sizeof(display_instance), 0);
+  di = (display_instance*) tndo_malloc(numInstances * sizeof(display_instance), 0);
   maxDisplayInstances = numInstances;
 }
 
