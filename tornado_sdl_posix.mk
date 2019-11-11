@@ -94,6 +94,7 @@ CC := cc
 CXX := c++
 
 CCFLAGS += -c  
+CCFLAGS += --std=c11
 CCFLAGS += -O0 
 CCFLAGS += -g
 CCFLAGS += -fno-omit-frame-pointer
@@ -103,6 +104,7 @@ CCFLAGS += -Wno-deprecated
 CCFLAGS += -Wno-unused-variable 
 CCFLAGS += -Wno-unused-function
 CCFLAGS += -DUSE_GETADDRINFO
+CCFLAGS += -DSDL_PIXELFORMAT_RGBA32=SDL_PIXELFORMAT_ABGR8888
 CCFLAGS += -fsanitize=address -fsanitize=undefined
 
 CXXFLAGS = $(CCFLAGS)
