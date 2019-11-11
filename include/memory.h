@@ -23,6 +23,10 @@ misrepresented as being the original software.
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TNDO_REUSABLE_MEM 1
 #define TNDO_ALLOC_CHIP 1 << 1
 
@@ -69,5 +73,9 @@ int tndo_memory_init(uint32_t, uint32_t, uint32_t, uint32_t);
 void *get_chipmem_scratchpad_addr(int);
 void init_chipmem_scratchpad(int);
 uint32_t tndo_memory_used();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
