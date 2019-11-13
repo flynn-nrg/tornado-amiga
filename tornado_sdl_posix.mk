@@ -84,6 +84,7 @@ OBJECTS  := $(OBJECTS:%=$(BUILDDIR)/%)
 
 ifdef LINUX_HOST
 CCFLAGS += -D_XOPEN_SOURCE=500
+CCFLAGS += -DSDL_PIXELFORMAT_RGBA32=SDL_PIXELFORMAT_ABGR8888
 endif
 
 # One group or the other please...
@@ -104,7 +105,6 @@ CCFLAGS += -Wno-deprecated
 CCFLAGS += -Wno-unused-variable 
 CCFLAGS += -Wno-unused-function
 CCFLAGS += -DUSE_GETADDRINFO
-CCFLAGS += -DSDL_PIXELFORMAT_RGBA32=SDL_PIXELFORMAT_ABGR8888
 CCFLAGS += -fsanitize=address -fsanitize=undefined
 
 CXXFLAGS = $(CCFLAGS)
