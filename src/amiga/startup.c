@@ -27,6 +27,11 @@ misrepresented as being the original software.
 #include <stdlib.h>
 #include <string.h>
 
+#include <clib/exec_protos.h>
+#include <dos/dos.h>
+#include <exec/interrupts.h>
+#include <hardware/custom.h>
+#include <hardware/intbits.h>
 #include <proto/exec.h>
 
 // Tornado includes...
@@ -60,6 +65,9 @@ size_t __stack = 65536; /* 64KB stack-size */
 static int fenv;
 
 static unsigned int scratch_pal[256];
+
+// OS friendly VBL interrupt.
+static struct Interrupt tndoVBL;
 
 int main(int argc, char **argv) {
 
@@ -177,42 +185,57 @@ int main(int argc, char **argv) {
 
   if (dp->tornadoOptions & KILL_OS) {
     closeOS(hw->vbr);
-  }
 
-  if (dp->tornadoOptions & INSTALL_LEVEL2) {
-    installLevel2(hw->vbr);
-  }
-
-  if (dp->tornadoOptions & INSTALL_LEVEL3) {
-    int *paulaOutputVBLCallback = Get_PaulaOutput_VertBCallback();
-    installLevel3(hw->vbr, paulaOutputVBLCallback, (int *)demoVBL);
-  }
-
-  if (dp->tornadoOptions & USE_AUDIO) {
-    void *mixRoutine;
-    switch (dp->audioMode) {
-    case OUTPUT_14_BIT_STEREO:
-      if (dp->tornadoOptions & DDPCM_STREAMING) {
-        mixRoutine = getDDPCMMixRoutine16();
-      } else {
-        mixRoutine = getMixRoutine16();
-      }
-      break;
-    case OUTPUT_8_BIT_STEREO:
-      if (dp->tornadoOptions & INTERLEAVED_AUDIO) {
-        mixRoutine = getMixRoutine8i();
-      } else {
-        mixRoutine = getMixRoutine8();
-      }
-      break;
-    default:
-      printf("FATAL - Unsupported audio mode. Aborting.\n");
-      exit(1);
+    if (dp->tornadoOptions & INSTALL_LEVEL2) {
+      installLevel2(hw->vbr);
     }
-    setAudioMode(PCM_REPLAY_MODE);
-    PaulaOutput_Init(mixRoutine, dp->mixState, dp->mixState2, dp->audioPeriod,
-                     dp->audioMode);
-    PaulaOutput_Start();
+
+    if (dp->tornadoOptions & INSTALL_LEVEL3) {
+      int *paulaOutputVBLCallback = Get_PaulaOutput_VertBCallback();
+      installLevel3(hw->vbr, paulaOutputVBLCallback, (int *)demoVBL);
+    }
+
+    if (dp->tornadoOptions & USE_AUDIO) {
+      void *mixRoutine;
+      switch (dp->audioMode) {
+      case OUTPUT_14_BIT_STEREO:
+        if (dp->tornadoOptions & DDPCM_STREAMING) {
+          mixRoutine = getDDPCMMixRoutine16();
+        } else {
+          mixRoutine = getMixRoutine16();
+        }
+        break;
+      case OUTPUT_8_BIT_STEREO:
+        if (dp->tornadoOptions & INTERLEAVED_AUDIO) {
+          mixRoutine = getMixRoutine8i();
+        } else {
+          mixRoutine = getMixRoutine8();
+        }
+        break;
+      default:
+        printf("FATAL - Unsupported audio mode. Aborting.\n");
+        exit(1);
+      }
+      setAudioMode(PCM_REPLAY_MODE);
+      PaulaOutput_Init(mixRoutine, dp->mixState, dp->mixState2, dp->audioPeriod,
+                       dp->audioMode);
+      PaulaOutput_Start();
+    }
+  } else {
+    if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
+      printf("DEBUG - Tornado is running in system friendly mode. No direct "
+             "hardware access!\n");
+    }
+
+    if (dp->tornadoOptions & INSTALL_LEVEL3) {
+      setupVBLChain(0, (int *)demoVBL);
+      tndoVBL.is_Node.ln_Type = NT_INTERRUPT;
+      tndoVBL.is_Node.ln_Pri = -60;
+      tndoVBL.is_Node.ln_Name = "Tornado VBL";
+      tndoVBL.is_Data = 0;
+      tndoVBL.is_Code = VBLChain;
+      AddIntServer(INTB_VERTB, &tndoVBL);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -225,17 +248,21 @@ int main(int argc, char **argv) {
   // Main demo loop ends...
   // ---------------------------------------------------------------------------
 
-  if (dp->tornadoOptions & USE_AUDIO) {
-    int am = getAudioMode();
-    if (am == P61_REPLAY_MODE) {
-      p61End();
-    } else {
-      PaulaOutput_ShutDown();
-    }
-  }
-
   if (dp->tornadoOptions & KILL_OS) {
+    if (dp->tornadoOptions & USE_AUDIO) {
+      int am = getAudioMode();
+      if (am == P61_REPLAY_MODE) {
+        p61End();
+      } else {
+        PaulaOutput_ShutDown();
+      }
+    }
     restoreOS(hw->vbr);
+  } else {
+    // Remove interrupt VBL server
+    if (dp->tornadoOptions & INSTALL_LEVEL3) {
+      RemIntServer(INTB_VERTB, &tndoVBL);
+    }
   }
 
   // Memory logging flush...

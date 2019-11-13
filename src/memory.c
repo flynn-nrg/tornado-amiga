@@ -39,6 +39,10 @@ misrepresented as being the original software.
 #include "ptr_bridges.h"
 #include "tornado_settings.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // non-reusable memory cannot be allocated after init.
 static uint32_t initDone = 0;
 
@@ -356,3 +360,8 @@ void *tndo_malloc_align_ex(size_t size, uint32_t options,
     pow2_alignment = 4;
   return tndo_malloc_internal(size, options, pow2_alignment);
 }
+
+#ifdef __cplusplus
+}
+#endif
+

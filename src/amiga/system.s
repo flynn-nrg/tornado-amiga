@@ -18,6 +18,9 @@
 	public _mousePosX
 	public _mousePosY
 	public _serialPutc
+	public _setupVBLChain
+	public _VBLChain
+	xdef _VBLChain
 	
 LVOOpenLibrary EQU -552
 LVOCloseLibrary EQU -414	
@@ -203,6 +206,29 @@ _restoreFPCR:
 	moveq.l	#0,d0
 	rts
 
+_setupVBLChain:
+	move.l a1, _vblcallback
+	move.l a2, _vblcallback2
+	rts
+
+_VBLChain:
+	movem.l	d1-d7/a0-a6,-(sp)
+	addq.l #1, _master_timer ; increase timer by 1
+	move.l _vblcallback, a5	; Paula replay callback.
+	cmp.l   #0,a5
+	beq     .skip_chain1
+	jsr (a5)
+.skip_chain1:
+	move.l _vblcallback2, a5 ; demoVBL
+	cmp.l   #0,a5
+	beq     .quitChain
+	jsr (a5)
+	bra.w .quitChain
+.quitChain:
+	movem.l	(sp)+,d1-d7/a0-a6
+	moveq.l #0, d0		; set Z flag for the next VBL servers.
+	rts
+	
 _installLevel3:
 	move.l a1, _vblcallback
 	move.l a2, _vblcallback2

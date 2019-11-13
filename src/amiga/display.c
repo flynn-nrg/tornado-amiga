@@ -21,6 +21,20 @@ misrepresented as being the original software.
 #include <stdlib.h>
 #include <string.h>
 
+#include <dos/dos.h>
+#include <exec/exec.h>
+
+#include <graphics/modeid.h>
+#include <graphics/videocontrol.h>
+#include <proto/dos.h>
+#include <proto/exec.h>
+#include <proto/graphics.h>
+#include <proto/intuition.h>
+
+#include <clib/alib_protos.h>
+#include <clib/dos_protos.h>
+#include <clib/exec_protos.h>
+
 #include <aga.h>
 #include <assets.h>
 #include <c2p.h>
@@ -38,7 +52,7 @@ misrepresented as being the original software.
 #include <tndo_assert.h>
 #include <tornado_settings.h>
 
-static int c2pInitDone[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static int c2pInitDone[64] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static display_instance *instances;
 static int maxDisplayInstances;
 static sprite_options empty_so = {.num_sprites = 0};
@@ -154,9 +168,9 @@ void display_subsystem_end() {
 #endif
 }
 
-int display_init(unsigned int *pal, unsigned int options, int mode,
-                 unsigned int padding_top, unsigned int padding_bottom,
-                 sprite_options *so) {
+static int display_init_aga(unsigned int *pal, unsigned int options, int mode,
+                            unsigned int padding_top,
+                            unsigned int padding_bottom, sprite_options *so) {
   if (!so) {
     so = &empty_so;
   }
@@ -261,9 +275,239 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   return currentInstance;
 }
 
+// RTG screen support
+static uint32_t rtgInitDone = 0;
+static uint32_t rtgInstance;
+static uint32_t *rtgPal;
+static uint32_t rtgCurScreen = 0;
+static uint32_t rtgIsChunkyBuffer = 0;
+static uint32_t rtgScreenSizeX, rtgScreenSizeY, rtgScreenDepth, rtgScreenOffset;
+static uint32_t rtgModeSizeX, rtgModeSizeY, rtgModeDepth;
+static uint8_t *rtgChunkyBuffer;
+
+static struct Screen *rtgScreen = 0;
+static struct Window *rtgWindow = 0;
+static struct RastPort rtg_wpa8rastport;
+static struct BitMap *rtg_wpa8bitmap;
+static struct Rectangle rtgScreenrect;
+static struct ScreenBuffer *rtgScreenBuffer[2];
+static struct MsgPort *rtgScreenBufferPort[2];
+
+static struct TagItem rtg_vctags[] = {{VTAG_BORDERBLANK_CLR, 1}, {TAG_END, 0}};
+
+static struct TagItem rtgScreenTagList[] = {
+    SA_DisplayID,    0x544e444f,
+    SA_Width,        0,
+    SA_Height,       0,
+    SA_Depth,        0,
+    SA_Top,          0,
+    SA_Left,         0,
+    SA_Quiet,        TRUE,
+    SA_Type,         CUSTOMSCREEN,
+    SA_Title,        (ULONG) "Tornado Screen",
+    SA_DClip,        (int)&rtgScreenrect,
+    SA_VideoControl, (ULONG)rtg_vctags,
+    SA_Behind,       TRUE,
+    SA_AutoScroll,   FALSE,
+    TAG_END};
+
+static struct TagItem rtgWindowTagList[] = {
+    WA_CustomScreen,
+    0x544e444f,
+    WA_Title,
+    (ULONG) "Tornado Window",
+    WA_Flags,
+    WFLG_ACTIVATE | WFLG_BACKDROP | WFLG_BORDERLESS | WFLG_RMBTRAP,
+    WA_IDCMP,
+    IDCMP_MOUSEBUTTONS,
+    TAG_END,
+    0};
+
+static struct TagItem rtgScreenModeTagList[] = {
+    BIDTAG_NominalWidth, 0, BIDTAG_NominalHeight, 0, BIDTAG_Depth, 0, TAG_END};
+
+static int display_init_rtg(unsigned int *pal, unsigned int options, int mode,
+                            unsigned int padding_top,
+                            unsigned int padding_bottom, sprite_options *so) {
+
+  // We only allow one instance for now.
+  if (rtgInitDone) {
+    return rtgInstance;
+  }
+
+  tndo_assert(lastInstance < maxDisplayInstances);
+
+  instances[lastInstance].paddingTop = padding_top;
+  instances[lastInstance].paddingBottom = padding_bottom;
+  instances[lastInstance].c2pSkip =
+      padding_top * instances[lastInstance].graph->w;
+
+  instances[lastInstance].mode = mode;
+
+  switch (mode) {
+  case RTG_NORMAL:
+    rtgScreenSizeX = 320;
+    rtgScreenSizeY = 256;
+    rtgScreenDepth = 8;
+    rtgScreenOffset = 0;
+    rtgModeSizeX = 320;
+    rtgModeSizeY = 256;
+    rtgModeDepth = 8;
+    break;
+  }
+
+  rtgScreenModeTagList[0].ti_Data = rtgModeSizeX;
+  rtgScreenModeTagList[1].ti_Data = rtgModeSizeY;
+  rtgScreenModeTagList[2].ti_Data = rtgModeDepth;
+
+  rtgScreenTagList[1].ti_Data = rtgScreenSizeX;
+  rtgScreenTagList[2].ti_Data = rtgScreenSizeY;
+  rtgScreenTagList[3].ti_Data = rtgScreenDepth;
+  rtgScreenTagList[4].ti_Data = rtgScreenOffset;
+
+  rtgScreenTagList[0].ti_Data = BestModeIDA(rtgScreenModeTagList);
+  if (rtgScreenTagList[0].ti_Data == INVALID_ID) {
+    fprintf(stderr, "FATAL - Could not obtain valid BestModeID. Aborting.\n");
+    abort();
+  }
+
+  QueryOverscan(rtgScreenTagList[0].ti_Data, &rtgScreenrect, OSCAN_TEXT);
+
+  if (rtgScreenrect.MaxX - rtgScreenrect.MinX != rtgScreenSizeX - 1) {
+    rtgScreenrect.MaxX = rtgScreenrect.MinX + rtgScreenSizeX - 1;
+  }
+
+  if (rtgScreenrect.MaxY - rtgScreenrect.MinY != rtgScreenSizeY - 1) {
+    rtgScreenrect.MaxY = rtgScreenrect.MinY + rtgScreenSizeY - 1;
+  }
+
+  rtgScreen = OpenScreenTagList(0, rtgScreenTagList);
+  if (!rtgScreen) {
+    fprintf(stderr, "FATAL - Could not open screen. Aborting.\n");
+    abort();
+  }
+
+  if (GetBitMapAttr(rtgScreen->RastPort.BitMap, BMA_FLAGS) & BMF_STANDARD) {
+
+    rtgScreenBuffer[0] = AllocScreenBuffer(rtgScreen, 0, SB_SCREEN_BITMAP);
+    if (!rtgScreenBuffer[0]) {
+      fprintf(stderr, "FATAL - Could not allocate screen buffer. Aborting.\n");
+      abort();
+    }
+
+    rtgScreenBufferPort[0] = CreateMsgPort();
+    if (!rtgScreenBufferPort[0]) {
+      fprintf(stderr, "FATAL - Could allocate message port. Aborthing.\n");
+      abort();
+    }
+
+    rtgScreenBuffer[0]->sb_DBufInfo->dbi_SafeMessage.mn_ReplyPort =
+        rtgScreenBufferPort[0];
+
+    rtgScreenBuffer[1] = AllocScreenBuffer(rtgScreen, 0, 0);
+    if (!rtgScreenBuffer[1]) {
+      fprintf(stderr, "FATAL - Could not allocate screen buffer. Aborting.\n");
+      abort();
+    }
+
+    rtgScreenBufferPort[1] = CreateMsgPort();
+    if (!rtgScreenBufferPort[1]) {
+      fprintf(stderr, "FATAL - Could allocate message port. Aborthing.\n");
+      abort();
+    }
+
+    rtgScreenBuffer[1]->sb_DBufInfo->dbi_SafeMessage.mn_ReplyPort =
+        rtgScreenBufferPort[0];
+    rtgScreenBuffer[0]->sb_DBufInfo->dbi_DispMessage.mn_ReplyPort =
+        rtgScreenBufferPort[1];
+    rtgScreenBuffer[1]->sb_DBufInfo->dbi_DispMessage.mn_ReplyPort =
+        rtgScreenBufferPort[1];
+
+  } else {
+
+    rtgIsChunkyBuffer = 1;
+
+    InitRastPort(&rtg_wpa8rastport);
+
+    rtg_wpa8bitmap =
+        AllocBitMap(GetBitMapAttr(rtgScreen->RastPort.BitMap, BMA_WIDTH), 1,
+                    GetBitMapAttr(rtgScreen->RastPort.BitMap, BMA_DEPTH), 0,
+                    rtgScreen->RastPort.BitMap);
+    if (!rtg_wpa8bitmap) {
+      fprintf(stderr, "FATAL - RTG display initialisation failed. Aborting.");
+      abort();
+    }
+
+    rtg_wpa8rastport.BitMap = rtg_wpa8bitmap;
+  }
+
+  rtgWindowTagList[0].ti_Data = (int)rtgScreen;
+
+  rtgWindow = OpenWindowTagList(0, rtgWindowTagList);
+  if (!rtgWindow) {
+    fprintf(stderr, "FATAL - Failed to open window. Aborting.\n");
+    abort();
+  }
+
+  rtgChunkyBuffer = tndo_malloc(rtgScreenSizeX * rtgScreenSizeY, 0);
+  rtgPal = pal;
+  rtgInitDone = 1;
+
+  instances[lastInstance].isRTG = 1;
+  instances[lastInstance].chunky = rtgChunkyBuffer;
+  instances[lastInstance].p = 0;
+  instances[lastInstance].pal256 = pal;
+  instances[lastInstance].graph =
+      (graphics_t *)tndo_malloc(sizeof(graphics_t), 0);
+  instances[lastInstance].graph->w = rtgScreenSizeX;
+  instances[lastInstance].graph->h = rtgScreenSizeY;
+
+  rtgInstance = lastInstance;
+  lastInstance++;
+  return rtgInstance;
+}
+
+int display_init(unsigned int *pal, unsigned int options, int mode,
+                 unsigned int padding_top, unsigned int padding_bottom,
+                 sprite_options *so) {
+  switch (mode) {
+  case SCR_NORMAL:
+  case SCR_NORMAL_6BPL:
+  case SCR_16_9:
+  case SCR_16_9_6BPL:
+  case SCR_16_9_4BPL:
+  case SCR_16_9_6_4_BPL:
+  case SCR_DEBUG4:
+  case SCR_16_9_H_4BPL:
+  case SCR_FLOAT:
+  case SCR_16_9_5BPL:
+  case SCR_16_9_HL_8BPL:
+    return display_init_aga(pal, options, mode, padding_top, padding_bottom,
+                            so);
+
+  case RTG_NORMAL:
+  case RTG_NORMAL_6BPL:
+  case RTG_16_9:
+  case RTG_16_9_6BPL:
+  case RTG_16_9_4BPL:
+  case RTG_DEBUG4:
+  case RTG_16_9_H_4BPL:
+  case RTG_FLOAT:
+  case RTG_16_9_5BPL:
+  case RTG_16_9_HL_8BPL:
+    return display_init_rtg(pal, options, mode, padding_top, padding_bottom,
+                            so);
+    break;
+  default:
+    fprintf(stderr, "FATAL - Unknown graphics mode %x. Aborthing.\n", mode);
+    abort();
+  }
+}
+
 static t_canvas _fb = {.w = 0, .h = 0, .bypp = 1};
 
 t_canvas *display_get(int instance) {
+
   _fb.w = instances[instance].graph->w;
   _fb.h = instances[instance].graph->h;
   _fb.p.pix8 = instances[instance].chunky;
@@ -271,22 +515,30 @@ t_canvas *display_get(int instance) {
 }
 
 void display_forefront(int instance) {
-  clean_bpls(instance);
-  if (instances[instance].numSprites > 0) {
-    for (int i = 0; i < instances[instance].numSprites; i++) {
-      memcpy(instances[instance].graph->sprites[i],
-             instances[instance].display_sprites[i],
-             instances[instance].sprSize);
+  if (instances[instance].isRTG) {
+    ScreenToFront(rtgScreen);
+    LoadRGB32(&rtgScreen->ViewPort, (ULONG *)rtgPal);
+    if (!rtgIsChunkyBuffer) {
+      ChangeScreenBuffer(rtgScreen, rtgScreenBuffer[rtgCurScreen]);
     }
+  } else {
+    clean_bpls(instance);
+    if (instances[instance].numSprites > 0) {
+      for (int i = 0; i < instances[instance].numSprites; i++) {
+        memcpy(instances[instance].graph->sprites[i],
+               instances[instance].display_sprites[i],
+               instances[instance].sprSize);
+      }
+    }
+    WRL(COP1LCH_ADDR, PBRG(instances[instance].graph->copper->commands));
   }
-  WRL(COP1LCH_ADDR, PBRG(instances[instance].graph->copper->commands));
 }
 
 void display_set_copper(int instance) {}
 
 static int prev_instance = 0;
 
-void display_flip(int instance) {
+static void display_flip_aga(int instance) {
 
   instances[instance].p ^= 1;
 
@@ -338,4 +590,105 @@ void display_flip(int instance) {
   }
 }
 
-void display_end(int instance) {}
+static void display_flip_rtg(int instance) {
+  if (!rtgIsChunkyBuffer) {
+    while (!GetMsg(rtgScreenBufferPort[0]))
+      WaitPort(rtgScreenBufferPort[0]);
+
+    c2p1x1_8_c5_bm(rtgChunkyBuffer, rtgScreenBuffer[rtgCurScreen]->sb_BitMap,
+                   rtgScreenSizeX, rtgScreenSizeY, 0, 0);
+
+    while (!GetMsg(rtgScreenBufferPort[1]))
+      WaitPort(rtgScreenBufferPort[1]);
+
+    ChangeScreenBuffer(rtgScreen, rtgScreenBuffer[rtgCurScreen]);
+
+  } else {
+
+    WritePixelArray8(&rtgScreen->RastPort, 0, rtgCurScreen * rtgScreenSizeY,
+                     rtgScreenSizeX - 1,
+                     (rtgCurScreen * rtgScreenSizeY) + (rtgScreenSizeY - 1),
+                     rtgChunkyBuffer, &rtg_wpa8rastport);
+
+    rtgScreen->ViewPort.RasInfo->RyOffset = rtgCurScreen * rtgScreenSizeY;
+    ScrollVPort(&rtgScreen->ViewPort);
+    WaitBOVP(&rtgScreen->ViewPort);
+  }
+
+  rtgCurScreen = 1 - rtgCurScreen;
+}
+
+void display_flip(int instance) {
+  if (instances[instance].isRTG) {
+    display_flip_rtg(instance);
+  } else {
+    display_flip_aga(instance);
+  }
+}
+
+void display_end(int instance) {
+  if (instances[instance].isRTG) {
+#if 0
+		if (!rtgIsChunkyBuffer) {
+			ChangeScreenBuffer(rtgScreen, rtgScreenBuffer[0]);
+			while (!GetMsg(rtgScreenBufferPort[0]))
+				WaitPort(rtgScreenBufferPort[0]);
+
+			printf("Esperata uno.\n");
+			ChangeScreenBuffer(rtgScreen, rtgScreenBuffer[1]);
+			while (!GetMsg(rtgScreenBufferPort[1]))
+				WaitPort(rtgScreenBufferPort[1]);
+		}
+#endif
+    if (rtgWindow) {
+      CloseWindow(rtgWindow);
+      rtgWindow = 0;
+    }
+
+    if (rtgScreen) {
+      CloseScreen(rtgScreen);
+    }
+
+    if (rtgScreenBufferPort[0]) {
+      DeleteMsgPort(rtgScreenBufferPort[0]);
+      rtgScreenBufferPort[0] = 0;
+    }
+
+    if (rtgScreenBufferPort[1]) {
+      DeleteMsgPort(rtgScreenBufferPort[1]);
+      rtgScreenBufferPort[1] = 0;
+    }
+
+    if (rtgScreenBuffer[0]) {
+      FreeScreenBuffer(rtgScreen, rtgScreenBuffer[0]);
+      rtgScreenBuffer[0] = 0;
+    }
+
+    if (rtgScreenBuffer[1]) {
+      FreeScreenBuffer(rtgScreen, rtgScreenBuffer[1]);
+      rtgScreenBuffer[1] = 0;
+    }
+
+    // We can reset the screen value now.
+    rtgScreen = 0;
+
+    if (rtg_wpa8bitmap) {
+      FreeBitMap(rtg_wpa8bitmap);
+      rtg_wpa8bitmap = 0;
+    }
+  }
+}
+
+int display_checkinput(void) {
+  struct IntuiMessage *imsg;
+  int mustExit = 0;
+
+  while (imsg = (struct IntuiMessage *)GetMsg(rtgWindow->UserPort)) {
+    if (imsg->Class == IDCMP_MOUSEBUTTONS)
+      if (imsg->Code == IECODE_LBUTTON)
+        mustExit = 1;
+    ReplyMsg((struct Message *)imsg);
+  }
+
+  return mustExit;
+}

@@ -167,7 +167,7 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     }
   }
 
-  switch (gOptions->screenMode) {
+  switch (graph->screenMode) {
     // 320x256 8 bitplanes
   case SCR_NORMAL:
     if (!(graph->options & CUSTOM_C2P)) {
@@ -276,6 +276,10 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     graph->w = 320;
     graph->h = 256;
     graph->depth = 8;
+    break;
+  default:
+    fprintf(stderr, "FATAL - Unkown mode %u. Aborting.\n", graph->screenMode);
+    abort();
   }
 
   // Allocate chunky buffer only once.

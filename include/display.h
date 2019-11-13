@@ -18,6 +18,7 @@ void display_set_fade_black(int, int);
 void display_set_fade_white(int, int);
 void display_subsystem_init(int numInstances);
 void display_subsystem_end(void);
+int display_checkinput(void);
 
 #ifdef __AMIGA__
 
@@ -33,6 +34,7 @@ typedef struct {
   int numSprites;
   int sprSize;
   int mode;
+  int isRTG;
   unsigned char *chunky;
   unsigned char *planar[2];
   int p;

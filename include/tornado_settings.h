@@ -44,6 +44,18 @@ misrepresented as being the original software.
 #define SCR_16_9_5BPL 10
 #define SCR_16_9_HL_8BPL 11
 
+// System-friendly screen modes.
+#define RTG_NORMAL 12
+#define RTG_NORMAL_6BPL 13
+#define RTG_16_9 14
+#define RTG_16_9_6BPL 15
+#define RTG_16_9_4BPL 16
+#define RTG_DEBUG4 18
+#define RTG_16_9_H_4BPL 19
+#define RTG_FLOAT 20
+#define RTG_16_9_5BPL 21
+#define RTG_16_9_HL_8BPL 22
+
 // Graphics init options
 #define CHUNKY_BUFFERS 1
 // Additional planar buffer in fast ram.
@@ -66,7 +78,6 @@ misrepresented as being the original software.
 #define SCR_GBUFFER_PIXEL_SIZE 4
 
 // Kill the system while the demo is running?
-// DO NOT COMMENT THIS OUT UNLESS YOU KNOW WHAT YOU'RE DOING!!!
 #define KILL_OS 1
 
 // Install Level3 handler

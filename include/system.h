@@ -29,6 +29,9 @@ int installLevel3(__ASMPARM("a0", int *vectorBase),
                   __ASMPARM("a1", int *paulaOutputVBLCallback),
                   __ASMPARM("a2", int *optionalVBLCallback));
 
+int setupVBLChain(__ASMPARM("a1", int *paulaOutputVBLCallback),
+                  __ASMPARM("a2", int *optionalVBLCallback));
+
 int installLevel2(__ASMPARM("a0", int *vectorBase));
 int closeOS(__ASMPARM("a0", int *vectorBase));
 int restoreOS(__ASMPARM("a0", int *vectorBase));
@@ -43,6 +46,7 @@ void ciab_start(void);
 int ciab_stop(void);
 unsigned int getMasterTimer(void);
 void resetMasterTimer();
+void VBLChain();
 
 extern unsigned int master_timer;
 extern unsigned int mouse_left;
