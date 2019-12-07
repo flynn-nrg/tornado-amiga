@@ -224,6 +224,12 @@ static int display_init_aga(unsigned int *pal, unsigned int options, int mode,
   instances[lastInstance].c2pSkip =
       padding_top * instances[lastInstance].graph->w;
 
+  switch (mode) {
+  case SCR_16_9_8BPL_PLANAR:
+    instances[lastInstance].isPlanar = 1;
+    break;
+  }
+
   instances[lastInstance].mode = mode;
 
   if (c2pInitDone[mode] == 0) {
@@ -482,6 +488,7 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case SCR_FLOAT:
   case SCR_16_9_5BPL:
   case SCR_16_9_HL_8BPL:
+  case SCR_16_9_8BPL_PLANAR:
     return display_init_aga(pal, options, mode, padding_top, padding_bottom,
                             so);
 
@@ -495,11 +502,12 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case RTG_FLOAT:
   case RTG_16_9_5BPL:
   case RTG_16_9_HL_8BPL:
+  case RTG_16_9_8BPL_PLANAR:
     return display_init_rtg(pal, options, mode, padding_top, padding_bottom,
                             so);
     break;
   default:
-    fprintf(stderr, "FATAL - Unknown graphics mode %x. Aborthing.\n", mode);
+    fprintf(stderr, "FATAL - Unknown graphics mode %d ( check tornado_settings.h for enum). Aborthing.\n", mode);
     abort();
   }
 }
@@ -510,7 +518,9 @@ t_canvas *display_get(int instance) {
 
   _fb.w = instances[instance].graph->w;
   _fb.h = instances[instance].graph->h;
-  _fb.p.pix8 = instances[instance].chunky;
+  _fb.p.pix8 = instances[instance].isPlanar ?
+      instances[instance].planar[instances[instance].p ^ 1] :
+      instances[instance].chunky;
   return &_fb;
 }
 

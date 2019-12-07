@@ -254,7 +254,7 @@ void display_flip(int instance) {
     int ySrc = y / di[instance].fb.sy;
     tndo_assert(ySrc < di[instance].fb.h);
     unsigned int *dst = out->p.pix32 + (yOffset + y) * (out->w + modulo);
-    uint8_t *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
+    uint8_t *src = di[instance].fb.p.pix8 + ySrc * (di[instance].fb.w >> 3);
     if (di[instance].isPlanar) {
       for (x = 0; x < out->w; x++) {
         int xSrc = x / di[instance].fb.sx;
@@ -265,7 +265,7 @@ void display_flip(int instance) {
           if (src[xByte] & xBit) {
             col |= colAdd;
           }
-          xByte += di[instance].fb.w >> 3;
+          xByte += (di[instance].fb.w * di[instance].fb.h) >> 3;
         }
         dst[x] = di[instance].pal256[col];
       }

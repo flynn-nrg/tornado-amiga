@@ -252,6 +252,12 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     graph->depth = 8;
     break;
 
+  case SCR_16_9_8BPL_PLANAR:
+    graph->w = 320;
+    graph->h = 180;
+    graph->depth = 8;
+    break;
+
     // 640x512 8 bitplanes to debug multipass effects.
   case SCR_DEBUG4:
     if (!(graph->options & CUSTOM_C2P)) {
@@ -278,7 +284,7 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     graph->depth = 8;
     break;
   default:
-    fprintf(stderr, "FATAL - Unkown mode %u. Aborting.\n", graph->screenMode);
+    fprintf(stderr, "FATAL - Unkown mode %d (check tornado_setting.h for enum). Aborting.\n", graph->screenMode);
     abort();
   }
 
