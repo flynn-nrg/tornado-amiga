@@ -43,18 +43,21 @@ misrepresented as being the original software.
 #define SCR_FLOAT 9
 #define SCR_16_9_5BPL 10
 #define SCR_16_9_HL_8BPL 11
+#define SCR_16_9_8BPL_PLANAR 12
 
 // System-friendly screen modes.
-#define RTG_NORMAL 12
-#define RTG_NORMAL_6BPL 13
-#define RTG_16_9 14
-#define RTG_16_9_6BPL 15
-#define RTG_16_9_4BPL 16
-#define RTG_DEBUG4 18
-#define RTG_16_9_H_4BPL 19
-#define RTG_FLOAT 20
-#define RTG_16_9_5BPL 21
-#define RTG_16_9_HL_8BPL 22
+#define RTG_NORMAL 31
+#define RTG_NORMAL_6BPL 32
+#define RTG_16_9 33
+#define RTG_16_9_6BPL 34
+#define RTG_16_9_4BPL 35
+#define RTG_16_9_6_4_BPL 36
+#define RTG_DEBUG 37
+#define RTG_16_9_H_4BPL  38
+#define RTG_FLOAT 39
+#define RTG_16_9_5BPL 40
+#define RTG_16_9_HL_8BPL 41
+#define RTG_16_9_8BPL_PLANAR 42
 
 // Graphics init options
 #define CHUNKY_BUFFERS 1

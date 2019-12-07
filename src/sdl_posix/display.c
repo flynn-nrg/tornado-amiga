@@ -92,6 +92,7 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   int height = 0;
   int bypp = 1;
   int is16_9 = 0;
+  int isPlanar = 0;
 
   switch (mode) {
   case SCR_NORMAL:
@@ -120,11 +121,20 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case RTG_16_9_5BPL:
   case SCR_16_9_4BPL:
   case RTG_16_9_4BPL:
+  case SCR_16_9_8BPL_PLANAR:
+  case RTG_16_9_8BPL_PLANAR:
     scale_x = 2;
     scale_y = 2;
     width = 320;
     height = 180;
     is16_9 = 1;
+    break;
+  }
+
+  switch (mode) {
+  case SCR_16_9_8BPL_PLANAR:
+  case RTG_16_9_8BPL_PLANAR:
+    isPlanar = 1;
     break;
   }
 
@@ -134,6 +144,7 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   di[display_last_instance].fb.sy = scale_y;
   di[display_last_instance].fb.bypp = bypp;
   di[display_last_instance].is16_9 = is16_9;
+  di[display_last_instance].isPlanar = isPlanar;
   di[display_last_instance].fb.p.pixels = tndo_malloc(
       di[display_last_instance].fb.w *
           (di[display_last_instance].fb.h + padding_top + padding_bottom) *
@@ -154,6 +165,7 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case RTG_NORMAL_6BPL:
   case RTG_16_9_HL_8BPL:
   case RTG_16_9:
+  case RTG_16_9_8BPL_PLANAR:
   case RTG_16_9_6BPL:
   case RTG_16_9_5BPL:
   case RTG_16_9_4BPL:
@@ -243,11 +255,29 @@ void display_flip(int instance) {
     tndo_assert(ySrc < di[instance].fb.h);
     unsigned int *dst = out->p.pix32 + (yOffset + y) * (out->w + modulo);
     uint8_t *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
-    for (x = 0; x < out->w; x++) {
-      int xSrc = x / di[instance].fb.sx;
-      tndo_assert(xSrc < di[instance].fb.w);
-      unsigned int og = src[xSrc];
-      dst[x] = di[instance].pal256[og];
+    if (di[instance].isPlanar) {
+      for (x = 0; x < out->w; x++) {
+        int xSrc = x / di[instance].fb.sx;
+        int xByte = xSrc >> 3;
+        int xBit = 0x80 >> (xSrc & 7);
+        int col    = 0;
+        for (int colAdd = 0x80 ; colAdd != 0 ; colAdd >>= 1) {
+          if (src[xByte] & xBit) {
+            col |= colAdd;
+          }
+          assert(di[instance].fb.w == 320);
+          xByte += di[instance].fb.w >> 3;
+        }
+        dst[x] = di[instance].pal256[col];
+      }
+    } else {
+      uint8_t *src = di[instance].fb.p.pix8 + ySrc * di[instance].fb.w;
+      for (x = 0; x < out->w; x++) {
+        int xSrc = x / di[instance].fb.sx;
+        tndo_assert(xSrc < di[instance].fb.w);
+        unsigned int og = src[xSrc];
+        dst[x] = di[instance].pal256[og];
+      }
     }
   }
 #endif

@@ -35,6 +35,7 @@ typedef struct {
   int sprSize;
   int mode;
   int isRTG;
+  int isPlanar;
   unsigned char *chunky;
   unsigned char *planar[2];
   int p;
@@ -47,6 +48,7 @@ typedef struct {
   t_canvas fb;
   int mode;
   int is16_9;
+  int isPlanar;
   unsigned int paddingTop;
   unsigned int paddingBottom;
 } display_instance;

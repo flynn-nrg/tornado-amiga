@@ -94,11 +94,22 @@ void c2p64(__ASMPARM("a0", unsigned char *chunky),
            __ASMPARM("a1", unsigned char *chunky_end),
            __ASMPARM("a2", unsigned char *bpls));
 
+#ifdef __AMIGA__
 // 1x1 8bpl cpu5 C2P for [almost] arbitrary BitMaps
 void c2p1x1_8_c5_bm(__ASMPARM("a0", char *chunkybuffer),
                     __ASMPARM("a1", struct BitMap *bitmap),
                     __ASMPARM("d0", int chunkyxsize),
                     __ASMPARM("d1", int chunkyysize),
                     __ASMPARM("d2", int xoffset), __ASMPARM("d3", int yoffset));
+#endif
+
+// 1x1 8bpl cpu5, one scanline.
+void c2p_8bpl_scanline(
+    __ASMPARM("d0", int pixels),
+    __ASMPARM("a0", uint32_t *chunky),
+    __ASMPARM("a1", uint32_t *planar),
+    __ASMPARM("d1", uint32_t planar_planemod),  // bytes between each plane
+    __ASMPARM("d2", uint32_t planar_wordmod)    // bytes between each 32pixel word
+);
 
 #endif
