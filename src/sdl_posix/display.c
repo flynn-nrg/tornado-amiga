@@ -261,11 +261,10 @@ void display_flip(int instance) {
         int xByte = xSrc >> 3;
         int xBit = 0x80 >> (xSrc & 7);
         int col    = 0;
-        for (int colAdd = 0x80 ; colAdd != 0 ; colAdd >>= 1) {
+        for (int colAdd = 0x01 ; colAdd != 0x100 ; colAdd <<= 1) {
           if (src[xByte] & xBit) {
             col |= colAdd;
           }
-          assert(di[instance].fb.w == 320);
           xByte += di[instance].fb.w >> 3;
         }
         dst[x] = di[instance].pal256[col];
