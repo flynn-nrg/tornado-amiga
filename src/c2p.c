@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "c2p.h"
+#include "ptr_bridges.h"
 
 #define c2p_merge_one(x, y, t, s, m) \
     t    = y; \
@@ -40,8 +41,14 @@ void c2p_8bpl_scanline(
     uint32_t tmp1;
 
     while (chunky < chunky_end) {
-        d0 = *chunky++; d1 = *chunky++; d2 = *chunky++; d3 = *chunky++;
-        d4 = *chunky++; d5 = *chunky++; d6 = *chunky++; d7 = *chunky++;
+        { uint32_t t = *chunky++; d0 = ENDI4(t); }
+        { uint32_t t = *chunky++; d1 = ENDI4(t); }
+        { uint32_t t = *chunky++; d2 = ENDI4(t); }
+        { uint32_t t = *chunky++; d3 = ENDI4(t); }
+        { uint32_t t = *chunky++; d4 = ENDI4(t); }
+        { uint32_t t = *chunky++; d5 = ENDI4(t); }
+        { uint32_t t = *chunky++; d6 = ENDI4(t); }
+        { uint32_t t = *chunky++; d7 = ENDI4(t); }
 
         c2p_merge_one_4(d0, d1, tmp1);
         c2p_merge_one_4(d2, d3, tmp1);
@@ -68,14 +75,14 @@ void c2p_8bpl_scanline(
         c2p_merge_one_1(d4, d6, tmp1);
         c2p_merge_one_1(d5, d7, tmp1);
 
-        planar[0 * planar_planemod] = d7;
-        planar[1 * planar_planemod] = d5;
-        planar[2 * planar_planemod] = d3;
-        planar[3 * planar_planemod] = d1;
-        planar[4 * planar_planemod] = d6;
-        planar[5 * planar_planemod] = d4;
-        planar[6 * planar_planemod] = d2;
-        planar[7 * planar_planemod] = d0;
+        planar[0 * planar_planemod] = ENDI4(d7);
+        planar[1 * planar_planemod] = ENDI4(d5);
+        planar[2 * planar_planemod] = ENDI4(d3);
+        planar[3 * planar_planemod] = ENDI4(d1);
+        planar[4 * planar_planemod] = ENDI4(d6);
+        planar[5 * planar_planemod] = ENDI4(d4);
+        planar[6 * planar_planemod] = ENDI4(d2);
+        planar[7 * planar_planemod] = ENDI4(d0);
         planar += planar_wordmod;
     }
 }
