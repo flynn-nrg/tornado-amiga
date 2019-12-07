@@ -52,7 +52,7 @@ misrepresented as being the original software.
 #define RTG_16_9_6BPL 34
 #define RTG_16_9_4BPL 35
 #define RTG_16_9_6_4_BPL 36
-#define RTG_DEBUG 37
+#define RTG_DEBUG4 37
 #define RTG_16_9_H_4BPL  38
 #define RTG_FLOAT 39
 #define RTG_16_9_5BPL 40
