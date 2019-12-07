@@ -253,6 +253,7 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     break;
 
   case SCR_16_9_8BPL_PLANAR:
+    c2p1x1_8_c5_040_scanline_init(320, 1, 0, 0, 0, 320 * 180 / 8);
     graph->w = 320;
     graph->h = 180;
     graph->depth = 8;

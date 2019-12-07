@@ -518,9 +518,11 @@ t_canvas *display_get(int instance) {
 
   _fb.w = instances[instance].graph->w;
   _fb.h = instances[instance].graph->h;
-  _fb.p.pix8 = instances[instance].isPlanar ?
-      instances[instance].planar[instances[instance].p ^ 1] :
-      instances[instance].chunky;
+  _fb.p.pix8 = instances[instance].chunky;
+  if (instances[instance].isPlanar) {
+    _fb.bypp = 0;
+    _fb.p.pix8 = instances[instance].planar[instances[instance].p^1];
+  }
   return &_fb;
 }
 

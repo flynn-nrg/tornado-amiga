@@ -65,6 +65,18 @@ void c2p1x1_8_c5_040_init(__ASMPARM("d0", int chunkyx),
 void c2p1x1_8_c5_040(__ASMPARM("a0", unsigned char *chunkyBuffer),
                      __ASMPARM("a1", unsigned char *planes));
 
+// 8 bitplane 320x1 screen size c2p
+void c2p1x1_8_c5_040_scanline_init(__ASMPARM("d0", int chunkyx),
+                                   __ASMPARM("d1", int chunkyy),
+                                   __ASMPARM("d2", int scroffsx),
+                                   __ASMPARM("d3", int scroffsy),
+                                   __ASMPARM("d4", int rowlen),
+                                   __ASMPARM("d5", int bplsize),
+                                   __ASMPARM("d6", int chunkylen));
+
+void c2p1x1_8_c5_040_scanline(__ASMPARM("a0", unsigned char *chunkyBuffer),
+                              __ASMPARM("a1", unsigned char *planes));
+
 // 8 bitplane 320x180 screen size c2p
 void c2p1x1_8_c5_040_16_9_init(__ASMPARM("d0", int chunkyx),
                                __ASMPARM("d1", int chunkyy),
