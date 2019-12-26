@@ -16,14 +16,12 @@ _prtInit:
 	lea     player(pc),a6
         lea     myPlayer,a0
         lea     mySong,a1
-;;; lea     song0,a2
         add.l   (0,a6),a6
         jsr     (a6)            ; songInit
 
         lea     player(pc),a6
         lea     myPlayer,a0
 	movem.l (sp)+, a1
-;;;     lea     chipmem,a1
         lea     mySong,a2
         add.l   (4,a6),a6
         jsr     (a6)            ; playerInit
