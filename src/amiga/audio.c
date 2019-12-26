@@ -128,6 +128,9 @@ void setAudioMode(int mode) {
 
 int getAudioMode() { return audioMode; }
 
+// Pretracker doesn't clean up after itself.
+void prtEnd() { PaulaOutput_ShutDown(); }
+
 void fixSamples(char *data, int dataLen, int bitsPerSample) {
   switch (bitsPerSample) {
   case 8:

@@ -26,6 +26,7 @@ misrepresented as being the original software.
 #define WAV_PCM 1
 #define PCM_REPLAY_MODE 1
 #define P61_REPLAY_MODE (1 << 1)
+#define PRT_REPLAY_MODE (1 << 2)
 
 typedef struct {
   int format;

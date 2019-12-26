@@ -19,7 +19,9 @@ Authors
 
 Tornado was mainly developed by Miguel 'Flynn' Mendez with contributions from Luis 'Peskanov' Pons and Antonio 'winden' Vargas.
 
-The music used in the examples was composed by Carlos 'Estrayk' del Alamo.
+The music used in the p61 and DDPCM examples was composed by Carlos 'Estrayk' del Alamo.
+
+The music used in the Pretracker example was composed by  Jakub 'AceMan' Szelag and it's part of the Pretracker distribution. 
 
 The graphics used in the examples were created by Manuel 'Leunam' Sagall and Jordi Carlos 'God'.
 
@@ -32,9 +34,11 @@ It also makes use of the following third party software:
 * [vbcc](http://www.compilers.de/vbcc.html): Used to cross-compile Amiga code.
 * [Kalmalyzer](https://github.com/Kalmalyzer): Michael Kalms' collection of [c2p](https://www.lysator.liu.se/~mikaelk/doc/c2ptut/) and audio routines. 
 * [The Player 6.1](http://www.pouet.net/prod.php?which=19922): Mod replay routines.
+* [Pretracker](http://www.pouet.net/prod.php?which=80999) by Pink/Abyss.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
 
 License
 ----------
 
 This software is released under the [zlib license](https://en.wikipedia.org/wiki/Zlib_License).
+

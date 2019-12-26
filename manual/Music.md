@@ -1,9 +1,10 @@
 Music
 =====
 
-No demo would be complete without a soundtrack.  Tornado provides two ways to play music:
+No demo would be complete without a soundtrack. Tornado provides three ways to play music:
 
 * Old school [Amiga modules](https://modarchive.org/index.php?article-modules) using [The Player](http://www.pouet.net/prod.php?which=64049) by Sahara Surfers.
+* [Pretracker](http://www.pouet.net/prod.php?which=80999) modules.
 * DDPCM compressed stereo 14bit audio up to 22050Hz.
 
 Using modules
@@ -21,6 +22,52 @@ A few things to keep in mind:
 * Modules need to reside in Chip RAM. Make sure the module data resides in Chip RAM.
 * Module replay **only** works on the Amiga target. You will not hear anything when running your demo on the posix/SDL target.
 * Because profiling needs the CIAB timer which is used by the module replay routine, it is not possible to have profiling and music at the same time on Amiga. Please refer to the [Performance Monitoring](PerformanceMonitoring.md) section for more information on this topic.
+
+Using Pretracker modules
+--------------
+
+Tornado provides wrapper routines that allow you to use the Pretracker replay routine. A ready made example is available under the ```examples/simple_screen_prt``` directory.
+
+Pretracker modules are ideal for intros as they need very little amount of storage and the precalc phase is very fast on accelerated Amigas.
+
+Since the replay routine is called from the VBL handler, that frees up the CIAB hardware so you can use the profiler while the music is playing.
+
+All you have to do is load the asset and then call the init routine, like this:
+
+```c
+const char *audioList[] = {"data/aceman_glitch.prt"};
+
+  // Allocate memory for the generated samples
+  // and initialise the song and replay routine.
+#ifdef __AMIGA__
+  if (tornadoOptions & VERBOSE_DEBUGGING) {
+    printf("DEBUG - Pretracker init...");
+  }  
+  chipBuffer = tndo_malloc(128*1024, TNDO_ALLOC_CHIP);
+  prtInit(chipBuffer, audioAssets[0]);
+  if (tornadoOptions & VERBOSE_DEBUGGING) {
+    printf("done.\n");
+  }    
+#endif
+```
+
+And then you call the tick function every vblank:
+
+```c
+  // Call Pretracker tick every vblank.
+#ifdef __AMIGA__
+  prtVBL();
+#endif
+```
+
+Last but not least we will shutdown Paula at the end of demoMain:
+
+```c
+  // Stop music.
+#ifdef __AMIGA__
+  prtEnd();
+#endif
+```
 
 Using DDPCM compressed music
 ----------------------------------------------
@@ -242,4 +289,5 @@ t_canvas *renderEndscroll(int frame)
 ```
 
 Similarly, to switch from a module to streaming music we would call ```p61End``` and then switch to ```PCM_REPLAY_MODE```.
+
 
