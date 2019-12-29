@@ -1,0 +1,37 @@
+* "ahi.device"
+* Automatically generated FD (sfdc 1.4)! Do not edit!
+##base _AHIBase
+##bias 42
+##public
+* Functions for allocating/deallocating and controlling AudioCtrl handles
+AHI_AllocAudioA(tagList)(a1)
+AHI_FreeAudio(AudioCtrl)(a2)
+##private
+AHI_KillAudio()()
+##public
+AHI_ControlAudioA(AudioCtrl,tagList)(a2,a1)
+* Functions to control the synthesizer
+AHI_SetVol(Channel,Volume,Pan,AudioCtrl,Flags)(d0,d1,d2,a2,d3)
+AHI_SetFreq(Channel,Freq,AudioCtrl,Flags)(d0,d1,a2,d2)
+AHI_SetSound(Channel,Sound,Offset,Length,AudioCtrl,Flags)(d0,d1,d2,d3,a2,d4)
+AHI_SetEffect(Effect,AudioCtrl)(a0,a2)
+AHI_LoadSound(Sound,Type,Info,AudioCtrl)(d0,d1,a0,a2)
+AHI_UnloadSound(Sound,Audioctrl)(d0,a2)
+AHI_NextAudioID(Last_ID)(d0)
+* Functions to query the audio mode database
+AHI_GetAudioAttrsA(ID,Audioctrl,tagList)(d0,a2,a1)
+AHI_BestAudioIDA(tagList)(a1)
+* Functions for the audio mode requester
+AHI_AllocAudioRequestA(tagList)(a0)
+AHI_AudioRequestA(Requester,tagList)(a0,a1)
+AHI_FreeAudioRequest(Requester)(a0)
+*--- functions in V4 or higher ---
+* More functions to control the synthesizer
+AHI_PlayA(Audioctrl,tagList)(a2,a1)
+* Find out how many bytes a sample frame occupy
+AHI_SampleFrameSize(SampleType)(d0)
+* Semi-private functions to manage the audio mode database
+AHI_AddAudioMode(AHIPrivate)(a0)
+AHI_RemoveAudioMode(AHIPrivate)(d0)
+AHI_LoadModeFile(AHIPrivate)(a0)
+##end

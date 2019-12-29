@@ -35,6 +35,7 @@ It also makes use of the following third party software:
 * [Kalmalyzer](https://github.com/Kalmalyzer): Michael Kalms' collection of [c2p](https://www.lysator.liu.se/~mikaelk/doc/c2ptut/) and audio routines. 
 * [The Player 6.1](http://www.pouet.net/prod.php?which=19922): Mod replay routines.
 * [Pretracker](http://www.pouet.net/prod.php?which=80999) by Pink/Abyss.
+* [AHI](https://en.wikipedia.org/wiki/AHI_(Amiga)) by Martin Blom.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
 
 License

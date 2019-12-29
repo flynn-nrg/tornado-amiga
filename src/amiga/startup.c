@@ -38,6 +38,7 @@ misrepresented as being the original software.
 #include "aga.h"
 #include "assets.h"
 #include "audio.h"
+#include "audio_ahi.h"
 #include "audio_lowlevel.h"
 #include "c2p.h"
 #include "copper.h"
@@ -221,6 +222,10 @@ int main(int argc, char **argv) {
                        dp->audioMode);
       PaulaOutput_Start();
     }
+
+    // ---------------------------------------------------------------------------
+    // System friendly code path.
+    // ---------------------------------------------------------------------------
   } else {
     if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
       printf("DEBUG - Tornado is running in system friendly mode. No direct "
@@ -235,6 +240,14 @@ int main(int argc, char **argv) {
       tndoVBL.is_Data = 0;
       tndoVBL.is_Code = VBLChain;
       AddIntServer(INTB_VERTB, &tndoVBL);
+    }
+
+    if (dp->tornadoOptions & USE_AUDIO) {
+      int res = audioAhiInit(dp);
+      if (res != 0) {
+        fprintf(stderr, "FATAL - audioAhiInit() failed. Aborting.\n");
+        exit(EXIT_FAILURE);
+      }
     }
   }
 
@@ -258,10 +271,16 @@ int main(int argc, char **argv) {
       }
     }
     restoreOS(hw->vbr);
+
+    // System friendly mode
   } else {
     // Remove interrupt VBL server
     if (dp->tornadoOptions & INSTALL_LEVEL3) {
       RemIntServer(INTB_VERTB, &tndoVBL);
+    }
+    // Release AHI resources
+    if (dp->tornadoOptions & USE_AUDIO) {
+      audioAHIEnd();
     }
   }
 
