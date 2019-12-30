@@ -41,5 +41,5 @@ It also makes use of the following third party software:
 License
 ----------
 
-This software is released under the [zlib license](https://en.wikipedia.org/wiki/Zlib_License).
+This software is released under the [2-Clause BSD License](https://opensource.org/licenses/BSD-2-Clause).
 
