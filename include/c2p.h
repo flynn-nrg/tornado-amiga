@@ -117,11 +117,10 @@ void c2p1x1_8_c5_bm(__ASMPARM("a0", char *chunkybuffer),
 
 // 1x1 8bpl cpu5, one scanline.
 void c2p_8bpl_scanline(
-    __ASMPARM("d0", int pixels),
-    __ASMPARM("a0", uint32_t *chunky),
+    __ASMPARM("d0", int pixels), __ASMPARM("a0", uint32_t *chunky),
     __ASMPARM("a1", uint32_t *planar),
-    __ASMPARM("d1", uint32_t planar_planemod),  // bytes between each plane
-    __ASMPARM("d2", uint32_t planar_wordmod)    // bytes between each 32pixel word
+    __ASMPARM("d1", uint32_t planar_planemod), // bytes between each plane
+    __ASMPARM("d2", uint32_t planar_wordmod) // bytes between each 32pixel word
 );
 
 #endif

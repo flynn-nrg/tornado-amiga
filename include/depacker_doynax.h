@@ -3,9 +3,7 @@
 
 #include "asmparm.h"
 
-void doynaxdepack(
-    __ASMPARM("a0", unsigned char *src),
-    __ASMPARM("a1", unsigned char *dst)
-);
+void doynaxdepack(__ASMPARM("a0", unsigned char *src),
+                  __ASMPARM("a1", unsigned char *dst));
 
 #endif
