@@ -6,7 +6,7 @@
 TORNADO_OBJ = sdl_posix/assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o
 TORNADO_OBJ += sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o
 TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
-TORNADO_OBJ += c2p.o tndo.o debug.o wav_delta.o memory.o ddpcm_loader.o
+TORNADO_OBJ += c2p.o tndo.o debug.o memory.o ddpcm_loader.o
 TORNADO_OBJ += telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o
 TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddpcm_decode.o
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
