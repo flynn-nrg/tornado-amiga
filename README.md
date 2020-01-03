@@ -3,6 +3,8 @@ Tornado Amiga Demo System
 
 Tornado is an [Amiga](https://en.wikipedia.org/wiki/Amiga) [demo](https://en.wikipedia.org/wiki/Demoscene) framework. It allows you to cross-develop and test code on both Amiga and Posix/SDL environments (currently MacOS X and GNU/Linux).
 
+![tornado_screenshot](manual/img/tornado.png "tornado screenshot")
+
 Introduction
 ----------------
 
