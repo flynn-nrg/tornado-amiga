@@ -178,7 +178,9 @@ int main(int argc, char **argv) {
 
   // Signal the memory manager that we are done with the init stage.
   // This will also free the packed data buffer.
-  tndo_memory_init_done();
+  if (dp->tornadoOptions & KILL_OS) {
+    tndo_memory_init_done();
+  }
 
   // Release timer.device.
   timeEnd();
@@ -250,6 +252,14 @@ int main(int argc, char **argv) {
       if (res != 0) {
         fprintf(stderr, "FATAL - audioAhiInit() failed. Aborting.\n");
         exit(EXIT_FAILURE);
+      }
+
+      // No more memory allocations beyond this point.
+      tndo_memory_init_done();
+
+      // Kick off music
+      if (dp->tornadoOptions & USE_AUDIO) {
+        audioAHIStart();
       }
     }
   }
