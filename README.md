@@ -23,7 +23,10 @@ Tornado was mainly developed by Miguel 'Flynn' Mendez with contributions from Lu
 
 The music used in the p61 and DDPCM examples was composed by Carlos 'Estrayk' del Alamo.
 
-The music used in the Pretracker example was composed by  Jakub 'AceMan' Szelag and it's part of the Pretracker distribution. 
+The music used in the Pretracker example was composed by Jakub 'AceMan' Szelag and it's part of the Pretracker distribution.
+
+The music used in the AHI example was composed by Miguel 'Flynn' Mendez.
+
 
 The graphics used in the examples were created by Manuel 'Leunam' Sagall and Jordi Carlos 'God'.
 

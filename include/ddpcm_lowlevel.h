@@ -44,4 +44,8 @@ void decodeFrame_asm(__ASMPARM("a0", uint8_t *src),
                      __ASMPARM("a5", int16_t *q_table),
                      __ASMPARM("d7", uint8_t scale));
 
+void ddpcmAHIPlayerFunc(__ASMPARM("d0", uint32_t numSamples),
+                        __ASMPARM("a0", uint16_t *left),
+                        __ASMPARM("a1", uint16_t *right));
+
 #endif

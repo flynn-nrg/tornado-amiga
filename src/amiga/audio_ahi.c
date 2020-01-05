@@ -30,7 +30,9 @@ misrepresented as being the original software.
 #include <proto/dos.h>
 #include <proto/exec.h>
 
+#include "asmparm.h"
 #include "audio_ahi.h"
+#include "ddpcm_lowlevel.h"
 #include "memory.h"
 #include "paula_output.h"
 #include "tndo_assert.h"
@@ -50,24 +52,30 @@ static struct IORequest timereq;
 static LONG mixfreq = 0;
 
 static char drivername[256];
+static int frameSize;
+static int numSamples;
+static int callao = 0;
+
+struct AHISampleInfo lBuffer = {
+    AHIST_M16S,
+    0,
+    0,
+};
+
+struct AHISampleInfo rBuffer = {
+    AHIST_M16S,
+    0,
+    0,
+};
+
+static void PlayerFunc(__ASMPARM("a0", struct Hook *hook),
+                       __ASMPARM("a1", APTR ignored),
+                       __ASMPARM("a2", struct AHIAudioCtrl *h_actrl)) {
+  ddpcmAHIPlayerFunc(numSamples, lBuffer.ahisi_Address, rBuffer.ahisi_Address);
+}
 
 static struct Hook PlayerHook = {
-    0,    0,
-    0, //(ULONG (* )()) PlayerFunc,
-    NULL, NULL,
-};
-
-// Double buffer
-struct AHISampleInfo Sample0 = {
-    AHIST_S16S,
-    0,
-    0,
-};
-
-struct AHISampleInfo Sample1 = {
-    AHIST_S16S,
-    0,
-    0,
+    0, 0, (ULONG(*)())PlayerFunc, NULL, NULL,
 };
 
 // Returns 0 if ok, 1 if an error occurred.
@@ -123,7 +131,7 @@ uint32_t audioAhiInit(demoParams *dp) {
 
   actrl = AHI_AllocAudio(
       AHIA_AudioID, req->ahiam_AudioID, AHIA_MixFreq, req->ahiam_MixFreq,
-      AHIA_Channels, 1, AHIA_Sounds, 2, AHIA_PlayerFunc, &PlayerHook,
+      AHIA_Channels, 2, AHIA_Sounds, 2, AHIA_PlayerFunc, &PlayerHook,
       AHIA_PlayerFreq, PLAYER_FREQ << 16, AHIA_MinPlayerFreq, PLAYER_FREQ << 16,
       AHIA_MaxPlayerFreq, PLAYER_FREQ << 16, AHIA_UserData, FindTask(NULL),
       TAG_DONE);
@@ -136,35 +144,42 @@ uint32_t audioAhiInit(demoParams *dp) {
   AHI_ControlAudio(actrl, AHIC_MixFreq_Query, &mixfreq, TAG_DONE);
   AHI_FreeAudioRequest(req);
 
-  int samples = 0;
+  int maxSamples = 0;
   if (!AHI_GetAudioAttrs(AHI_INVALID_ID, actrl, AHIDB_Driver, drivername,
                          AHIDB_BufferLen, sizeof(drivername),
-                         AHIDB_MaxPlaySamples, &samples, TAG_DONE)) {
+                         AHIDB_MaxPlaySamples, &maxSamples, TAG_DONE)) {
     fprintf(stderr, "FATAL - AHI_GetAudioAttrs() failed\n");
     return 1;
   }
 
-  int bufferSize = samples * sampleFreq / mixfreq;
+  frameSize = AHI_SampleFrameSize(AHIST_M16S);
 
   if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
-    fprintf(stderr, "DEBUG - AHI driver: %s, buffer: %i samples\n",
-            drivername, samples);
+    fprintf(stderr,
+            "DEBUG - AHI driver: %s, buffer: %i samples, %i bytes per sample "
+            "frame.\n",
+            drivername, maxSamples, frameSize);
   }
 
-  Sample0.ahisi_Length = bufferSize;
-  Sample1.ahisi_Length = bufferSize;
-  Sample0.ahisi_Address = tndo_malloc(bufferSize * 2, 0);
-  Sample1.ahisi_Address = tndo_malloc(bufferSize * 2, 0);
+  numSamples = maxSamples;
 
-  tndo_assert(Sample0.ahisi_Address);
-  tndo_assert(Sample1.ahisi_Address);
+  int bufferSize = numSamples;
 
-  if (AHI_LoadSound(0, AHIST_DYNAMICSAMPLE, &Sample0, actrl)) {
+  lBuffer.ahisi_Length = bufferSize;
+  rBuffer.ahisi_Length = bufferSize;
+
+  lBuffer.ahisi_Address = tndo_malloc(bufferSize * 2, 0);
+  rBuffer.ahisi_Address = tndo_malloc(bufferSize * 2, 0);
+
+  tndo_assert(lBuffer.ahisi_Address);
+  tndo_assert(rBuffer.ahisi_Address);
+
+  if (AHI_LoadSound(0, AHIST_DYNAMICSAMPLE, &lBuffer, actrl)) {
     fprintf(stderr, "FATAL - AHI_LoadSound() failed\n");
     return 1;
   }
 
-  if (AHI_LoadSound(1, AHIST_DYNAMICSAMPLE, &Sample1, actrl)) {
+  if (AHI_LoadSound(1, AHIST_DYNAMICSAMPLE, &rBuffer, actrl)) {
     fprintf(stderr, "FATAL - AHI_LoadSound() failed\n");
     return 1;
   }
@@ -178,4 +193,13 @@ void audioAHIEnd() {
   CloseDevice((struct IORequest *)AHI_io);
   DeleteIORequest((struct IORequest *)AHI_io);
   DeleteMsgPort(AHI_mp);
+}
+
+void audioAHIStart() {
+  AHI_Play(actrl, AHIP_BeginChannel, 0, AHIP_Freq, mixfreq, AHIP_Vol, 0x10000,
+           AHIP_Pan, 0x00000, AHIP_Sound, 0, AHIP_EndChannel, 0,
+           AHIP_BeginChannel, 1, AHIP_Freq, mixfreq, AHIP_Vol, 0x10000,
+           AHIP_Pan, 0x10000, AHIP_Sound, 1, AHIP_EndChannel, 0, TAG_DONE);
+
+  AHI_ControlAudio(actrl, AHIC_Play, TRUE, TAG_DONE);
 }
