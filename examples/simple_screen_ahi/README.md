@@ -8,3 +8,6 @@ This is a simple example that will teach you how to do the following using Torna
 Note that we did not use the ```KILL_OS``` flag, so Tornado will be running in OS friendly mode. You can drag the screen or switch between tasks while the effect is running!
 
 The compressed TNDO file was created using the *tndo_compress* tool from the file Capsule_logo.png after converting it to raw using *png2raw*.
+
+![ahi1](img/ahi1.png "ahi1")
+![ahi2](img/ahi2.png "ahi2")
