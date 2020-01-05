@@ -226,6 +226,7 @@ static int display_init_aga(unsigned int *pal, unsigned int options, int mode,
 
   switch (mode) {
   case SCR_16_9_8BPL_PLANAR:
+  case SCR_16_9_H_8BPL_PLANAR:
     instances[lastInstance].isPlanar = 1;
     break;
   }
@@ -258,7 +259,7 @@ static int display_init_aga(unsigned int *pal, unsigned int options, int mode,
                              instances[lastInstance].graph->h) /
                                 8);
       break;
-    case SCR_16_9_HL_8BPL:
+    case SCR_16_9_H_8BPL:
       c2p1x1_8_c5_040_16_9_init(instances[lastInstance].graph->w,
                                 instances[lastInstance].graph->h, 0, 0, 0,
                                 (instances[lastInstance].graph->w *
@@ -487,8 +488,9 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case SCR_16_9_H_4BPL:
   case SCR_FLOAT:
   case SCR_16_9_5BPL:
-  case SCR_16_9_HL_8BPL:
+  case SCR_16_9_H_8BPL:
   case SCR_16_9_8BPL_PLANAR:
+  case SCR_16_9_H_8BPL_PLANAR:
     return display_init_aga(pal, options, mode, padding_top, padding_bottom,
                             so);
 
@@ -501,8 +503,9 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   case RTG_16_9_H_4BPL:
   case RTG_FLOAT:
   case RTG_16_9_5BPL:
-  case RTG_16_9_HL_8BPL:
+  case RTG_16_9_H_8BPL:
   case RTG_16_9_8BPL_PLANAR:
+  case RTG_16_9_H_8BPL_PLANAR:
     return display_init_rtg(pal, options, mode, padding_top, padding_bottom,
                             so);
     break;
@@ -580,7 +583,7 @@ static void display_flip_aga(int instance) {
                     instances[instance].graph->w *
                         instances[instance].graph->h);
     break;
-  case SCR_16_9_HL_8BPL:
+  case SCR_16_9_H_8BPL:
     c2p1x1_8_c5_040_16_9(instances[instance].chunky +
                              instances[instance].c2pSkip,
                          instances[instance].planar[instances[instance].p]);

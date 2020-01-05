@@ -104,12 +104,12 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
     width = 320;
     height = 256;
     break;
-  case SCR_16_9_HL_8BPL:
-  case RTG_16_9_HL_8BPL:
+  case SCR_16_9_H_8BPL:
+  case RTG_16_9_H_8BPL:
     scale_x = 1;
-    scale_y = 1;
+    scale_y = 2;
     width = 640;
-    height = 360;
+    height = 180;
     is16_9 = 1;
     break;
   case SCR_16_9:
@@ -129,11 +129,21 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
     height = 180;
     is16_9 = 1;
     break;
+  case SCR_16_9_H_8BPL_PLANAR:
+  case RTG_16_9_H_8BPL_PLANAR:
+    scale_x = 1;
+    scale_y = 2;
+    width = 640;
+    height = 180;
+    is16_9 = 1;
+    break;
   }
 
   switch (mode) {
   case SCR_16_9_8BPL_PLANAR:
   case RTG_16_9_8BPL_PLANAR:
+  case SCR_16_9_H_8BPL_PLANAR:
+  case RTG_16_9_H_8BPL_PLANAR:
     isPlanar = 1;
     break;
   }
@@ -163,9 +173,10 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
   switch (mode) {
   case RTG_NORMAL:
   case RTG_NORMAL_6BPL:
-  case RTG_16_9_HL_8BPL:
+  case RTG_16_9_H_8BPL:
   case RTG_16_9:
   case RTG_16_9_8BPL_PLANAR:
+  case RTG_16_9_H_8BPL_PLANAR:
   case RTG_16_9_6BPL:
   case RTG_16_9_5BPL:
   case RTG_16_9_4BPL:
