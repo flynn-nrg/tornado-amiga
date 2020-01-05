@@ -1,0 +1,401 @@
+PreTracker Tracker v1.0 (c) Pink/aBYSs 2019
+
+Install
+=======
+If the exe file does not start and asks for 'MSVC140.dll' you need to install 'vc_redist.x86.exe' from here:
+https://www.microsoft.com/en-US/download/details.aspx?id=48145
+
+
+Overview
+========
+'PreTracker Tracker' is a chipmusic tracker. No samples can be loaded.
+It emulates the Paula soundchip of the Amiga computers. The songs can be replayed
+on the Amiga range of computers (Amiga 1000 and above). All samples are precalced on startup according to your instruments.
+
+While most Amiga trackers only support 3 octaves (Note C-0 to B-2) 
+PreTracker offers 5 octaves (C-0 to B-4).
+
+Some important keys are:
+SPACE - Toggle edit mode On/Off
+ESC   - Switch between Instrument/Pattern screen 
+1     - Enter 'Note Off' in a pattern 
+Use the cursor keys to navigate.
+
+Whenever "0x" is used in this documentation it means the following number is used as a hexadecimal value.
+
+FILE | Export Amiga EXE
+=======================
+This option will create an AMIGA executable playing a PreTracker song.
+The song will be saved in the PreTracker exe directory as "Amiga_PretrackerSong.exe".
+Tested on A500,A500+512k,A1200 stock, A1200+1230.
+
+Replayer:      Pink/aBYSs
+Cranker:       Bifat/Tek (thanks for the compile!)
+LZ Compressor: Johan "Doynax" Forslöf
+68k LZ decomp: Axis/Oxyron
+
+
+Sequence Editor
+===============
+When you start the programm you see on the top left the sequence editor.
+You can toggle between the Sequence Editor and the Pattern Editor with RETURN.
+Here you can set the pattern to play for each of the four tracks and a transpose value for the notes in this pattern.
+Here are some examples for the first track (the three other tracks work the same)
+
+001-00 
+
+This means to play pattern #1 with no transpose.
+The transpose in written in hexadecimal.
+Values 0x00-0x7f are treated as positive. 
+Values 0x80-0xff are treated as negatve
+
+015-0C
+
+This means to play pattern 15 with transpose 0x0C (0x0C=12 in decimal. So the transpose is a full octave)
+
+015-FE
+
+This means to play pattern 15 with transpose 0xFE (0xFE=-2 in decimal. So the transpose is two semi notes down)
+
+
+
+Pattern Editor 
+==============
+If you ever used a tracker programm you should feel at home.
+Here you enter which note to play with which instrument. You can also add commands.
+The concept is exactly the same like in Protracker. Even many commands are the same and work identical.
+Examples:
+
+--- -- 000
+This does nothing (the default value)
+
+C-1 01 000
+Play note C-1 with instrument 1
+
+C-1 01 A0F
+Play note C-1 with instrument 1 and use command 0xA with value 0x0F
+
+
+
+Waves
+=====
+Waves are short samples. They are the heart of Pretrackers sound synthesis!
+
+All waves are precalced on start of a song. You can have upto 24 waves in a song.
+Please consider that precalcing these waves can take quite some time on an Amiga 500.
+Using features like the filter easily doubles the needed time. Also each extra chord note will increase 
+precalc time. A basic rule is to use the shortest waves you need, to keep precalc time as low as possible
+and to preserve chipmem (where are samples need to be loaded on an Amiga to be playable).
+
+To edit waves you first need to enter the instrument editor (by pressing the INSTRUMENTS button or hitting the ESC key).
+From there you can select each of the 24 Waves with a button click. A click on a wave button brings you to the Waves editor.
+
+The Waves editor lets you setup waves for your instruments. This editor works like a subtractive synth. 
+
+Oscillator
+----------
+Here you choose the basic type of waveform you want to create.
+OSC:SAW = Sawtooth
+OSC:TRI = Triangle
+OSC:SQR = Square Wave
+OSC:RND = Random/White Noise
+
+Len*128     Defines the waves length in multiples of 128 bytes
+Basenote    Tune in half notes. The real tuning depends also on your subloop size (See loop section)
+Gain        128 will give you 100% volume 
+
+Phase Min   Minimum phase shift
+Phase Max   Maximum phase shift
+Phase Spd   Phase speed
+
+ The Phase values above define a phase shift of the oscillator waveform across time. You may know this feature
+ from the C64 SID. There you can phase shift the square wave. The Phase effect in Pretracker
+ is very similar but works with any oscillator wave (except RND).
+
+Unisono     Adds another detuned Oscillator to create a fater sound. Good for chords and pads.
+
+Chord:
+------
+Note 2-4    Enter the halfnote of your chord. For instante "Note 2"=4, "Note 3"=7 will define a major chord.
+Shift       Shifts the oscillator phase of each note of the chord. Allows nice comb filter effects.
+
+Volume Envelope
+---------------
+Attack      Attack time
+Delay       Wait time after attack until decay begins
+Decay       How fast the sustain volume will be reached
+Sustain     The final 'sustained' volume
+
+Filter LFO
+----------
+No filter/Lowpass/Highpass/Bandpass/Nocht  The type of filter to be used
+Resonance   The filters resonance. 0 is none, 63 is highest
+Start       Where the filter cutoff starts
+Min         The minimum filter cutoff
+Max         The maximum filter cutoff
+Speed       How fast the cutoff will be modulated between min/max
+
+Modulator
+---------
+This is a modulated delay effect with adjustable number of delays.
+If the "POST" button is off (default) then the effect is applied before the ADSR.
+It's best to experiment with the settings. Use it to give more life to snares and hihats, 
+or to phase leads or bass sounds. However, CPU precalc time is quite high for this effect.
+
+Special
+-------
+Pitch Ramp    Changes pitch of the waveform over time
+Pitch Linear  Sets linear or exponential pitch ramp
+Boost         Increases volume by a factor of 4
+Allow 9xx     If true then the instrument editor 9xx command will offset this waves Loop start
+
+Clone Wave    Uses the settings from another wave except it's chord settings. 
+              Use this to create different chords that use the base wave settings.
+
+Mix Wave      Lets you mix any wave number to your current wave. Nice to build up drums. 
+              To avoid endless loops (for instance wave 1 references wave 2 and vice vera) such combinations are skipped.
+
+Loop Section
+------------
+On the bottom of the Wave editor is the loop section.
+The loop section lets you define a loop start/end and a subloop size.
+The subloop will be moved each frame through the loops start/end points with the given step size. 
+Usually you set as step size your subloop size (or a multiple of it) or simply 2 to sweep through it.
+
+IMPORTANT:
+The size of the subloop will define the tune of your wave. If you use a power of two for the loop size (2,4,8,16,32,64,128,256,512,..)
+you will get a basenote tuned to C. With each doubling of the size the octave will become one lower.
+
+
+
+Instruments
+===========
+You can enter the instrument by pressing the INSTRUMENTS button or hitting the ESC key.
+
+Instruments are made up of waves.
+The ADSR and Vibrato should be self explanatory. To start the release phase of an ADSR you 
+need to set NOTE OFF in the patterns. This is done by pressing "1" on your keyboard. It will
+insert a command like this for the note.
+ __
+[__] -- 000
+
+The edit waves press on the their respective buttons on the left side.
+
+
+Command Pattern
+---------------
+Here you can 'program' your instruments by choosing waves, notes and effects. Its like a tiny pattern that is played each time you trigger the instrument.
+It has notes and commands very much like song patterns. The bottom of the screen has a handy list of available commands.
+All notes are added to the currently played note from the song pattern.
+Press RETURN on the current step to fix the note. Then the song pattern note is not added while playing. Press RETURN again to reverse.
+
+You can enter multiple commands for a single step in the command pattern. Press LSHIFT+INS to insert such commands.
+Multiple commands can only operate on a single note. So the note is not shown for such commands.
+
+Examples:
+
+--- < > 000
+Do nothing
+
+C-0 < > 001
+The first note is an offset that is added to the pattern note. C-0 means no offset. 001 means use wave 1.
+
+C-0 <*> 001
+When you press Enter then the current note will be locked, this means it won't be altered by the pattern note.
+
+C-1 < > 1F0
+Add C-1 to the current instruments pitch and use the 'Slide up' command
+
+For playing arpeggios that are defined in the patterns plays refer to "Playing Chords & Arpeggios".
+
+
+
+KEYBOARD SHORTCUTS
+==================
+
+General
+-------
+A-Z               Play current instrument/wave
+Space             Stop Song/Toggle Edit Mode
+Space+Shift       Stop Song and current step
+ESC               Toggle between Instrument Window and Main Window
+RCtrl             Play Song
+<                 Play Song
+RCtrl+Shift       Play Song from current pos
+Shift+<           Play Song from current pos
+LCtrl+Cursor Down Next Instrument
+LCtrl+Cursor Up   Previous Instrument
+Home/End	  Goto Start/End of Pattern or Sequences
+
+
+Sequence Editor 
+---------------
+Return          Goto Pattern Editor 
+F1-F4           Set Octave 
+Backspace       Delete Step
+CURSOR KEYS     Move Cursor
+Delete          Erase Entry
+Delete+SHIFT    Erase Step
+Home            Jump to sequencer position 0
+INSERT+CTRL     Insert new step
+Tab             Next channel
+Tab+SHIFT       Previous channel
+CTRL+u          Set unused pattern
+CTRL+k          Clone existing pattern
+CTRL+ALT+LEFT   Swap sequencer entry to the left
+CTRL+ALT+RIGHT  Swap sequencer entry to the right
+PLUS/MINUS	Transpose
+CTRL+PLUS/MINUS Transpose Octave
+CTRL+SHIFT+UP	Duplicate entries up
+CTRL+SHIFT+DOWN Duplicate entries down
+CTRL+z	        Undo
+CTRL+LSHIFT+z   Redo
+Shift+Cursor    Mark block in Pattern/Sequencer/Instrument Steps
+CTRL+c          Copy block area
+CTRL+x          Copy block area and clear
+CTRL+v          Paste block area
+
+
+Pattern Editor
+--------------
+Return            Goto Sequence Editor 
+1                 Insert Note-Off command
+SHIFT+Return      Mark this step as Chord/Arpeggio
+RSHIFT + Notes    Enter arpeggio
+STRG+Return       Play Step
+F1-F5             Set Octave 
+F10               Show Help
+SHIFT+F3          Clear Pattern
+SHIFT+F4          Copy Pattern
+SHIFT+F5          Paste Patern
+CTRL+F3           Clear Pattern Commands
+CTRL+F4           Copy Pattern Commands
+CTRL+F5           Paste Patern Commands
+Delete            Erase note
+Ctrl+Delete       Erase command
+SHIFT+Delete      Erase step
+Ctrl+ALT+LEFT     Swap sequencer entry to the left
+Ctrl+ALT+RIGHT    Swap sequencer entry to the right
+ALT+m             Un/Mute channel
+ALT+SHIFT+m       Un/Mute all channels
+ALT+(1-4)         Un/Mute channel 1-4
+Cursor Move+CTRL  Change Selection 
+Ctrl+Plus         Shift Selected Notes Halfnote Up	  
+Ctrl+Minus        Shift Selected Notes Halfnote Down	  
+Ctrl+Shift+Plus   Shift Selected Notes Ocatve Up	  
+Ctrl+Shift+Minus  Shift Selected Notes Ocatve Down	  
+Ctrl+e            Expand track (insert empty step between each step)
+Ctrl+Shift+e      Contract track (remove every second step)
+CTRL+1..9         Set Editstep (=how many steps get skipped on edit)
+Cursor UP         Step Up
+Cursor Down       Step Down
+Page Up           16 steps up
+Page Down         16 steps down
+Home              Jump to step 0
+CTRL+z	          Undo
+CTRL+LSHIFT+z     Redo
+Shift+Cursor      Mark block in Pattern/Sequencer/Instrument Steps
+CTRL+c            Copy block area
+CTRL+x            Copy block area and clear
+CTRL+v            Paste block area
+Ctrl+a            Mark whole pattern/sequencer
+Ctrl+Cursor Left  Decrease Sequence Pattern Number
+Ctrl+Cursor Right Increase Sequence Pattern Number
+Left Shift 	  When hold then notes are entered without changing the instrument in the step
+
+Instrument Editor
+-----------------
+Return            Toggle Fix Note
+INS               Insert step
+SHIFT+INS	  Insert Substep
+SHIFT+F3          Clear Instrument
+SHIFT+F4          Copy Instrument
+SHIFT+F5          Paste Instrument
+CTRL+z	          Undo
+CTRL+LSHIFT+z     Redo
+Cursor UP         Step Up
+Cursor Down       Step Down
+Page Up           16 steps up
+Page Down         16 steps down
+Home              Jump to step 0
+
+Wave Editor
+-----------
+Esc               Return to instrument editor
+SHIFT+F3          Clear Wave
+SHIFT+F4          Copy Wave
+SHIFT+F5          Paste Wave
+
+
+Buttons
+-------
+To change values quickly hold SHIFT while clicking on the arrow.
+To reset buttons hold CTRL while clicking on the arrow.
+
+
+Pattern Commands
+----------------
+0xx         Play 2nd Instrument
+1xx         Slide Up
+2xx         Slide Down
+3xx         Tone Partamento
+4xx         Set Vibrato. Overrides the vibrato of the current instrument and set the delay to 0.
+5xy         Track Delay. x=volume (0=off,0xf=100%), y=delay in steps, 
+            This will mute the next track and play a delay copy of the notes of your current track.
+            Use command 500 to stop the delay. Otherwhise no notes can be played on the next track.
+            If used on the last track then it has no operation.
+9xx         Set wave offset
+Axy         Volume Ramp. x-upspeed, y-downspeed
+Bxx         Position Jump
+Cxx         Set Volume. 0x40 is max. Multiplied with volume of instrument.
+Dxx         Pattern Break
+E1x         Fineslide up (not implemented yet)
+E2x         Fineslide down (not implemented yet)
+EAx         Note off in x sub steps
+EDx         Note delay in x sub steps
+Fxx	    Set Speed (frames waited on each step), so F06 means wait 6 frames until next note. F00=stop, F2f slowest
+            Funk Speed: if Fxx >= 0x30 then Fxy sets a different step wait for even (x)/odd steps(y)
+
+
+Instrument Commands
+-------------------
+See Instrument window
+0xx Select wave 0x01-0x18
+1xx Slide Up
+2xx Slide Down
+30x ADSR x=1: Release x=2: Restart
+4xx Like 0xx but starts wave without sync (means currenty sampleloop pos won't be resetted)
+Axy Volume Slide
+Bxx Jump to Step
+Cxx Set Volume
+E0x Use Pattern Arpeggio (0-3) that was set in pattern, skips empty ('0') arpeggio notes 
+E1x Use Pattern Arpeggio (0-3) that was set in pattern
+Fxx Set Speed
+
+
+Playing Chords & Arpeggios
+==========================
+When you mark a pattern step as Arpeggio (see Pattern Editor shortcuts) then the 3 coloumns of command and value are 
+interepreted as three note offsets that will form the arpeggio together with the base note.
+You can also directly enter an arpeggio by holding the RIGHT SHIFT + Pressing the arpeggios notes.
+
+Example:
+C-1-01 47C 
+
+If the above step is marked as Arpeggio then it will play C-1 with instrument 1 and notes 4,7 and C (a C-Dur chord with an additional octave).
+This works like ProTracker Arpeggio offsets but with one additional note.
+
+If you use an instrument with E0x commands then you can 'read' this chord and play it as arpeggio.
+Instrument example to play the above chord as arpeggio:
+C-1 <> E00 Play the instrument with basenote C1. Add first chord note 
+--- <> E01 Play 2nd chord note
+--- <> E02 Play 3rd chord note
+--- <> E03 Play 4th chord note 
+--- <> B00 Jump back to start
+
+IMPORTANT: If you used 0 in a chord definition then those notes will be skipped for convenience in the instrument.
+If you don't want to skip notes you can use the "E1x" command instead.
+
+Thanks
+======
+Thanks to Virgill, Tecon, Geir, GrG, Curt, Firefox and Aceman for beta testing PreTracker!

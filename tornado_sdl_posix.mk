@@ -3,8 +3,12 @@
 #################################################################################
 
 #################################################################################
-TORNADO_OBJ = sdl_posix/assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o  sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
-TORNADO_OBJ += c2p.o tndo.o debug.o wav_delta.o memory.o ddpcm_loader.o telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddpcm_decode.o
+TORNADO_OBJ = sdl_posix/assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o
+TORNADO_OBJ += sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o
+TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
+TORNADO_OBJ += c2p.o tndo.o debug.o memory.o ddpcm_loader.o
+TORNADO_OBJ += telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o
+TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddpcm_decode.o
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 
 LZW_BASE = $(TORNADO_BASE)/tools/compress
@@ -134,74 +138,88 @@ LDFLAGS += -fsanitize=address -fsanitize=undefined
 
 
 ################################################################################
-
 MKDIR    = @mkdir -p
 RM       = rm -rf
-
+QUIET	= @
+ECHO	= echo 
 ################################################################################
 
 all: $(TARGET)
 
 
 $(TARGET): $(OBJECTS) Makefile
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	$(QUIET)$(ECHO) "(LD) -> $@"
+	$(QUIET)$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/lzw_unpack.o: $(LZW_BASE)/lzw_unpack.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/lzh_unpack.o: $(LZW_BASE)/lzh_unpack.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/lzss_unpack.o: $(LZW_BASE)/lzss_unpack.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(LZW_INCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/device.o: $(ROCKET_BASE)/device.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/track.o: $(ROCKET_BASE)/track.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_impl_sdl.o: $(IMGUI_BASE)/examples/imgui_impl_sdl.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui.o: $(IMGUI_BASE)/imgui.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_demo.o: $(IMGUI_BASE)/imgui_demo.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_draw.o: $(IMGUI_BASE)/imgui_draw.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_widgets.o: $(IMGUI_BASE)/imgui_widgets.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_sdl.o: $(IMGUI_SDL_BASE)/imgui_sdl.cpp Makefile
 	$(MKDIR) $(dir $@)
-	$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_SDL_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_SDL_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< -o $@
-
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< -o $@
 
 clean:
 	$(RM) $(BUILDDIR) $(TARGET)

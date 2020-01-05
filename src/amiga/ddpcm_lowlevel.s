@@ -10,6 +10,7 @@
 	public _decodeFrame_asm
 	public _initDDPCM_Decoder
 	public _getDDPCMMixRoutine16
+	public _ddpcmAHIPlayerFunc
 	
 INT16_MAX equ 32767
 INT16_MIN equ -32768
@@ -471,6 +472,199 @@ tail_loop:
 	bne.s	tail_loop
 end:
 	movem.l	(sp)+,d2-d6/a5-a6
+	rts
+
+;;; AHI 16 bit Stereo mix routine for DDPCM streams.
+;;; d0 = number of samples to mix
+;;; a0, a1 = output samples
+	
+	cnop 0,4
+_ddpcmAHIPlayerFunc:
+	movem.l	d2-d6/a2-a6,-(sp)	
+	movem.l	a0-a1, -(sp)
+	
+	lea	output_left, a0
+	lea	output_right, a1
+	lea	unpacked_samples_left, a2
+	lea	unpacked_samples_right, a3
+	
+	move.l	d0, d1		; Samples to decode
+	
+	;; Copy any available samples to the output buffer
+	move.l	available_samples, d7
+	tst.l	d7
+	bls	_no_avail_ahi
+	cmp.l	d7, d1
+	bgt	_smaller_ahi
+	;; We have more unpacked samples than were requested.
+	sub.l	d1, d7
+	move.l	d7, available_samples
+	move.l	unpacked_offset, d2
+	add.l	d2, a2	
+	add.l	d2, a3
+	move.l	d1, d3
+	lsl.l	#1, d3
+	add.l	d3, d2
+	move.l	d2, unpacked_offset
+_copy_avail_2_ahi:
+	move.w	(a2)+, (a0)+
+	move.w	(a3)+, (a1)+
+	subq.l	#1, d1
+	bne	 _copy_avail_2_ahi
+	bra	_mixer_ahi
+_smaller_ahi:	
+	sub.l	d7, d1
+	move.l	unpacked_offset, d2
+	add.l	d2, a2
+	add.l	d2, a3
+_copy_avail_ahi:
+	move.w	(a2)+, (a0)+
+	move.w	(a3)+, (a1)+
+	subq.l	#1, d7
+	bne	 _copy_avail_ahi
+	
+	moveq.l	#0, d2
+	move.l	d2, available_samples
+	move.l	d2, unpacked_offset
+_no_avail_ahi:
+	;; Unpack the remaining samples needed
+	moveq.l	#0, d3		; number of samples we need to unpack
+	moveq.l	#0, d4		; number of frames we need to unpack
+	
+	tst.l	d0
+	beq	_have_enough_ahi
+_not_enough_ahi:
+	add.l	#DDPCM_FRAME_NUMSAMPLES, d3
+	addq.l 	#1, d4
+	cmp.l	d3, d0
+	bhi	_not_enough_ahi
+_have_enough_ahi:
+	;; d0 -> samples to mix
+	;; d1 -> samples to decode
+	;; d4 -> frames to decode
+	;; a0 -> output_left
+	;; a1 -> output_right
+	;; a2 -> unpacked_samples_left
+	;; a3 -> unpacked_samples_right
+	
+	sub.l   d1, d3
+	move.l  d3, available_samples 
+	move.l  frames_done, d2
+_decode_frames_ahi:
+	;; left channel
+	move.l  scales_left, a4
+	move.b  (a4, d2.l), d7	; d7 -> scale
+
+	move.l	frame_in_qtable, d3
+	move.l	frames_per_qtable, d5
+	move.l	current_qtable, d6
+	cmp.l	d5, d3
+	bcs	_inside_qtable_ahi
+	moveq 	#0, d3
+	move.l	d3, frame_in_qtable
+	addq.l	#1, d6
+	move.l	d6, current_qtable
+_inside_qtable_ahi:
+	;; d7 -> scale
+	;; d6 -> current qtable
+
+	move.l 	q_tables_left, a4
+	move.l  (a4, d6.l*4), a5	; a5 -> qtable
+
+	move.l  a0, a4		; a4 -> output_left
+	lea	unpacked_samples_left, a6		; a6 -> dst
+	move.l  unpacked_offset, d3
+	add.l	d3, a6
+	move.l  packed_left, a0
+	move.l  packed_offset, d3
+	add.l   d3, a0		; a0 -> src
+
+	jsr	_decodeFrame_asm
+	
+	move.l   a4, a0		; a0 -> output_left
+	
+	;; right channel
+	move.l  scales_right, a4
+	move.l  frames_done, d2
+	move.b  (a4, d2.l), d7	; d7 -> scale
+
+	move.l	q_tables_right, a4
+	move.l  (a4, d6.l*4), a5	; a5 -> qtable
+
+	lea  	unpacked_samples_right, a6		; a6 -> dst
+	move.l  unpacked_offset, d3
+	add.l   d3, a6
+	move.l  a0, a4
+	move.l  packed_right, a0
+	move.l  packed_offset, d3
+	add.l   d3, a0		; a0 -> src
+
+	jsr	_decodeFrame_asm
+
+	move.l  a4, a0
+	
+	move.l  packed_offset, d3
+	add.l	#DDPCM_COMPRESSED_FRAME_SIZE, d3
+	move.l	d3, packed_offset
+	addq.l	#1, d2
+	move.l	d2, frames_done
+
+	move.l  frame_in_qtable, d3
+	addq.l	#1, d3
+	move.l	d3, frame_in_qtable
+
+	move.l  unpacked_offset, d3
+	add.l	#DDPCM_FRAME_NUMSAMPLES*2, d3
+	move.l 	d3, unpacked_offset
+	subq.l	#1, d4
+	bne	_decode_frames_ahi
+	
+	;; copy new unpacked samples to output buffer
+	lea	unpacked_samples_left, a4
+	lea	unpacked_samples_right, a5
+	move.l	d1, d7
+_copy_output_ahi:	
+	move.w	(a4)+, (a0)+
+	move.w	(a5)+, (a1)+
+	subq.l	#1, d7
+	bne.s	_copy_output_ahi
+	
+	move.l	unpacked_offset, d3
+	move.l	available_samples, d4
+	lsl.l	#1, d4
+	sub.l	d4, d3
+ 	move.l	d3, unpacked_offset
+
+_mixer_ahi:
+	;; Mix and copy to AHI buffers
+	movem.l (sp)+, a0-a1
+	lea  output_left, a5 ; left buffer
+	lea  output_right, a4  ; left buffer
+	cmp.l   #4, d0
+	blt     tail_ahi
+
+word_loop_ahi:
+	move.l	(a5)+,(a0)+ 
+	move.l	(a4)+,(a1)+
+	move.l	(a5)+,(a0)+ 
+	move.l	(a4)+,(a1)+ 
+	subq.l  #4,d0
+	cmp     #4,d0
+	bge     word_loop_ahi
+
+tail_ahi:	
+	cmp.l   #0, d0
+	beq     end_ahi
+
+tail_loop_ahi:	
+	move.b	(a5)+,(a0)+ 
+	move.b	(a4)+,(a1)+
+	move.b	(a5)+,(a0)+ 
+	move.b	(a4)+,(a1)+ 
+	subq.l	#1,d0
+	bne.s	tail_loop_ahi
+end_ahi:
+	movem.l	(sp)+,d2-d6/a2-a6
 	rts
 	
 ;;; a0 int16_t **qtablesLeft

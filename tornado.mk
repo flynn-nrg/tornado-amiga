@@ -3,7 +3,18 @@
 #################################################################################
 
 #################################################################################
-TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o amiga/assets.o hardware_check.o amiga/graphics.o memory.o amiga/system.o amiga/copper.o debug.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o amiga/c2p1x1_8_c5_040_scanline.o amiga/c2p1x1_4_c5_16_9.o amiga/audio.o amiga/paula_output.o amiga/audio_lowlevel.o wav_delta.o tndo.o amiga/splash.o amiga/c2p1x1_8_c5_bm.o amiga/mod_replay.o amiga/c2p1x1_4_c5_16_9_h.o amiga/chrono.o amiga/freq_estimation.o telemetry.o prof.o lzw_loader.o amiga/lzw_unpack.o amiga/lzw_unpack_inner.o amiga/time.o amiga/mod_replay_os_legal.o lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o lzw_unpack_stream.o lzss_unpack_stream.o ddpcm_loader.o ddpcm_decode.o amiga/ddpcm_lowlevel.o c2p.o
+TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o amiga/assets.o hardware_check.o amiga/graphics.o
+TORNADO_OBJ += memory.o amiga/system.o amiga/copper.o debug.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o
+TORNADO_OBJ += amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o
+TORNADO_OBJ += amiga/c2p1x1_8_c5_040_scanline.o amiga/c2p1x1_4_c5_16_9.o amiga/audio.o
+TORNADO_OBJ += amiga/paula_output.o amiga/audio_lowlevel.o tndo.o amiga/splash.o
+TORNADO_OBJ += amiga/c2p1x1_8_c5_bm.o amiga/mod_replay.o amiga/c2p1x1_4_c5_16_9_h.o amiga/chrono.o
+TORNADO_OBJ += amiga/freq_estimation.o telemetry.o prof.o lzw_loader.o amiga/lzw_unpack.o
+TORNADO_OBJ += amiga/lzw_unpack_inner.o amiga/time.o amiga/mod_replay_os_legal.o
+TORNADO_OBJ += lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o
+TORNADO_OBJ += amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o
+TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o ddpcm_loader.o ddpcm_decode.o
+TORNADO_OBJ += amiga/ddpcm_lowlevel.o c2p.o amiga/prt_replay.o amiga/audio_ahi.o
 
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 TORNADO_THIRD_PARTY_DIR = $(TORNADO_BASE)/third_party
@@ -16,6 +27,10 @@ DDPCM_INCDIR = $(DDPCM_BASE)
 
 ROCKET_BASE = $(TORNADO_BASE)/third_party/rocket/lib
 ROCKET_INCDIR = $(ROCKET_BASE)
+
+AHI_BASE = $(TORNADO_BASE)/third_party/m68k-amigaos-ahi/Developer
+AHI_INCDIR = $(AHI_BASE)/Include/C
+
 #################################################################################
 
 INCDIR = $(TORNADO_BASE)/include
@@ -24,6 +39,7 @@ INCDIR += $(TORNADO_BASE)/include_amiga_math
 endif
 INCDIR += $(TORNADO_BASE)/third_party
 INCDIR += $(ROCKET_INCDIR)
+INCDIR += $(AHI_INCDIR)
 INCDIR += $(LZW_BASE)
 INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
@@ -218,10 +234,10 @@ endif
 
 
 ################################################################################
-
-MKDIR    = @mkdir -p
-RM       = rm -rf
-
+MKDIR   = @mkdir -p
+RM      = rm -rf
+QUIET	= @
+ECHO	= echo 
 ################################################################################
 
 all: $(TARGET)
@@ -229,31 +245,37 @@ all: $(TARGET)
 
 $(TARGET): $(OBJECTS) Makefile
 	$(MKDIR) $(dir $@)
-	$(LD) $(STARTUP) $(addprefix -L,$(LIBDIR)) $(OBJECTS) $(LDFLAGS) -o $@
+	$(QUIET)$(ECHO) "(LD) -> $@"
+	$(QUIET)$(LD) $(STARTUP) $(addprefix -L,$(LIBDIR)) $(OBJECTS) $(LDFLAGS) -o $@
 
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
-	$(GAS) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
+	$(QUIET)$(GAS) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
 
 $(BUILDDIR)/mod_replay.o: $(TORNADO_SRCDIR)/mod_replay.s Makefile
 	$(MKDIR) $(dir $@)
-	$(AS) $(addprefix -I,$(INCDIR)) $(P61FLAGS) -o $@ $<
+	$(QUIET)$(ECHO) "(AS) -> $@"
+	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(P61FLAGS) -o $@ $<
 
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.s Makefile
 	$(MKDIR) $(dir $@)
-	$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS) -o $@ $<
+	$(QUIET)$(ECHO) "(AS) -> $@"
+	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS) -o $@ $<
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)
-	$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
-	$(GAS) $(addprefix -I,$(INCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
+	$(QUIET)$(GAS) $(addprefix -I,$(INCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s Makefile
 	$(MKDIR) $(dir $@)
-	$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS) -o $@ $<
+	$(QUIET)$(ECHO) "(AS) -> $@"
+	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS) -o $@ $<
 
 clean:
-	$(RM) $(BUILDDIR) $(TARGET)
+	$(QUIET)$(RM) $(BUILDDIR) $(TARGET)
 
 ################################################################################

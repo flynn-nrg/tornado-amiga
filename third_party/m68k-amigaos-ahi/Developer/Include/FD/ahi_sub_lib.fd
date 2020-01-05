@@ -1,0 +1,25 @@
+* "ahi_sub.library"
+* Automatically generated FD (sfdc 1.4)! Do not edit!
+##base _AHIsubBase
+##bias 30
+##public
+* Functions for basic audio input and output
+AHIsub_AllocAudio(tagList,AudioCtrl)(a1,a2)
+AHIsub_FreeAudio(AudioCtrl)(a2)
+AHIsub_Disable(AudioCtrl)(a2)
+AHIsub_Enable(AudioCtrl)(a2)
+AHIsub_Start(Flags,AudioCtrl)(d0,a2)
+AHIsub_Update(Flags,AudioCtrl)(d0,a2)
+AHIsub_Stop(Flags,AudioCtrl)(d0,a2)
+* Functions for hardware acceleration
+AHIsub_SetVol(Channel,Volume,Pan,AudioCtrl,Flags)(d0,d1,d2,a2,d3)
+AHIsub_SetFreq(Channel,Freq,AudioCtrl,Flags)(d0,d1,a2,d2)
+AHIsub_SetSound(Channel,Sound,Offset,Length,AudioCtrl,Flags)(d0,d1,d2,d3,a2,d4)
+AHIsub_SetEffect(Effect,AudioCtrl)(a0,a2)
+AHIsub_LoadSound(Sound,Type,Info,AudioCtrl)(d0,d1,a0,a2)
+AHIsub_UnloadSound(Sound,Audioctrl)(d0,a2)
+* Functions for driver queries
+AHIsub_GetAttr(Attribute,Argument,DefValue,tagList,AudioCtrl)(d0,d1,d2,a1,a2)
+* Functions for controlling the analog mixer etc.
+AHIsub_HardwareControl(Attribute,Argument,AudioCtrl)(d0,d1,a2)
+##end

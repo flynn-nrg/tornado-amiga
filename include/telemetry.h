@@ -2,12 +2,12 @@
 #define TELEMETRY_H
 
 typedef struct {
-	int numSamples;
-	int usedSamples;
-	float *samples;
+  int numSamples;
+  int usedSamples;
+  float *samples;
 } TelemetryData;
-	
-TelemetryData** allocateTelemetry(int, int);
+
+TelemetryData **allocateTelemetry(int, int);
 int appendTelemetry(float, TelemetryData *);
 int saveTelemetry(const char *, TelemetryData *);
 int saveCombinedTelemetry(const char *, TelemetryData **, int, const char *);

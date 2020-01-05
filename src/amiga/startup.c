@@ -1,23 +1,26 @@
 /*
-Copyright (c) 2019 Miguel Mendez
+Copyright (c) 2019, Miguel Mendez. All rights reserved.
 
-This software is provided 'as-is', without any express or implied warranty. In
-no event will the authors be held liable for any damages arising from the use of
-this software.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-Permission is granted to anyone to use this software for any purpose, including
-commercial applications, and to alter it and redistribute it freely, subject to
-the following restrictions:
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
 
-    1. The origin of this software must not be misrepresented; you must not
-claim that you wrote the original software. If you use this software in a
-product, an acknowledgment in the product documentation would be appreciated but
-is not required.
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
 
-    2. Altered source versions must be plainly marked as such, and must not be
-misrepresented as being the original software.
-
-    3. This notice may not be removed or altered from any source distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <fenv.h>
@@ -38,6 +41,7 @@ misrepresented as being the original software.
 #include "aga.h"
 #include "assets.h"
 #include "audio.h"
+#include "audio_ahi.h"
 #include "audio_lowlevel.h"
 #include "c2p.h"
 #include "copper.h"
@@ -174,7 +178,9 @@ int main(int argc, char **argv) {
 
   // Signal the memory manager that we are done with the init stage.
   // This will also free the packed data buffer.
-  tndo_memory_init_done();
+  if (dp->tornadoOptions & KILL_OS) {
+    tndo_memory_init_done();
+  }
 
   // Release timer.device.
   timeEnd();
@@ -221,6 +227,10 @@ int main(int argc, char **argv) {
                        dp->audioMode);
       PaulaOutput_Start();
     }
+
+    // ---------------------------------------------------------------------------
+    // System friendly code path.
+    // ---------------------------------------------------------------------------
   } else {
     if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
       printf("DEBUG - Tornado is running in system friendly mode. No direct "
@@ -235,6 +245,22 @@ int main(int argc, char **argv) {
       tndoVBL.is_Data = 0;
       tndoVBL.is_Code = VBLChain;
       AddIntServer(INTB_VERTB, &tndoVBL);
+    }
+
+    if (dp->tornadoOptions & USE_AUDIO) {
+      int res = audioAhiInit(dp);
+      if (res != 0) {
+        fprintf(stderr, "FATAL - audioAhiInit() failed. Aborting.\n");
+        exit(EXIT_FAILURE);
+      }
+
+      // No more memory allocations beyond this point.
+      tndo_memory_init_done();
+
+      // Kick off music
+      if (dp->tornadoOptions & USE_AUDIO) {
+        audioAHIStart();
+      }
     }
   }
 
@@ -258,10 +284,16 @@ int main(int argc, char **argv) {
       }
     }
     restoreOS(hw->vbr);
+
+    // System friendly mode
   } else {
     // Remove interrupt VBL server
     if (dp->tornadoOptions & INSTALL_LEVEL3) {
       RemIntServer(INTB_VERTB, &tndoVBL);
+    }
+    // Release AHI resources
+    if (dp->tornadoOptions & USE_AUDIO) {
+      audioAHIEnd();
     }
   }
 

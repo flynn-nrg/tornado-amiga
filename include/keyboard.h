@@ -53,11 +53,10 @@
 #define KEY_N 0x36
 #define KEY_M 0x37
 
-#define KEY_UP    0x4c
-#define KEY_DOWN  0x4d
+#define KEY_UP 0x4c
+#define KEY_DOWN 0x4d
 #define KEY_RIGHT 0x4e
-#define KEY_LEFT  0x4f
-
+#define KEY_LEFT 0x4f
 
 #define KEY_LEFT_AMIGA 0x66
 #define KEY_RIGHT_AMIGA 0x67

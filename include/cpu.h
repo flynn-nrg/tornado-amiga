@@ -8,10 +8,8 @@
 
 int getCPU();
 int isVampire();
-int * getVBR();
+int *getVBR();
 
-int getMEM(
-    __ASMPARM("d1", int memtype)
-);
+int getMEM(__ASMPARM("d1", int memtype));
 
 #endif

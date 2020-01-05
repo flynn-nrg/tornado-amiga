@@ -3,6 +3,8 @@ Tornado Amiga Demo System
 
 Tornado is an [Amiga](https://en.wikipedia.org/wiki/Amiga) [demo](https://en.wikipedia.org/wiki/Demoscene) framework. It allows you to cross-develop and test code on both Amiga and Posix/SDL environments (currently MacOS X and GNU/Linux).
 
+![tornado_screenshot](manual/img/tornado.png "tornado screenshot")
+
 Introduction
 ----------------
 
@@ -19,7 +21,12 @@ Authors
 
 Tornado was mainly developed by Miguel 'Flynn' Mendez with contributions from Luis 'Peskanov' Pons and Antonio 'winden' Vargas.
 
-The music used in the examples was composed by Carlos 'Estrayk' del Alamo.
+The music used in the p61 and DDPCM examples was composed by Carlos 'Estrayk' del Alamo.
+
+The music used in the Pretracker example was composed by Jakub 'AceMan' Szelag and it's part of the Pretracker distribution.
+
+The music used in the AHI example was composed by Miguel 'Flynn' Mendez.
+
 
 The graphics used in the examples were created by Manuel 'Leunam' Sagall and Jordi Carlos 'God'.
 
@@ -32,9 +39,12 @@ It also makes use of the following third party software:
 * [vbcc](http://www.compilers.de/vbcc.html): Used to cross-compile Amiga code.
 * [Kalmalyzer](https://github.com/Kalmalyzer): Michael Kalms' collection of [c2p](https://www.lysator.liu.se/~mikaelk/doc/c2ptut/) and audio routines. 
 * [The Player 6.1](http://www.pouet.net/prod.php?which=19922): Mod replay routines.
+* [Pretracker](http://www.pouet.net/prod.php?which=80999) by Pink/Abyss.
+* [AHI](https://en.wikipedia.org/wiki/AHI_(Amiga)) by Martin Blom.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
 
 License
 ----------
 
-This software is released under the [zlib license](https://en.wikipedia.org/wiki/Zlib_License).
+This software is released under the [2-Clause BSD License](https://opensource.org/licenses/BSD-2-Clause).
+
