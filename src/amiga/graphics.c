@@ -246,9 +246,9 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
     graph->depth = 4;
     break;
 
-  case SCR_16_9_HL_8BPL:
+  case SCR_16_9_H_8BPL:
     if (!(graph->options & CUSTOM_C2P)) {
-      c2p1x1_4_c5_16_9_h_init(640, 360, 0, 0, 0, 640 * 360 / 8);
+      c2p1x1_4_c5_16_9_h_init(640, 180, 0, 0, 0, 640 * 180 / 8);
     }
     graph->w = 640;
     graph->h = 360;
@@ -258,6 +258,13 @@ graphics_t *initGraphics(graphicsOptions *gOptions) {
   case SCR_16_9_8BPL_PLANAR:
 	  c2p1x1_8_c5_040_scanline_init(320, 1, 0, 0, 0, 320 * 180 / 8, 0);
     graph->w = 320;
+    graph->h = 180;
+    graph->depth = 8;
+    break;
+
+  case SCR_16_9_H_8BPL_PLANAR:
+    c2p1x1_8_c5_040_scanline_init(640, 1, 0, 0, 0, 640 * 180 / 8, 0);
+    graph->w = 640;
     graph->h = 180;
     graph->depth = 8;
     break;
