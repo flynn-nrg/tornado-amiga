@@ -15,6 +15,7 @@ TORNADO_OBJ += lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o
 TORNADO_OBJ += amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o
 TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o ddpcm_loader.o ddpcm_decode.o
 TORNADO_OBJ += amiga/ddpcm_lowlevel.o c2p.o amiga/prt_replay.o amiga/audio_ahi.o
+TORNADO_OBJ += amiga/cinter.o
 
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 TORNADO_THIRD_PARTY_DIR = $(TORNADO_BASE)/third_party
@@ -31,6 +32,9 @@ ROCKET_INCDIR = $(ROCKET_BASE)
 AHI_BASE = $(TORNADO_BASE)/third_party/m68k-amigaos-ahi/Developer
 AHI_INCDIR = $(AHI_BASE)/Include/C
 
+CINTER_BASE = $(TORNADO_BASE)/third_party/Cinter
+CINTER_INCDIR = $(CINTER_BASE)/player
+
 #################################################################################
 
 INCDIR = $(TORNADO_BASE)/include
@@ -42,6 +46,7 @@ INCDIR += $(ROCKET_INCDIR)
 INCDIR += $(AHI_INCDIR)
 INCDIR += $(LZW_BASE)
 INCDIR += $(DDPCM_INCDIR)
+INCDIR += $(CINTER_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
 #################################################################################
 
