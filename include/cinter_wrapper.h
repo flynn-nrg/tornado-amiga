@@ -33,6 +33,7 @@ void CinterInit(__ASMPARM("a2", void *music_data),
                 __ASMPARM("d0", int instrument_data_size));
 void CinterPlay1(void);
 void CinterPlay2(void);
+void CinterEnd();
 
 #else
 
@@ -40,6 +41,7 @@ void CinterInit(void *music_data, void *intrument_data,
                 int instrument_data_size);
 void CinterPlay1(void);
 void CinterPlay2(void);
+void CinterEnd();
 
 void CinterInit(void *music_data, void *intrument_data,
                 int instrument_data_size) {}
@@ -47,6 +49,8 @@ void CinterInit(void *music_data, void *intrument_data,
 void Cinterplay() {}
 
 void CinterPlay2() {}
+
+void CinterEnd() {}
 
 #endif // __AMIGA__
 
