@@ -99,7 +99,7 @@ CC := cc
 CXX := c++
 
 CCFLAGS += -c  
-CCFLAGS += --std=c11
+CCFLAGS += --std=c99
 CCFLAGS += -O0 
 CCFLAGS += -g
 CCFLAGS += -fno-omit-frame-pointer
