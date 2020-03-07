@@ -115,7 +115,9 @@ void setAudioMode(int mode) {
   switch (mode) {
   case PCM_REPLAY_MODE:
     if (audioMode == P61_REPLAY_MODE) {
+#ifdef TORNADO_P61
       p61End();
+#endif
     }
     PaulaOutput_Start();
     audioMode = PCM_REPLAY_MODE;
