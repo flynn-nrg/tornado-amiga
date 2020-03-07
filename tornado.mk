@@ -3,18 +3,82 @@
 #################################################################################
 
 #################################################################################
-TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o amiga/assets.o hardware_check.o amiga/graphics.o
-TORNADO_OBJ += memory.o amiga/system.o amiga/copper.o debug.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o
+
+# Tornado core functionality
+TORNADO_OBJ = amiga/startup.o amiga/cpu.o amiga/aga.o 
+TORNADO_OBJ += memory.o amiga/system.o debug.o amiga/tndo_assert.o
+TORNADO_OBJ += hardware_check.o amiga/chrono.o amiga/freq_estimation.o 
+TORNADO_OBJ += telemetry.o prof.o amiga/time.o dprint.o
+TORNADO_OBJ += amiga/audio.o amiga/paula_output.o
+TORNADO_OBJ += amiga/audio_lowlevel.o
+
+# Intro mode allows you to selectively enable the tornado modules you need
+# and save some bytes.
+ifndef TORNADO_INTRO_MODE
+TORNADO_ASSET_MANAGER = true
+TORNADO_GRAPHICS = true
+TORNADO_SPLASH = true
+TORNADO_AHI = true
+TORNADO_P61 = true
+TORNADO_DDPCM = true
+TORNADO_PRETRACKER = true
+TORNADO_CINTER = true
+endif
+
+# Asset management and data unpackers.
+ifdef TORNADO_ASSET_MANAGER
+CFLAGS += -DTORNADO_ASSET_MANAGER
+TORNADO_OBJ += amiga/assets.o tndo.o tndo_file.o
+TORNADO_OBJ += lzw_loader.o amiga/lzw_unpack.o
+TORNADO_OBJ += amiga/lzw_unpack_inner.o
+TORNADO_OBJ += lzss_loader.o lzh_loader.o amiga/lzss_unpack.o
+TORNADO_OBJ += amiga/lzh_unpack.o lzw_unpack_stream.o lzss_unpack_stream.o
+endif
+
+# Graphics subsystem. Disable if using custom displays.
+ifdef TORNADO_GRAPHICS
+CFLAGS += -DTORNADO_GRAPHICS
+TORNADO_OBJ += amiga/copper.o amiga/graphics.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o
 TORNADO_OBJ += amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o
-TORNADO_OBJ += amiga/c2p1x1_8_c5_040_scanline.o amiga/c2p1x1_4_c5_16_9.o amiga/audio.o
-TORNADO_OBJ += amiga/paula_output.o amiga/audio_lowlevel.o tndo.o amiga/splash.o
-TORNADO_OBJ += amiga/c2p1x1_8_c5_bm.o amiga/mod_replay.o amiga/c2p1x1_4_c5_16_9_h.o amiga/chrono.o
-TORNADO_OBJ += amiga/freq_estimation.o telemetry.o prof.o lzw_loader.o amiga/lzw_unpack.o
-TORNADO_OBJ += amiga/lzw_unpack_inner.o amiga/time.o amiga/mod_replay_os_legal.o
-TORNADO_OBJ += lzss_loader.o lzh_loader.o amiga/lzss_unpack.o amiga/lzh_unpack.o
-TORNADO_OBJ += amiga/tndo_assert.o tndo_file.o amiga/display.o dprint.o
-TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o ddpcm_loader.o ddpcm_decode.o
-TORNADO_OBJ += amiga/ddpcm_lowlevel.o c2p.o amiga/prt_replay.o amiga/audio_ahi.o
+TORNADO_OBJ += amiga/c2p1x1_8_c5_040_scanline.o amiga/c2p1x1_4_c5_16_9.o
+TORNADO_OBJ += amiga/c2p1x1_8_c5_bm.o amiga/c2p1x1_4_c5_16_9_h.o
+TORNADO_OBJ += amiga/display.o c2p.o
+endif
+
+# Splash screen
+ifdef TORNADO_SPLASH
+CFLAGS += -DTORNADO_SPLASH
+TORNADO_OBJ += amiga/splash.o
+endif
+
+# Audio AHI subsystem.
+ifdef TORNADO_AHI
+CFLAGS += -DTORNADO_AHI
+TORNADO_OBJ += amiga/audio_ahi.o
+endif
+
+# P61 replay routines.
+ifdef TORNADO_P61
+CFLAGS += -DTORNADO_P61
+TORNADO_OBJ += amiga/mod_replay.o amiga/mod_replay_os_legal.o
+endif
+
+# Tornado DDPCM decoder.
+ifdef TORNADO_DDPCM
+CFLAGS += -DTORNADO_DDPCM
+TORNADO_OBJ += ddpcm_loader.o ddpcm_decode.o amiga/ddpcm_lowlevel.o
+endif
+
+# Pretracker replay routine.
+ifdef TORNADO_PRETRACKER
+TORNADO_OBJ += amiga/prt_replay.o
+endif
+
+# Cinter replay rutine.
+ifdef TORNADO_CINTER
+TORNADO_OBJ += amiga/cinter.o
+endif
+
 
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 TORNADO_THIRD_PARTY_DIR = $(TORNADO_BASE)/third_party
@@ -31,6 +95,9 @@ ROCKET_INCDIR = $(ROCKET_BASE)
 AHI_BASE = $(TORNADO_BASE)/third_party/m68k-amigaos-ahi/Developer
 AHI_INCDIR = $(AHI_BASE)/Include/C
 
+CINTER_BASE = $(TORNADO_BASE)/third_party/Cinter
+CINTER_INCDIR = $(CINTER_BASE)/player
+
 #################################################################################
 
 INCDIR = $(TORNADO_BASE)/include
@@ -42,6 +109,7 @@ INCDIR += $(ROCKET_INCDIR)
 INCDIR += $(AHI_INCDIR)
 INCDIR += $(LZW_BASE)
 INCDIR += $(DDPCM_INCDIR)
+INCDIR += $(CINTER_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
 #################################################################################
 

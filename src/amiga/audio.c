@@ -115,7 +115,9 @@ void setAudioMode(int mode) {
   switch (mode) {
   case PCM_REPLAY_MODE:
     if (audioMode == P61_REPLAY_MODE) {
+#ifdef TORNADO_P61
       p61End();
+#endif
     }
     PaulaOutput_Start();
     audioMode = PCM_REPLAY_MODE;
@@ -133,6 +135,9 @@ int getAudioMode() { return audioMode; }
 
 // Pretracker doesn't clean up after itself.
 void prtEnd() { PaulaOutput_ShutDown(); }
+
+// Cinter doesn't clean up after itself.
+void CinterEnd() { PaulaOutput_ShutDown(); }
 
 void fixSamples(char *data, int dataLen, int bitsPerSample) {
   switch (bitsPerSample) {

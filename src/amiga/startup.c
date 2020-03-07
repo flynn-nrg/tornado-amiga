@@ -134,6 +134,7 @@ int main(int argc, char **argv) {
   // ---------------------------------------------------------------------------
   timeInit();
 
+#ifdef TORNADO_ASSET_MANAGER
   // ---------------------------
   // Tornado VFS init if needed.
   // ---------------------------
@@ -146,6 +147,7 @@ int main(int argc, char **argv) {
       exit(EXIT_FAILURE);
     }
   }
+#endif
 
   // --------------------------------
   // Setup floating point environment
@@ -153,12 +155,15 @@ int main(int argc, char **argv) {
   fenv = fegetround();
   fesetround(FE_TOWARDZERO);
 
+#ifdef TORNADO_GRAPHICS
   // --------------------------------
   // Display subsystem
   // --------------------------------
   tndo_assert(dp->numDisplays > 0);
   display_subsystem_init(dp->numDisplays);
+#endif
 
+#ifdef TORNADO_SPLASH
   // ---------------------------------------------------------------------------
   // Splash screen/animation before init/load
   // ---------------------------------------------------------------------------
@@ -166,15 +171,19 @@ int main(int argc, char **argv) {
     splash_bg_init();
     demoSplash(dp->tornadoOptions);
   }
+#endif
+
   // ---------------------------------------------------------------------------
   // Demo initialisation.
   // ---------------------------------------------------------------------------
   demoInit(dp->tornadoOptions, initialEffect);
 
+#ifdef TORNADO_ASSET_MANAGER
   // We are loading files. Shut down the VFS subsystem.
   if (dp->tornadoOptions & ENABLE_TNDO_VFS) {
     tndo_vfs_end();
   }
+#endif
 
   // Signal the memory manager that we are done with the init stage.
   // This will also free the packed data buffer.
@@ -206,7 +215,9 @@ int main(int argc, char **argv) {
       switch (dp->audioMode) {
       case OUTPUT_14_BIT_STEREO:
         if (dp->tornadoOptions & DDPCM_STREAMING) {
+#ifdef TORNADO_DDPCM
           mixRoutine = getDDPCMMixRoutine16();
+#endif
         } else {
           mixRoutine = getMixRoutine16();
         }
@@ -248,6 +259,7 @@ int main(int argc, char **argv) {
     }
 
     if (dp->tornadoOptions & USE_AUDIO) {
+#ifdef TORNADO_AHI
       int res = audioAhiInit(dp);
       if (res != 0) {
         fprintf(stderr, "FATAL - audioAhiInit() failed. Aborting.\n");
@@ -261,6 +273,9 @@ int main(int argc, char **argv) {
       if (dp->tornadoOptions & USE_AUDIO) {
         audioAHIStart();
       }
+#endif
+    } else {
+      tndo_memory_init_done();
     }
   }
 
@@ -278,7 +293,9 @@ int main(int argc, char **argv) {
     if (dp->tornadoOptions & USE_AUDIO) {
       int am = getAudioMode();
       if (am == P61_REPLAY_MODE) {
+#ifdef TORNADO_P61
         p61End();
+#endif
       } else {
         PaulaOutput_ShutDown();
       }
@@ -291,10 +308,12 @@ int main(int argc, char **argv) {
     if (dp->tornadoOptions & INSTALL_LEVEL3) {
       RemIntServer(INTB_VERTB, &tndoVBL);
     }
+#ifdef TORNADO_AHI
     // Release AHI resources
     if (dp->tornadoOptions & USE_AUDIO) {
       audioAHIEnd();
     }
+#endif
   }
 
   // Memory logging flush...
@@ -309,10 +328,12 @@ int main(int argc, char **argv) {
   // -----------------------------------
   fesetround(fenv);
 
+#ifdef TORNADO_GRAPHICS
   // ---------------------------
   // Shutdown display subsystem.
   // ---------------------------
   display_subsystem_end();
+#endif
 
   // ---------------------------------------------------------------------------
   // Do NOT forget to free all your memory resources!!!
@@ -321,9 +342,11 @@ int main(int argc, char **argv) {
   free(hw);
   demoFree();
 
+#ifdef TORNADO_SPASH
   if (dp->tornadoOptions & SHOW_SPLASH) {
     splash_bg_end();
   }
+#endif
 
   if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
     printf("DEBUG - Memory manager shutdown.\n");
