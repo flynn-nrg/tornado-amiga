@@ -81,7 +81,7 @@ endif
 
 ifdef LINUX_VBCC_HOST
 VBCC_HOST = true
-TOOL_BIN = bin
+TOOL_BIN = bin-linux
 endif 
 
 ifdef VBCC_HOST
