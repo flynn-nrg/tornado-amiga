@@ -4,3 +4,6 @@
 [submodule "third_party/rocket"]
 	path = third_party/rocket
 	url = https://github.com/rocket/rocket
+[submodule "third_party/imgui_sdl"]
+	path = third_party/imgui_sdl
+	url = git@github.com:windenntw/imgui_sdl.git
