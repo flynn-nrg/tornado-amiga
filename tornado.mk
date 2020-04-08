@@ -27,7 +27,7 @@ endif
 
 # Asset management and data unpackers.
 ifdef TORNADO_ASSET_MANAGER
-CFLAGS += -DTORNADO_ASSET_MANAGER
+CCFLAGS += -DTORNADO_ASSET_MANAGER
 TORNADO_OBJ += amiga/assets.o tndo.o tndo_file.o
 TORNADO_OBJ += lzw_loader.o amiga/lzw_unpack.o
 TORNADO_OBJ += amiga/lzw_unpack_inner.o
@@ -37,7 +37,7 @@ endif
 
 # Graphics subsystem. Disable if using custom displays.
 ifdef TORNADO_GRAPHICS
-CFLAGS += -DTORNADO_GRAPHICS
+CCFLAGS += -DTORNADO_GRAPHICS
 TORNADO_OBJ += amiga/copper.o amiga/graphics.o amiga/c2p1x1_8_c5.o amiga/c2p1x1_8_c5_040_16_9.o
 TORNADO_OBJ += amiga/c2p32.o amiga/c2p64.o amiga/c2p1x1_6_c5_040.o amiga/c2p1x1_8_c5_040.o
 TORNADO_OBJ += amiga/c2p1x1_8_c5_040_scanline.o amiga/c2p1x1_4_c5_16_9.o
@@ -47,25 +47,25 @@ endif
 
 # Splash screen
 ifdef TORNADO_SPLASH
-CFLAGS += -DTORNADO_SPLASH
+CCFLAGS += -DTORNADO_SPLASH
 TORNADO_OBJ += amiga/splash.o
 endif
 
 # Audio AHI subsystem.
 ifdef TORNADO_AHI
-CFLAGS += -DTORNADO_AHI
+CCFLAGS += -DTORNADO_AHI
 TORNADO_OBJ += amiga/audio_ahi.o
 endif
 
 # P61 replay routines.
 ifdef TORNADO_P61
-CFLAGS += -DTORNADO_P61
+CCFLAGS += -DTORNADO_P61
 TORNADO_OBJ += amiga/mod_replay.o amiga/mod_replay_os_legal.o
 endif
 
 # Tornado DDPCM decoder.
 ifdef TORNADO_DDPCM
-CFLAGS += -DTORNADO_DDPCM
+CCFLAGS += -DTORNADO_DDPCM
 TORNADO_OBJ += ddpcm_loader.o ddpcm_decode.o amiga/ddpcm_lowlevel.o
 endif
 
