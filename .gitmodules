@@ -1,9 +1,6 @@
 [submodule "third_party/imgui"]
 	path = third_party/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "third_party/imgui_sdl"]
-	path = third_party/imgui_sdl
-	url = https://github.com/Tyyppi77/imgui_sdl
 [submodule "third_party/rocket"]
 	path = third_party/rocket
 	url = https://github.com/rocket/rocket
