@@ -46,6 +46,8 @@ static void usage(char *progname) {
   fprintf(stderr, "-f : Emit floating point values (defailt)\n");
   fprintf(stderr, "-d : Emit double values.\n");
   fprintf(stderr, "-s : Scaling factor.\n");
+  fprintf(stderr, "-n : Do not interpolate. Instead generate an include file "
+                  "with the key/value par structs.\n");
   exit(EXIT_FAILURE);
 }
 
@@ -119,6 +121,25 @@ void printHeader(int data_type, double scale, char *origin, FILE *outfile) {
   fprintf(outfile, "#define %s\n\n", guardName);
 }
 
+void emitStructs(struct sync_track *track, char *dataName, FILE *outfile) {
+  fprintf(outfile, "static struct rocket_track_key %s_keys[] = {\n", dataName);
+  for (int i = 0; i < track->num_keys; i++) {
+    fprintf(outfile, "{\n");
+    fprintf(outfile, ".row = %i,\n", track->keys[i].row);
+    fprintf(outfile, ".value = %f,\n", track->keys[i].value);
+    fprintf(outfile, ".type = %i,\n", track->keys[i].type);
+    fprintf(outfile, "}%s", i < (track->num_keys - 1) ? ",\n" : "\n");
+  }
+  fprintf(outfile, "};\n\n");
+
+  fprintf(outfile, "struct rocket_sync_track %s = {\n", dataName);
+  fprintf(outfile, ".name = \"%s\",\n", dataName);
+  fprintf(outfile, ".keys = %s_keys,\n", dataName);
+  fprintf(outfile, ".num_keys = %d,\n", track->num_keys);
+  fprintf(outfile, "};\n\n");
+  fprintf(outfile, "#endif\n");
+}
+
 void parseAndWrite(struct sync_track *track, int data_type, double scale,
                    char *dataName, FILE *outfile) {
   float f;
@@ -190,6 +211,7 @@ void parseAndWrite(struct sync_track *track, int data_type, double scale,
 int main(int argc, char **argv) {
   int data_type = DATA_FLOAT;
   int ch;
+  int interpolate = 1;
   char *name, *origin;
   FILE *trackfile, *outfile;
   struct sync_track *track;
@@ -198,7 +220,7 @@ int main(int argc, char **argv) {
   if (argc < 5)
     usage(argv[0]);
 
-  while ((ch = getopt(argc, argv, "idft:h:s:")) != -1) {
+  while ((ch = getopt(argc, argv, "nidft:h:s:")) != -1) {
     switch (ch) {
     case 'd':
       data_type = DATA_DOUBLE;
@@ -208,6 +230,9 @@ int main(int argc, char **argv) {
       break;
     case 'f':
       data_type = DATA_FLOAT;
+      break;
+    case 'n':
+      interpolate = 0;
       break;
     case 's':
       scale = atof(optarg);
@@ -240,7 +265,12 @@ int main(int argc, char **argv) {
   fclose(trackfile);
 
   printHeader(data_type, scale, origin, outfile);
-  parseAndWrite(track, data_type, scale, name, outfile);
+  if (interpolate) {
+    parseAndWrite(track, data_type, scale, name, outfile);
+  } else {
+    emitStructs(track, name, outfile);
+  }
+
   fclose(outfile);
   exit(0);
 }
