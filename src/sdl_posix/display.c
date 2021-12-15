@@ -267,7 +267,7 @@ void display_flip(int instance) {
   int yStop = out->h;
   int yOffset = 0;
   if (di[instance].is16_9) {
-    yStop = yStop * 9 / 16;
+    yStop = out->w * 9 / 16;
     yOffset += (out->h - yStop) / 2;
   }
   for (y = yStart; y < yStop; y++) {
