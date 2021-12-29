@@ -19,12 +19,12 @@ Building the compiler
 The current versions are:
 
 * [vbcc 0.9g](http://sun.hasenbraten.de/vbcc/)
-* [vasm 1.8h](http://sun.hasenbraten.de/vasm/)
-* [vlink 0.16c](http://sun.hasenbraten.de/vlink/)
+* [vasm 1.8l](http://sun.hasenbraten.de/vasm/)
+* [vlink 0.16h](http://sun.hasenbraten.de/vlink/)
 
 Tornado is guaranteed to work with these. Please make sure you stay up to date.
 
-There's a set of shell scripts in the scripts directory that will build the toolchain for you. 
+There's a set of shell scripts in the scripts directory that will build the toolchain for you.
 
 Let's create a directory for the toolchain and copy the scripts there:
 
