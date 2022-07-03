@@ -43,7 +43,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static ddpcmHeader *ddpcmData;
 static uint8_t *buffer;
 
+// Load a ddpcm file.
 ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
+  ddpcmHeader *ddpcmData = ddpcmLoadHeader(fd, tornadoOptions);
+
+  ddpcmData->left = (uint8_t *)tndo_malloc(
+      ddpcmData->numFrames * DDPCM_COMPRESSED_FRAME_SIZE, 0);
+  ddpcmData->right = (uint8_t *)tndo_malloc(
+      ddpcmData->numFrames * DDPCM_COMPRESSED_FRAME_SIZE, 0);
+  tndo_fread(ddpcmData->left, ddpcmData->numFrames, DDPCM_COMPRESSED_FRAME_SIZE,
+             fd);
+  tndo_fread(ddpcmData->right, ddpcmData->numFrames,
+             DDPCM_COMPRESSED_FRAME_SIZE, fd);
+
+  return ddpcmData;
+}
+
+ddpcmDecodedData *ddpcmLoadAndUnpackFile(FILE *fd, int tornadoOptions) {
+  ddpcmHeader *ddpcmData = ddpcmLoadHeader(fd, tornadoOptions);
+  return decodeDDPCMStream(ddpcmData, fd, tornadoOptions);
+}
+
+// Load the header incliding the q_tables and the scales.
+ddpcmHeader *ddpcmLoadHeader(FILE *fd, int tornadoOptions) {
   uint32_t size;
   uint32_t numSamples;
   uint32_t numFrames;
@@ -88,7 +110,13 @@ ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
       (int16_t **)tndo_malloc(ddpcmData->numQTables * sizeof(int16_t *), 0);
 
   uint8_t *buffer = tndo_malloc(size * sizeof(uint8_t), 0);
-  tndo_fread(buffer, size, sizeof(uint8_t), fd);
+
+  // Two qtables and two scales.
+  uint32_t to_read =
+      (2 * ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t)) +
+      (2 * ddpcmData->numFrames);
+  tndo_fread(buffer, to_read, sizeof(uint8_t), fd);
+  size -= to_read;
 
   int16_t *qtablesLeft;
   int16_t *qtablesRight;
@@ -120,10 +148,6 @@ ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions) {
   scales += ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t) * 2;
   ddpcmData->scalesLeft = scales;
   ddpcmData->scalesRight = scales + ddpcmData->numFrames;
-
-  ddpcmData->left = ddpcmData->scalesRight + ddpcmData->numFrames;
-  ddpcmData->right =
-      ddpcmData->left + (ddpcmData->numFrames * DDPCM_COMPRESSED_FRAME_SIZE);
 
   return ddpcmData;
 }

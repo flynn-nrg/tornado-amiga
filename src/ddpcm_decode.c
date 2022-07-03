@@ -33,16 +33,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <arpa/inet.h>
 #endif
 
-#include "memory.h"
-#include "ptr_bridges.h"
-
 #include "ddpcm.h"
 #include "ddpcm_decode.h"
+#include "memory.h"
+#include "ptr_bridges.h"
+#include "tndo_file.h"
 
 #ifdef __AMIGA__
 #include "ddpcm_lowlevel.h"
 #endif
 
+#include "tornado_settings.h"
 #include <tndo_assert.h>
 
 // Linear extrapolation predictor.
@@ -124,7 +125,8 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   }
 }
 
-ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh) {
+ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
+                                    int tornadoOptions) {
   ddpcmDecodedData *ddpcmdd =
       (ddpcmDecodedData *)tndo_malloc(sizeof(ddpcmDecodedData), 0);
   ddpcmdd->numSamples = ddpcmh->numSamples;
@@ -133,14 +135,24 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh) {
   ddpcmdd->right =
       (int16_t *)tndo_malloc(ddpcmh->numSamples * sizeof(int16_t), 0);
 
+  uint8_t *buffer =
+      tndo_malloc(ddpcmh->framesPerQTable * DDPCM_COMPRESSED_FRAME_SIZE, 0);
+
+  if (tornadoOptions & VERBOSE_DEBUGGING) {
+    printf("DEBUG - Unpacking left channel (%u samples)\n",
+           ddpcmdd->numSamples);
+  }
+
   // Left channel...
-  uint8_t *uleftSrc = ddpcmh->left;
-  uint32_t ulOffset = 0;
   uint32_t ulDone = 0;
   int16_t *ulDest = ddpcmdd->left;
   uint32_t ulDstOffset = 0;
   uint32_t ulFrame = 0;
   for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
+    tndo_fread(buffer, ddpcmh->framesPerQTable, DDPCM_COMPRESSED_FRAME_SIZE,
+               fd);
+    uint8_t *uleftSrc = buffer;
+    uint32_t ulOffset = 0;
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
 #ifdef __AMIGA__
       decodeFrame_asm(&uleftSrc[ulOffset], &ulDest[ulDstOffset],
@@ -154,14 +166,21 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh) {
     }
   }
 
+  if (tornadoOptions & VERBOSE_DEBUGGING) {
+    printf("DEBUG - Unpacking right channel (%u samples)\n",
+           ddpcmdd->numSamples);
+  }
+
   // Right channel...
-  uint8_t *urightSrc = ddpcmh->right;
-  uint32_t urOffset = 0;
   uint32_t urDone = 0;
   int16_t *urDest = ddpcmdd->right;
   uint32_t urDstOffset = 0;
   uint32_t urFrame = 0;
   for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
+    tndo_fread(buffer, ddpcmh->framesPerQTable, DDPCM_COMPRESSED_FRAME_SIZE,
+               fd);
+    uint8_t *urightSrc = buffer;
+    uint32_t urOffset = 0;
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
 #ifdef __AMIGA__
       decodeFrame_asm(&urightSrc[urOffset], &urDest[urDstOffset],
