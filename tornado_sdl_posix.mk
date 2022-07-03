@@ -110,7 +110,7 @@ CCFLAGS += -Wno-unused-variable
 CCFLAGS += -Wno-unused-function
 CCFLAGS += -Wno-missing-braces
 CCFLAGS += -DUSE_GETADDRINFO
-#CCFLAGS += -fsanitize=address -fsanitize=undefined
+CCFLAGS += -fsanitize=address -fsanitize=undefined
 
 CXXFLAGS = $(CCFLAGS)
 CXXFLAGS += --std=c++14
@@ -134,7 +134,7 @@ LDFLAGS += -L$(BASS_LINUX)/x64
 endif
 
 
-#LDFLAGS += -fsanitize=address -fsanitize=undefined
+LDFLAGS += -fsanitize=address -fsanitize=undefined
 
 
 ################################################################################
