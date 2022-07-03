@@ -28,7 +28,7 @@ endif
 # Asset management and data unpackers.
 ifdef TORNADO_ASSET_MANAGER
 CCFLAGS += -DTORNADO_ASSET_MANAGER
-TORNADO_OBJ += amiga/assets.o tndo.o tndo_file.o
+TORNADO_OBJ += assets.o tndo.o tndo_file.o
 TORNADO_OBJ += lzw_loader.o amiga/lzw_unpack.o
 TORNADO_OBJ += amiga/lzw_unpack_inner.o
 TORNADO_OBJ += lzss_loader.o lzh_loader.o amiga/lzss_unpack.o

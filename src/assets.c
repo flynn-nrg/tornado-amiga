@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019, Miguel Mendez. All rights reserved.
+Copyright (c) 2019-2022, Miguel Mendez. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -160,25 +160,36 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           if (tornadoOptions & VERBOSE_DEBUGGING) {
             printf("DEBUG - Using DDPCM encoding.\n");
           }
-          ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
-          if (!ddpcmData) {
-            printf("FATAL - Loading audio assets failed. Aborting.\n");
-            abort();
+          if (tornadoOptions & DDPCM_UNPACK) {
+            decodedData = ddpcmLoadAndUnpackFile(fd, tornadoOptions);
+            dp->sampleRate = ENDI4(th->sampleRate);
+            dp->bitsPerSample = ENDI4(th->bitsPerSample);
+            dp->mixState = (char **)&decodedData->left;
+            dp->mixState2 = (char **)&decodedData->right;
+            demoAssets[i] = (unsigned int *)0xdeadbeef;
+            assetSizes[i] = 4;
+          } else {
+            ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
+            if (!ddpcmData) {
+              printf("FATAL - Loading audio assets failed. Aborting.\n");
+              abort();
+            }
+
+#ifdef __AMIGA__
+            initDDPCM_Decoder(ddpcmData->qtablesLeft, ddpcmData->qtablesRight,
+                              ddpcmData->scalesLeft, ddpcmData->scalesRight,
+                              ddpcmData->left, ddpcmData->right,
+                              ddpcmData->numFrames, ddpcmData->framesPerQTable);
+#endif
+            dp->tornadoOptions |= DDPCM_STREAMING;
+            dp->sampleRate = ENDI4(th->sampleRate);
+            dp->bitsPerSample = ENDI4(th->bitsPerSample);
+            // Dummy mix states to make the Paula output routines happy.
+            dp->mixState = (char **)&decodedData;
+            dp->mixState2 = (char **)&decodedData;
+            demoAssets[i] = (unsigned int *)0xdeadbeef;
+            assetSizes[i] = 4;
           }
-
-          initDDPCM_Decoder(ddpcmData->qtablesLeft, ddpcmData->qtablesRight,
-                            ddpcmData->scalesLeft, ddpcmData->scalesRight,
-                            ddpcmData->left, ddpcmData->right,
-                            ddpcmData->numFrames, ddpcmData->framesPerQTable);
-
-          dp->tornadoOptions |= DDPCM_STREAMING;
-          dp->sampleRate = ENDI4(th->sampleRate);
-          dp->bitsPerSample = ENDI4(th->bitsPerSample);
-          // Dummy mix states to make the Paula output routines happy.
-          dp->mixState = (char **)&decodedData;
-          dp->mixState2 = (char **)&decodedData;
-          demoAssets[i] = (unsigned int *)0xdeadbeef;
-          assetSizes[i] = 4;
           break;
         default:
           printf("FATAL - Unsupported compression setting. Aborting.\n");

@@ -32,6 +32,7 @@ typedef struct {
   int16_t *right;
 } ddpcmDecodedData;
 
-ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh);
+ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
+                                    int tornadoOptions);
 
 #endif

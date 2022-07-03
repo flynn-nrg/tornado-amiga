@@ -3,7 +3,7 @@
 #################################################################################
 
 #################################################################################
-TORNADO_OBJ = sdl_posix/assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o
+TORNADO_OBJ =  assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o
 TORNADO_OBJ += sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o
 TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
 TORNADO_OBJ += c2p.o tndo.o debug.o memory.o ddpcm_loader.o
@@ -110,7 +110,7 @@ CCFLAGS += -Wno-unused-variable
 CCFLAGS += -Wno-unused-function
 CCFLAGS += -Wno-missing-braces
 CCFLAGS += -DUSE_GETADDRINFO
-CCFLAGS += -fsanitize=address -fsanitize=undefined
+#CCFLAGS += -fsanitize=address -fsanitize=undefined
 
 CXXFLAGS = $(CCFLAGS)
 CXXFLAGS += --std=c++14
@@ -134,7 +134,7 @@ LDFLAGS += -L$(BASS_LINUX)/x64
 endif
 
 
-LDFLAGS += -fsanitize=address -fsanitize=undefined
+#LDFLAGS += -fsanitize=address -fsanitize=undefined
 
 
 ################################################################################

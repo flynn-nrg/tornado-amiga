@@ -26,7 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DDPCM_LOADER_H
 
 #include "ddpcm.h"
+#include "ddpcm_decode.h"
 
 ddpcmHeader *ddpcmLoadFile(FILE *fd, int tornadoOptions);
+ddpcmDecodedData *ddpcmLoadAndUnpackFile(FILE *fd, int tornadoOptions);
+ddpcmHeader *ddpcmLoadHeader(FILE *fd, int tornadoOptions);
 
 #endif

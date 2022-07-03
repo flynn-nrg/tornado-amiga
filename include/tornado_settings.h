@@ -171,6 +171,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // DDPCM streaming
 #define DDPCM_STREAMING 1 << 24
 
+// DDPCM unpack
+#define DDPCM_UNPACK 1 << 25
+
 // -----------------------------------------------------------------------------
 // Demo parameter struct.
 // -----------------------------------------------------------------------------
