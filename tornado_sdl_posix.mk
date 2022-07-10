@@ -30,8 +30,7 @@ BASS_LINUX = $(TORNADO_BASE)/third_party/bass24-linux
 
 IMGUI_BASE = $(TORNADO_BASE)/third_party/imgui
 IMGUI_INCDIR = $(IMGUI_BASE)
-IMGUI_SOURCES = $(IMGUI_BASE)/examples/imgui_impl_sdl.cpp
-IMGUI_SOURCES += $(IMGUI_BASE)/imgui.cpp $(IMGUI_BASE)/imgui_demo.cpp $(IMGUI_BASE)/imgui_draw.cpp $(IMGUI_BASE)/imgui_widgets.cpp
+IMGUI_SOURCES += $(IMGUI_BASE)/imgui.cpp $(IMGUI_BASE)/imgui_demo.cpp $(IMGUI_BASE)/imgui_draw.cpp $(IMGUI_BASE)/imgui_widgets.cpp $(IMGUI_BASE)/imgui/imgui_tables.cpp
 IMGUI_OBJS = $(addsuffix .o, $(basename $(notdir $(IMGUI_SOURCES))))
 
 IMGUI_SDL_BASE = $(TORNADO_BASE)/third_party/imgui_sdl
@@ -186,11 +185,6 @@ $(BUILDDIR)/track.o: $(ROCKET_BASE)/track.c Makefile
 	$(QUIET)$(ECHO) "(CC) -> $@"
 	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
 
-$(BUILDDIR)/imgui_impl_sdl.o: $(IMGUI_BASE)/examples/imgui_impl_sdl.cpp Makefile
-	$(MKDIR) $(dir $@)
-	$(QUIET)$(ECHO) "(CXX) -> $@"
-	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
-
 $(BUILDDIR)/imgui.o: $(IMGUI_BASE)/imgui.cpp Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CXX) -> $@"
@@ -207,6 +201,11 @@ $(BUILDDIR)/imgui_draw.o: $(IMGUI_BASE)/imgui_draw.cpp Makefile
 	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui_widgets.o: $(IMGUI_BASE)/imgui_widgets.cpp Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+
+$(BUILDDIR)/imgui_tables.o: $(IMGUI_BASE)/imgui_tables.cpp Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CXX) -> $@"
 	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
