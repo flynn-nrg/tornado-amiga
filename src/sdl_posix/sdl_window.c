@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stb_image_write.h>
 
 #include <canvas.h>
+#include <graphics.h>
 #include <imgui_overlay.h>
 #include <keyboard.h>
 #include <memory.h>
@@ -245,7 +246,7 @@ void dev_window_output_flip() {
     check_events();
   }
 
-  SDL_Delay(flip_delay);
+  waitVBL();
 }
 
 int mousePressL(void) { return mouse_left; }
