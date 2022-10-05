@@ -56,10 +56,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Rocket control...
 #include "sync.h"
 
-// BASS and display overlay
+// Audio and display overlay
 #ifndef __AMIGA__
-#include "bass.h"
 #include "display_sdl.h"
+#include "sdl_audio.h"
 #endif
 
 // Do NOT touch this include!
@@ -78,10 +78,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define EFFECT_MASK (ALL_ENABLE)
 
 #define SMPTE(m, s, f) (((60 * 50) * m) + (50 * s) + f)
-
-#ifndef __AMIGA__
-HSTREAM stream;
-#endif
 
 static tornadoEffect effects[] = {
 
@@ -197,12 +193,11 @@ static int *audioSizes;
 static int numAudioAssets;
 static void **audioAssets;
 
-// SDL/Posix soundtrack
-#define bassTrack "data/tornado_approaching.mp3"
-
 const char *audioList[] = {"data/tornado_approaching.tndo"};
 
 void demoAudioInit(unsigned int tornadoOptions) {
+  int offset = 0;
+
   if (tornadoOptions & USE_AUDIO) {
     numAudioAssets = sizeof(audioList) / sizeof(char *);
     audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
@@ -221,7 +216,7 @@ void demoAudioInit(unsigned int tornadoOptions) {
     }
 
     musicSecond = my_dp->sampleRate * (my_dp->bitsPerSample / 8);
-    int offset = (effects[currentEffect].minTime / 50) * musicSecond;
+    offset = (effects[currentEffect].minTime / 50) * musicSecond;
     musicBeginL = *my_dp->mixState;
     musicBeginR = *my_dp->mixState2;
     *my_dp->mixState = musicBeginL + offset;
@@ -233,16 +228,10 @@ void demoAudioInit(unsigned int tornadoOptions) {
   }
 
 #ifndef __AMIGA__
-  // Bass initialization.
+   // SDL Audio initialization.
   if (tornadoOptions & USE_AUDIO) {
-    if (!BASS_Init(-1, 44100, 0, 0, 0)) {
-      fprintf(stderr, "FATAL - Failed to init bass. Aborting.\n");
-      exit(1);
-    }
-
-    stream = BASS_StreamCreateFile(0, bassTrack, 0, 0, BASS_STREAM_PRESCAN);
-    if (!stream) {
-      fprintf(stderr, "FATAL - Failed to open music file <%s>\n", bassTrack);
+    if (Audio_Init(my_dp, offset)) {
+      fprintf(stderr, "FATAL - Failed to init SDL audio. Aborting.\n");
       exit(1);
     }
   }
@@ -369,10 +358,9 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 
 #ifndef __AMIGA__
   if (tornadoOptions & USE_AUDIO) {
-    BASS_Start();
-    QWORD pos = BASS_ChannelSeconds2Bytes(stream, epoch / 50);
-    BASS_ChannelSetPosition(stream, pos, BASS_POS_BYTE);
-    BASS_ChannelPlay(stream, 0);
+    double pos = (double)epoch / 50.0;
+    Audio_ChannelSetPosition(pos);
+    Audio_ChannelPlay();
   }
 #endif
   
@@ -445,4 +433,9 @@ void demoFree() {
   for (int i = 0; i < numEffects; i++) {
     effects[i].free(&effects[i]);
   };
+
+#ifndef __AMIGA__
+  Audio_Close();
+#endif
+
 }
