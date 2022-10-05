@@ -85,9 +85,6 @@ The first thing you need is a 16bit stereo WAV file with data saved at one of th
 
 A 11025Hz version of the music is practical during development as it minimises loading times. For the release version of your demo we recommend that you create a 22050Hz file to obtain the highest quality.
 
-You are also going to need an [MP3](https://en.wikipedia.org/wiki/MP3) or [OGG](https://xiph.org/ogg/) version of your track to be used by the posix/SDL target. This one can be the full 16bit 44100Hz version of your music as it came out of your DAW.
-
-
 Let's convert a WAV file to a TNDO audio file:
 
 ```
@@ -122,11 +119,10 @@ thunderball:~ mmendez$ ls -la brut_final_22050_16*
 Now let's take a look at what we did in the ```blur``` example to play music:
 
 
-We have the two versions of our music in the data directory:
+We have the compressed version of our music in the data directory:
 
 ```
 thunderball:blur mmendez$ ls -la data/brut*
--rw-r--r--  1 mmendez  staff   966447 23 Jun 15:12 data/brut_blur.mp3
 -rw-r--r--  1 mmendez  staff  1185880 18 Aug 15:56 data/brut_ddpcm.tndo
 ```
 
@@ -149,12 +145,11 @@ static int *audioSizes;
 static int numAudioAssets;
 static void **audioAssets;
 
-// SDL/Posix soundtrack
-#define bassTrack "data/brut_blur.mp3"
-
 const char *audioList[] = {"data/brut_ddpcm.tndo"};
 
 void demoAudioInit(unsigned int tornadoOptions) {
+  int offset = 0;
+
   if (tornadoOptions & USE_AUDIO) {
     numAudioAssets = sizeof(audioList) / sizeof(char *);
     audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
@@ -173,7 +168,7 @@ void demoAudioInit(unsigned int tornadoOptions) {
     }
 
     musicSecond = my_dp->sampleRate * (my_dp->bitsPerSample / 8);
-    int offset = (effects[currentEffect].minTime / 50) * musicSecond;
+    offset = (effects[currentEffect].minTime / 50) * musicSecond;
     musicBeginL = *my_dp->mixState;
     musicBeginR = *my_dp->mixState2;
     *my_dp->mixState = musicBeginL + offset;
@@ -185,16 +180,10 @@ void demoAudioInit(unsigned int tornadoOptions) {
   }
 
 #ifndef __AMIGA__
-  // Bass initialization.
+  // SDL Audio initialization.
   if (tornadoOptions & USE_AUDIO) {
-    if (!BASS_Init(-1, 44100, 0, 0, 0)) {
-      fprintf(stderr, "FATAL - Failed to init bass. Aborting.\n");
-      exit(1);
-    }
-
-    stream = BASS_StreamCreateFile(0, bassTrack, 0, 0, BASS_STREAM_PRESCAN);
-    if (!stream) {
-      fprintf(stderr, "FATAL - Failed to open music file <%s>\n", bassTrack);
+    if (Audio_Init(my_dp, offset)) {
+      fprintf(stderr, "FATAL - Failed to init SDL audio. Aborting.\n");
       exit(1);
     }
   }
@@ -202,9 +191,9 @@ void demoAudioInit(unsigned int tornadoOptions) {
 }
 ```
 
-This function is loading and uncompressing the audio data using the [Asset Manager](AssetManager.md). This happens on the posix/SDL target as well, even though this track will not be used. The reason for this is to make sure that the audio unpacking code path is working correctly.
+This function is loading and uncompressing the audio data using the [Asset Manager](AssetManager.md). This happens on the posix/SDL target as well, as it is also the data used for music replay. The reason for this is to make sure that the audio unpacking code path is working correctly.
 
-On posix/SDL only we are also initialising the BASS library replay routine.
+On posix/SDL only we are also initialising the SDL_Mixer library replay routine.
 
 We call the audio init routine from the ```demoInit``` function, like this:
 
@@ -226,7 +215,7 @@ We call the audio init routine from the ```demoInit``` function, like this:
   }
 ```
 
-The last thing we need to do is tell the BASS library to start playing the music on the sdl/POSIX target. This happens automagically on Amiga.
+The last thing we need to do is tell the SDL_Mixer library to start playing the music on the sdl/POSIX target. This happens automagically on Amiga.
 
 ```c
 // ---------------------------------------------------------------------------
@@ -244,12 +233,10 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 
 #ifndef __AMIGA__
   if (tornadoOptions & USE_AUDIO) {
-    BASS_Start();
-    QWORD pos = BASS_ChannelSeconds2Bytes(stream, epoch / 50);
-    BASS_ChannelSetPosition(stream, pos, BASS_POS_BYTE);
-    BASS_ChannelPlay(stream, 0);
-    if (rocket_control) {
-      BASS_ChannelPause(stream);
+    double pos = (double)epoch / 50.0;
+    Audio_ChannelSetPosition(pos);
+    if (!rocket_control) {
+      Audio_ChannelPlay();
     }
   }
 #endif
