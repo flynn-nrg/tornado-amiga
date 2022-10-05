@@ -195,6 +195,7 @@ typedef struct demoParams {
   void (*vfsLoaderCallback)(int loaded, int total);
   char **mixState;
   char **mixState2;
+  unsigned int numSamples;
 } demoParams;
 
 #endif

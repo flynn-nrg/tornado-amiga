@@ -166,6 +166,8 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             dp->bitsPerSample = ENDI4(th->bitsPerSample);
             dp->mixState = (char **)&decodedData->left;
             dp->mixState2 = (char **)&decodedData->right;
+            dp->numSamples = decodedData->numSamples;
+            dp->bitsPerSample = decodedData->bitsPerSample;
             demoAssets[i] = (unsigned int *)0xdeadbeef;
             assetSizes[i] = 4;
           } else {
