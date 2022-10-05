@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2019, Miguel Mendez. All rights reserved.
+Copyright (c) 2022, Miguel Mendez. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -23,17 +23,32 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef DDPCM_DECODE_H
-#define DDPCM_DECODE_H
+#ifndef TNDO_SDL_AUDIO_H
+#define TNDO_SDL_AUDIO_H
 
-typedef struct {
-  uint32_t numSamples;
-  uint32_t bitsPerSample;
-  int16_t *left;
-  int16_t *right;
-} ddpcmDecodedData;
+#include "tornado_settings.h"
 
-ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
-                                    int tornadoOptions);
+#define REPLAY_MODE_RAW 1
+#define REPLAY_MODE_MUS 2
+
+void Audio_ChannelPause();
+
+// Returns 1 if music is playing.
+int Audio_ChannelIsActive();
+
+// Returns 0 on success, 1 on failure.
+int Audio_Init(demoParams *dp, uint32_t offset);
+
+// Returns 0 on success, 1 on failure.
+int Audio_StreamCreateFile(const char *fileName);
+
+// Sets the stream position to the specified millisecond mark.
+void Audio_ChannelSetPosition(double millis);
+
+// Plays or resumes the music.
+void Audio_ChannelPlay();
+
+void Audio_Start();
+void Audio_Close();
 
 #endif

@@ -34,7 +34,8 @@ The graphics used in the examples were created by Manuel 'Leunam' Sagall and Jor
 It also makes use of the following third party software:
 
 * [Rocket](https://github.com/kusma/rocket): Used for synchronisation.
-* [BASS](https://www.un4seen.com/): Used to play music on the SDL/Posix target.
+* [SDL](https://wiki.libsdl.org): Used to display the screen on the SDL/Posix target as well as serve as a backend for Dear ImGUI.
+* [SDL_Mixer](https://wiki.libsdl.org/SDL_mixer/FrontPage): Used to play music on the SDL/Posix target.
 * [Dear ImGUI](https://github.com/ocornut/imgui) and [ImGuiSDL](https://github.com/Tyyppi77/imgui_sdl): Used for the SDL/Posix UI and rocket controls.
 * [vbcc](http://www.compilers.de/vbcc.html): Used to cross-compile Amiga code.
 * [Kalmalyzer](https://github.com/Kalmalyzer): Michael Kalms' collection of [c2p](https://www.lysator.liu.se/~mikaelk/doc/c2ptut/) and audio routines. 

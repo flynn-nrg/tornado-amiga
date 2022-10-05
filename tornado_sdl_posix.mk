@@ -5,7 +5,7 @@
 #################################################################################
 TORNADO_OBJ =  assets.o sdl_posix/display.o sdl_posix/startup.o sdl_posix/cpu.o
 TORNADO_OBJ += sdl_posix/graphics.o sdl_posix/system.o sdl_posix/audio.o sdl_posix/sdl_window.o
-TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o
+TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o sdl_posix/sdl_audio.o
 TORNADO_OBJ += c2p.o tndo.o debug.o memory.o ddpcm_loader.o
 TORNADO_OBJ += telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o
 TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddpcm_decode.o
@@ -25,12 +25,10 @@ ROCKET_INCDIR = $(ROCKET_BASE)
 ROCKET_SRCS = $(ROCKET_BASE)/device.c $(ROCKET_BASE)/track.c
 ROCKET_OBJS = device.o track.o
 
-BASS_OSX = $(TORNADO_BASE)/third_party/bass24-osx
-BASS_LINUX = $(TORNADO_BASE)/third_party/bass24-linux
-
 IMGUI_BASE = $(TORNADO_BASE)/third_party/imgui
 IMGUI_INCDIR = $(IMGUI_BASE)
-IMGUI_SOURCES += $(IMGUI_BASE)/imgui.cpp $(IMGUI_BASE)/imgui_demo.cpp $(IMGUI_BASE)/imgui_draw.cpp $(IMGUI_BASE)/imgui_widgets.cpp $(IMGUI_BASE)/imgui/imgui_tables.cpp
+IMGUI_SOURCES = $(IMGUI_BASE)/backends/imgui_impl_sdl.cpp
+IMGUI_SOURCES += $(IMGUI_BASE)/imgui.cpp $(IMGUI_BASE)/imgui_demo.cpp $(IMGUI_BASE)/imgui_draw.cpp $(IMGUI_BASE)/imgui_widgets.cpp $(IMGUI_BASE)/imgui_tables.cpp
 IMGUI_OBJS = $(addsuffix .o, $(basename $(notdir $(IMGUI_SOURCES))))
 
 IMGUI_SDL_BASE = $(TORNADO_BASE)/third_party/imgui_sdl
@@ -71,11 +69,10 @@ INCDIR   += /usr/local/include/SDL2/
 endif
 ifdef OSX_HOST
 INCDIR += /Library/Frameworks/SDL2.framework/Versions/Current/Headers/
-INCDIR += $(BASS_OSX)
+INCDIR += /Library/Frameworks/SDL2_mixer.framework/Headers
 endif
 ifdef LINUX_HOST
 INCDIR += /usr/include/SDL2/ 
-INCDIR += $(BASS_LINUX)
 endif
 LIBDIR   = lib
 
@@ -117,19 +114,17 @@ CXXFLAGS += --std=c++14
 ################################################################################
 LDFLAGS := -lc
 LDFLAGS += -lm
-LDFLAGS += -lbass
 LDFLAGS += -fno-omit-frame-pointer
 
 ifdef OSX_HOST
 LDFLAGS += -F/Library/Frameworks/
 LDFLAGS += -framework SDL2
+LDFLAGS += -framework SDL2_Mixer
 LDFLAGS += -framework CoreFoundation
 LDFLAGS += -framework ApplicationServices
-LDFLAGS += -L$(BASS_OSX)
 endif
 ifdef LINUX_HOST
-LDFLAGS += -lSDL2
-LDFLAGS += -L$(BASS_LINUX)/x64
+LDFLAGS += -lSDL2 -lSDL2_mixer
 endif
 
 
@@ -184,6 +179,11 @@ $(BUILDDIR)/track.o: $(ROCKET_BASE)/track.c Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CC) -> $@"
 	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
+
+$(BUILDDIR)/imgui_impl_sdl.o: $(IMGUI_BASE)/backends/imgui_impl_sdl.cpp Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui.o: $(IMGUI_BASE)/imgui.cpp Makefile
 	$(MKDIR) $(dir $@)

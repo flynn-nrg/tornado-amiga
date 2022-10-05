@@ -55,10 +55,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Rocket control...
 #include "sync.h"
 
-// BASS and display overlay
+// Audio and display overlay
 #ifndef __AMIGA__
-#include "bass.h"
 #include "display_sdl.h"
+#include "sdl_audio.h"
 #endif
 
 // Do NOT touch this include!

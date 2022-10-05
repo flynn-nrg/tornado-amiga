@@ -135,6 +135,8 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
   ddpcmdd->right =
       (int16_t *)tndo_malloc(ddpcmh->numSamples * sizeof(int16_t), 0);
 
+  ddpcmdd->bitsPerSample = 16;
+
   uint8_t *buffer =
       tndo_malloc(ddpcmh->framesPerQTable * DDPCM_COMPRESSED_FRAME_SIZE, 0);
 

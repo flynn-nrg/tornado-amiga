@@ -160,14 +160,20 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           if (tornadoOptions & VERBOSE_DEBUGGING) {
             printf("DEBUG - Using DDPCM encoding.\n");
           }
+          
+#ifdef __AMIGA__
           if (tornadoOptions & DDPCM_UNPACK) {
+#endif
             decodedData = ddpcmLoadAndUnpackFile(fd, tornadoOptions);
             dp->sampleRate = ENDI4(th->sampleRate);
             dp->bitsPerSample = ENDI4(th->bitsPerSample);
             dp->mixState = (char **)&decodedData->left;
             dp->mixState2 = (char **)&decodedData->right;
+            dp->numSamples = decodedData->numSamples;
+            dp->bitsPerSample = decodedData->bitsPerSample;
             demoAssets[i] = (unsigned int *)0xdeadbeef;
             assetSizes[i] = 4;
+#ifdef __AMIGA__
           } else {
             ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
             if (!ddpcmData) {
@@ -175,12 +181,10 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
               abort();
             }
 
-#ifdef __AMIGA__
             initDDPCM_Decoder(ddpcmData->qtablesLeft, ddpcmData->qtablesRight,
                               ddpcmData->scalesLeft, ddpcmData->scalesRight,
                               ddpcmData->left, ddpcmData->right,
                               ddpcmData->numFrames, ddpcmData->framesPerQTable);
-#endif
             dp->tornadoOptions |= DDPCM_STREAMING;
             dp->sampleRate = ENDI4(th->sampleRate);
             dp->bitsPerSample = ENDI4(th->bitsPerSample);
@@ -190,6 +194,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             demoAssets[i] = (unsigned int *)0xdeadbeef;
             assetSizes[i] = 4;
           }
+#endif
           break;
         default:
           printf("FATAL - Unsupported compression setting. Aborting.\n");

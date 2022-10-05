@@ -22,6 +22,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BM_LOAD_H
 #define BM_LOAD_H
 
+#include <canvas.h>
+
 #define BM_QUA10 (1)
 #define BM_GREY5 (2)
 #define BM_NORM16 (3)
