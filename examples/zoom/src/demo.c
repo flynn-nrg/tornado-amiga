@@ -55,10 +55,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Rocket control...
 #include "sync.h"
 
-// BASS
+// Audio and display overlay
 #ifndef __AMIGA__
-#include "bass.h"
 #include "display_sdl.h"
+#include "sdl_audio.h"
 #endif
 
 // Do NOT touch this include!
@@ -130,7 +130,6 @@ static demoParams *my_dp;
 // Start on the first effect by default.
 static int currentEffect = 0;
 static int epoch = 0;
-static int rocketTime = 0;
 static int stepMode = 0;
 static int musicSecond = 0;
 static char *musicBeginL = 0;
@@ -159,40 +158,34 @@ struct sync_device *rocket;
 static int rocket_control = 0;
 static int running = 0;
 static int is_playing = 0;
+static int rocketTime = 0;
 
 static const float bpm = 120.0f; /* beats per minute */
 static const int rpb = 8;        /* rows per beat */
-// LLVM-3.5 doesn't accept this as constexpr, need to compute it later.
-// static const double row_rate = ((double) bpm / 50) * rpb;
-HSTREAM stream;
 
 static void demo_pause(void *d, int flag) {
-  HSTREAM h = *((HSTREAM *)d);
   if (flag) {
-    BASS_ChannelPause(h);
+    Audio_ChannelPause();
     running = 0;
     is_playing = 0;
   } else {
-    BASS_ChannelPlay(h, 0);
+    Audio_ChannelPlay();
     running = 1;
     is_playing = 1;
   }
 }
 
-static int music_is_playing(void *d) {
-  HSTREAM h = *((HSTREAM *)d);
-  return BASS_ChannelIsActive(h) == BASS_ACTIVE_PLAYING;
-}
+static int music_is_playing(void *d) { return Audio_ChannelIsActive(); }
 
 static void music_set_row(void *d, int row) {
-  HSTREAM h = *((HSTREAM *)d);
-  QWORD pos = BASS_ChannelSeconds2Bytes(h, row / 50);
-  BASS_ChannelSetPosition(h, pos, BASS_POS_BYTE);
+  double pos = ((double)row / 50.0);
+  Audio_ChannelSetPosition(pos);
   epoch = row;
   rocketTime = 0;
 }
 
 static struct sync_cb demo_cb = {demo_pause, music_set_row, music_is_playing};
+
 #endif
 
 static const char *dataPath = "zoom_data.tndo";
@@ -241,14 +234,13 @@ static int *audioSizes;
 static int numAudioAssets;
 static void **audioAssets;
 
-// SDL/Posix soundtrack
-#define bassTrack "data/brut_zoom.mp3"
-
 // LOW QUALITY AUDIO TRACK FOR DEVELOPMENT ONLY!!!!!
 #warning "Using low quality audio track!!!"
 const char *audioList[] = {"data/brut_zoom.tndo"};
 
 void demoAudioInit(unsigned int tornadoOptions) {
+  int offset = 0;
+
   if (tornadoOptions & USE_AUDIO) {
     numAudioAssets = sizeof(audioList) / sizeof(char *);
     audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
@@ -267,7 +259,7 @@ void demoAudioInit(unsigned int tornadoOptions) {
     }
 
     musicSecond = my_dp->sampleRate * (my_dp->bitsPerSample / 8);
-    int offset = (effects[currentEffect].minTime / 50) * musicSecond;
+    offset = (effects[currentEffect].minTime / 50) * musicSecond;
     musicBeginL = *my_dp->mixState;
     musicBeginR = *my_dp->mixState2;
     *my_dp->mixState = musicBeginL + offset;
@@ -279,16 +271,10 @@ void demoAudioInit(unsigned int tornadoOptions) {
   }
 
 #ifndef __AMIGA__
-  // Bass initialization.
+  // SDL Audio initialization.
   if (tornadoOptions & USE_AUDIO) {
-    if (!BASS_Init(-1, 44100, 0, 0, 0)) {
-      fprintf(stderr, "FATAL - Failed to init bass. Aborting.\n");
-      exit(1);
-    }
-
-    stream = BASS_StreamCreateFile(0, bassTrack, 0, 0, BASS_STREAM_PRESCAN);
-    if (!stream) {
-      fprintf(stderr, "FATAL - Failed to open music file <%s>\n", bassTrack);
+    if (Audio_Init(my_dp, offset)) {
+      fprintf(stderr, "FATAL - Failed to init SDL audio. Aborting.\n");
       exit(1);
     }
   }
@@ -449,12 +435,10 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 
 #ifndef __AMIGA__
   if (tornadoOptions & USE_AUDIO) {
-    BASS_Start();
-    QWORD pos = BASS_ChannelSeconds2Bytes(stream, epoch / 50);
-    BASS_ChannelSetPosition(stream, pos, BASS_POS_BYTE);
-    BASS_ChannelPlay(stream, 0);
-    if (rocket_control) {
-      BASS_ChannelPause(stream);
+    double pos = (double)epoch / 50.0;
+    Audio_ChannelSetPosition(pos);
+    if (!rocket_control) {
+      Audio_ChannelPlay();
     }
   }
 #endif
@@ -493,7 +477,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 
     // Rocket control...
     if (rocket_control) {
-      if (sync_update(rocket, oldTime, &demo_cb, (void *)&stream)) {
+      if (sync_update(rocket, oldTime, &demo_cb, NULL)) {
         sync_tcp_connect(rocket, "localhost", SYNC_DEFAULT_PORT);
       }
       if (running) {
@@ -555,66 +539,6 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
       prof_enabled(timings);
       timings ^= 1;
     }
-
-    // Fast forward 1 second inside of an effect.
-    if (k == KEY_M) {
-      epoch = getMasterTimer();
-      resetMasterTimer();
-      epoch += 50;
-      *my_dp->mixState += musicSecond;
-      *my_dp->mixState2 += musicSecond;
-    }
-
-    // Rewind 1 second behind inside of an effect.
-    if (k == KEY_N) {
-      int t = getMasterTimer();
-      if (t >= 50) {
-        epoch = t - 50;
-        resetMasterTimer();
-        *my_dp->mixState -= musicSecond;
-        *my_dp->mixState2 -= musicSecond;
-      }
-    }
-
-    // Jump to the next effect.
-    if (k == KEY_P) {
-      int e = currentEffect;
-      e++;
-      if (e < numEffects) {
-        resetMasterTimer();
-        epoch = effects[e].minTime;
-        *my_dp->mixState =
-            musicBeginL + (effects[e].minTime / 50) * musicSecond;
-        *my_dp->mixState2 =
-            musicBeginR + (effects[e].minTime / 50) * musicSecond;
-#ifndef __AMIGA__
-        QWORD pos = BASS_ChannelSeconds2Bytes(stream, effects[e].minTime / 50);
-        BASS_ChannelSetPosition(stream, pos, BASS_POS_BYTE);
-        BASS_ChannelPlay(stream, 0);
-#endif
-      }
-    }
-
-    // Jump to the previous effect.
-    if (k == KEY_O) {
-      int e = currentEffect;
-      e--;
-      if (e >= 0) {
-        currentEffect--;
-        resetMasterTimer();
-        epoch = effects[currentEffect].minTime;
-        *my_dp->mixState =
-            musicBeginL + (effects[currentEffect].minTime / 50) * musicSecond;
-        *my_dp->mixState2 =
-            musicBeginR + (effects[currentEffect].minTime / 50) * musicSecond;
-#ifndef __AMIGA__
-        QWORD pos = BASS_ChannelSeconds2Bytes(stream, effects[e].minTime / 50);
-        BASS_ChannelSetPosition(stream, pos, BASS_POS_BYTE);
-        BASS_ChannelPlay(stream, 0);
-#endif
-      }
-    }
-
 #endif
 
     if (mousePressL() || (e->render == renderNull)) {
@@ -650,5 +574,6 @@ void demoFree() {
     sync_save_tracks(rocket);
     sync_destroy_device(rocket);
   }
+  Audio_Close();
 #endif
 }
