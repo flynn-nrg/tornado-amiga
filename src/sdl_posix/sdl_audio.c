@@ -152,6 +152,9 @@ void Audio_ChannelPlay() {
 void Audio_Start() {}
 
 void Audio_Close() {
+  if (!audio_open)
+    return;
+
   if (Mix_Playing(streamChannel)) {
     Mix_FadeOutChannel(streamChannel, 200);
   }
