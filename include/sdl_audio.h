@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REPLAY_MODE_RAW 1
 #define REPLAY_MODE_MUS 2
 
+#define DEFAULT_MUSIC_VOLUME 128
+
 void Audio_ChannelPause();
 
 // Returns 1 if music is playing.
@@ -50,5 +52,8 @@ void Audio_ChannelPlay();
 
 void Audio_Start();
 void Audio_Close();
+
+// Set music volume.
+void Audio_SetVolume(int volume);
 
 #endif

@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mod_replay.h"
 #include "paula_output.h"
 #include "screen_dump.h"
+#include "sdl_audio.h"
 #include "system.h"
 #include "tndo_assert.h"
 #include "tndo_file.h"
@@ -59,13 +60,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int fenv;
 
 static void usage() {
-  printf("Usage: mydemo -h -d -i <effectNumer>\n");
+  printf("Usage: mydemo -h -d -i <effectNumber> -v <music volume>\n");
   printf("-d : Dump the framebuffer to a bmp file in /tmp after rendering each "
          "frame.\n");
-  printf("-i <effectNumer> : Start from the given effect.\n");
+  printf("-i <effectNumber> : Start from the given effect.\n");
   printf("-h : Enable hot swappable assets.\n");
   printf("-r : Enable rocket.\n");
   printf("-s : Step mode. Render every frame and then increase the time.\n");
+  printf("-v <music volume> : Set the music volume to the provided value "
+         "(0-128). Default: 128.\n");
   exit(0);
 }
 
@@ -119,7 +122,9 @@ int main(int argc, char **argv) {
   // ---------------------------------------------------------------------------
   int ch;
   int initialEffect = 0;
-  while ((ch = getopt(argc, argv, "i:dhrs")) != -1) {
+  int musicVolume = DEFAULT_MUSIC_VOLUME;
+
+  while ((ch = getopt(argc, argv, "i:dhrsv:")) != -1) {
     switch (ch) {
     case 'd':
       dp->tornadoOptions |= ENABLE_SCREEN_DUMP;
@@ -135,6 +140,9 @@ int main(int argc, char **argv) {
       break;
     case 's':
       dp->tornadoOptions |= STEP_MODE;
+      break;
+    case 'v':
+      musicVolume = atoi(optarg);
       break;
     case '?':
     default:
@@ -182,6 +190,12 @@ int main(int argc, char **argv) {
   if (dp->tornadoOptions & SHOW_SPLASH) {
     demoSplash(dp->tornadoOptions);
   }
+
+  // ---------------------------------------------------------------------------
+  // Set music volume before the audio init functions are called.
+  // ---------------------------------------------------------------------------
+  Audio_SetVolume(musicVolume);
+
   // ---------------------------------------------------------------------------
   // Demo initialisation.
   // ---------------------------------------------------------------------------
@@ -190,12 +204,6 @@ int main(int argc, char **argv) {
   // Signal the memory manager that we are done with the init stage.
   // This will also free the packed data buffer.
   tndo_memory_init_done();
-
-  if (dp->tornadoOptions & USE_AUDIO) {
-    // void *mixRoutine = getMixRoutine();
-    // PaulaOutput_Init(mixRoutine, dp->mixState, REPLAY_PERIOD_22050,
-    // OUTPUT_14_BIT_STEREO); PaulaOutput_Start();
-  }
 
   // We are loading files. Shut down the VFS subsystem.
   if (dp->tornadoOptions & ENABLE_TNDO_VFS) {

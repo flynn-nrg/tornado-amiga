@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static int audio_open = 0;
 static int music_started = 0;
 static int replay_mode = 0;
+static int music_volume = 0;
 static int paused = 0;
 static int modified = 0;
 static uint8_t *rawSample;
@@ -99,7 +100,7 @@ int Audio_Init(demoParams *dp, uint32_t offset) {
     return -1;
   }
 
-  Mix_VolumeChunk(stream, MIX_MAX_VOLUME);
+  Mix_VolumeChunk(stream, music_volume);
 
   streamChannel = Mix_PlayChannel(-1, stream, 0);
   Mix_Pause(streamChannel);
@@ -166,3 +167,5 @@ void Audio_Close() {
     rawSample = NULL;
   }
 }
+
+void Audio_SetVolume(int musicVolume) { music_volume = musicVolume; }
