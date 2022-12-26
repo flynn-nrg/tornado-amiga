@@ -73,11 +73,7 @@ hardware_t *hardware_check(int minCpu, int minChip, int minFast,
     printf("Checking for AGA: ");
   }
 
-  if (hw->vampire) {
-  hw->aga = 1;
-  } else {
   hw->aga = checkAGA();
-  }
 
   if (!hw->aga) {
     if (tornadoOptions & LOGGING) {
