@@ -45,7 +45,7 @@ hardware_t *hardware_check(int minCpu, int minChip, int minFast,
 
   if (tornadoOptions & LOGGING) {
     printf("Tornado Amiga Demo System %s\n", TORNADO_VERSION);
-    printf("(C) 2017-2021 Capsule\n\n");
+    printf("(C) 2017-2023 Capsule\n\n");
     printf("System check:\n");
     printf("-------------\n");
     if (hw->vampire) {
@@ -73,11 +73,7 @@ hardware_t *hardware_check(int minCpu, int minChip, int minFast,
     printf("Checking for AGA: ");
   }
 
-  if (hw->vampire) {
-  hw->aga = 1;
-  } else {
   hw->aga = checkAGA();
-  }
 
   if (!hw->aga) {
     if (tornadoOptions & LOGGING) {
