@@ -10,25 +10,47 @@ Loading assets
 
 Assets can only be loaded during the initialisation phase, when Amiga OS is still running. Let's see an example:
 
+This is what the `Asset` struct looks like:
+
+```c
+typedef struct {
+  uint8_t *Name;
+  uint32_t Flags;
+  void *Data;
+  uint32_t Size;
+} TornadoAsset;
+```
+
+You only need to provide the asset name, that is the file path, and the flags. The two commonly used flags are:
+
+* ASSETS_IN_REUSABLE_MEM: Load assets in the scratch pad, so they can be further processed during initialisation.
+* NO_Z_DECOMPRESS : Do not decompress assets on load.
+
 First we declare the asset list. These are all the files we want to load.
 
 ```c
-static const char *assetList[] = {
-    "data/zoom.tndo",        // Roundrobin 1
-    "data/zoom2.tndo",       // Roundrobin 2
-    "data/zoom_frame0.tndo", // Frame 0
-    "data/zoom.pal",         // Palette
+static TornadoAsset assetList[] = {
+    {
+        .Name = (uint8_t *)"data/zoom.tndo", // Roundrobin 1
+    },
+    {
+        .Name = (uint8_t *)"data/zoom2.tndo", // Roundrobin 2
+    },
+    {
+        .Name = (uint8_t *)"data/zoom_frame0.tndo", // Frame 0
+    },
+    {
+        .Name = (uint8_t *)"data/zoom.pal", // Palette
+    },
 };
 ```
 
 And now during the effect initialisation we use the asset manager to load them.
 
 ```c
-  effect->numAssets = sizeof(assetList) / sizeof(char *);
-  effect->Assets = (void **)tndo_malloc(sizeof(void *) * effect->numAssets, 0);
-  effect->assetSizes = (int *)tndo_malloc(sizeof(int) * effect->numAssets, 0);
-  if (!loadAssets(effect->Assets, &assetList[0], effect->assetSizes,
-                  effect->numAssets, tornadoOptions, 0)) {
+  effect->numAssets = sizeof(assetList) / sizeof(TornadoAsset);
+  effect->Assets = (TornadoAsset *)assetList;
+  if (!loadAssets(assetList, effect->numAssets, tornadoOptions, 0)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & LOGGING) {
       printf("failed!\n");
@@ -37,7 +59,7 @@ And now during the effect initialisation we use the asset manager to load them.
   }
 ```
 
-We now have two pointer arrays: One with pointers to each of the assets and one with their sizes.
+After this the `Data` and `Size` fields for every asset now contain the payload and its size respectively.
 
 The TNDO file format
 -----------------------------
