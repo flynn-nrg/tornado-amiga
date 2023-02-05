@@ -50,12 +50,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ptr_bridges.h"
 #include "splash.h"
 
-static void **splashAssets;
-static void *splashSample;
-static void *splashSampleSize;
-static void *splashMod;
-static int *splashModSize;
-static int *splashSizes;
+static TornadoAsset *splashAssets;
+static TornadoAsset splashSample;
+static TornadoAsset splashMod;
 static void *loadingMusic = 0;
 
 static int palette[(256 * 3) + 2];
@@ -414,18 +411,20 @@ unsigned char *splash_init(const char *const *splashFiles, int numFiles,
   screenDepth = depth;
 
   if (numFiles > 0) {
-    splashAssets = tndo_malloc(sizeof(void *) * numFiles, 0);
-    splashSizes = tndo_malloc(sizeof(int) * numFiles, 0);
-    if (!loadAssets(&splashAssets[0], &splashFiles[0], &splashSizes[0],
-                    numFiles, tornadoOptions, 0)) {
+    splashAssets =
+        (TornadoAsset *)tndo_malloc(sizeof(TornadoAsset) * numFiles, 0);
+    for (int i = 0; i < numFiles; i++) {
+      splashAssets[i].Name = (uint8_t *)splashFiles[i];
+    }
+    if (!loadAssets(splashAssets, numFiles, tornadoOptions, 0)) {
       return 0;
     }
   }
 
   // Load optional loading music.
   if (numFiles == 2) {
-    loadingMusic = get_chipmem_scratchpad_addr(splashSizes[1]);
-    memcpy(loadingMusic, splashAssets[1], splashSizes[1]);
+    loadingMusic = get_chipmem_scratchpad_addr(splashAssets[1].Size);
+    memcpy(loadingMusic, splashAssets[1].Data, splashAssets[1].Size);
   }
 
   screenModeTagList[0].ti_Data = sizeX;
@@ -546,7 +545,7 @@ void splash_black_pal(uint32_t *pal) {
   if (pal) {
     source = pal;
   } else {
-    source = splashAssets[0];
+    source = (uint32_t *)splashAssets[0].Data;
   }
 
   numColours = source[0] >> 16;
@@ -575,7 +574,7 @@ void splash_fadein(uint32_t *pal, int numSteps) {
   if (pal) {
     source = pal;
   } else {
-    source = splashAssets[0];
+    source = (uint32_t *)splashAssets[0].Data;
   }
 
   numColours = source[0] >> 16;
@@ -622,7 +621,7 @@ void splash_fadeout(uint32_t *pal, int numSteps) {
   if (pal) {
     source = pal;
   } else {
-    source = splashAssets[0];
+    source = (uint32_t *)splashAssets[0].Data;
   }
 
   numColours = source[0] >> 16;
@@ -668,9 +667,9 @@ void splash_show() {
 
   splash_black_pal(0);
 
-  unsigned char *chunkyBuffer = (unsigned char *)splashAssets[0];
+  unsigned char *chunkyBuffer = (unsigned char *)splashAssets[0].Data;
   // Skip palette.
-  chunkyBuffer += get_palette_skip_splash(splashAssets[0]);
+  chunkyBuffer += get_palette_skip_splash(splashAssets[0].Data);
 
   ScreenToFront(screen);
 
@@ -764,7 +763,7 @@ int splash_checkinput(void) {
 
 UBYTE *chip_sample_buffer;
 UBYTE channels[] = {1 | 2};
-ULONG device = 0xdeadbeef;
+ULONG device = 0xabadcafe;
 ULONG wakebit;
 
 struct IOAudio *AIOptr;
@@ -776,17 +775,17 @@ struct Message *AudioMsg;
 // The maximum allowed size is 128Kib.
 // Returns 0 if successful.
 int splash_load_sample(const char *sampleFile, unsigned int tornadoOptions) {
-  splashSampleSize = tndo_malloc(sizeof(int), TNDO_REUSABLE_MEM);
-  if (!loadAssets(&splashSample, &sampleFile, splashSampleSize, 1,
-                  tornadoOptions | ASSETS_IN_REUSABLE_MEM, 0)) {
+  splashSample.Name = (uint8_t *)sampleFile;
+  splashSample.Flags = ASSETS_IN_REUSABLE_MEM;
+  if (!loadAssets(&splashSample, 1, tornadoOptions, 0)) {
     return -1;
   }
 
-  uint32_t *header = splashSample;
+  uint32_t *header = splashSample.Data;
   uint32_t speed = PAL_clock / header[0];
   uint32_t size = header[1];
   unsigned char *payload =
-      (unsigned char *)splashSample + (2 * sizeof(uint32_t));
+      (unsigned char *)splashSample.Data + (2 * sizeof(uint32_t));
   chip_sample_buffer = get_chipmem_scratchpad_addr(size);
   if (!chip_sample_buffer) {
     return -1;
@@ -855,17 +854,15 @@ void splash_end_sample() {
   }
 }
 
-// shasha
-
 int splash_load_mod(const char *modFile, unsigned int tornadoOptions) {
-  splashModSize = tndo_malloc(sizeof(int), TNDO_REUSABLE_MEM);
-  if (!loadAssets(&splashMod, &modFile, splashModSize, 1,
-                  tornadoOptions | ASSETS_IN_REUSABLE_MEM, 0)) {
+  splashMod.Name = (uint8_t *)modFile;
+  splashMod.Flags = ASSETS_IN_REUSABLE_MEM;
+  if (!loadAssets(&splashMod, 1, tornadoOptions, 0)) {
     return -1;
   }
 
-  loadingMusic = get_chipmem_scratchpad_addr(splashModSize[0]);
-  memcpy(loadingMusic, splashMod, splashModSize[0]);
+  loadingMusic = get_chipmem_scratchpad_addr(splashMod.Size);
+  memcpy(loadingMusic, splashMod.Data, splashMod.Size);
 
   return 0;
 }

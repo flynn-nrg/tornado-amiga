@@ -67,7 +67,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TILE_SIZE 256 * 256
 #define NUM_INSTANCES 4
 #define ROUND_ROBIN 2
-#define FRAME_0 effect->Assets[2]
+#define FRAME_0 effect->Assets[2].Data
 
 // ---------------------------------------------------------------------------
 // Zoom variables.
@@ -105,11 +105,19 @@ static int telemetryEnabled;
 static TelemetryData **zoomTelemetry;
 #endif
 
-static const char *assetList[] = {
-    "data/zoom.tndo",        // Roundrobin 1
-    "data/zoom2.tndo",       // Roundrobin 2
-    "data/zoom_frame0.tndo", // Frame 0
-    "data/zoom.pal",         // Palette
+static TornadoAsset assetList[] = {
+    {
+        .Name = (uint8_t *)"data/zoom.tndo", // Roundrobin 1
+    },
+    {
+        .Name = (uint8_t *)"data/zoom2.tndo", // Roundrobin 2
+    },
+    {
+        .Name = (uint8_t *)"data/zoom_frame0.tndo", // Frame 0
+    },
+    {
+        .Name = (uint8_t *)"data/zoom.pal", // Palette
+    },
 };
 
 static unsigned int pal16[] = {0x1070a,  0x1070a,  0x81015,  0x161e23,
@@ -249,11 +257,9 @@ void initZoom(unsigned int tornadoOptions, tornadoEffect *effect) {
     zoomTelemetry = effect->telemetry;
   }
 #endif
-  effect->numAssets = sizeof(assetList) / sizeof(char *);
-  effect->Assets = (void **)tndo_malloc(sizeof(void *) * effect->numAssets, 0);
-  effect->assetSizes = (int *)tndo_malloc(sizeof(int) * effect->numAssets, 0);
-  if (!loadAssets(effect->Assets, &assetList[0], effect->assetSizes,
-                  effect->numAssets, tornadoOptions, 0)) {
+  effect->numAssets = sizeof(assetList) / sizeof(TornadoAsset);
+  effect->Assets = (TornadoAsset *)assetList;
+  if (!loadAssets(assetList, effect->numAssets, tornadoOptions, 0)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & LOGGING) {
       printf("failed!\n");
@@ -264,7 +270,7 @@ void initZoom(unsigned int tornadoOptions, tornadoEffect *effect) {
   // ---------------------------------------------------------------------------
   // Allocate buffers and generate copper lists and palettes.
   // ---------------------------------------------------------------------------
-  loadRGB32toRGB((uint32_t *)effect->Assets[3], _pal_tmp);
+  loadRGB32toRGB((uint32_t *)effect->Assets[3].Data, _pal_tmp);
 
   displayInstance =
       display_init(_pal_tmp, tornadoOptions, SCR_16_9_4BPL, 0, 0, 0);
@@ -277,7 +283,7 @@ void initZoom(unsigned int tornadoOptions, tornadoEffect *effect) {
       (unsigned char **)tndo_malloc(NUM_TILES * sizeof(unsigned char *), 0);
   int delta = 0;
   for (int i = 0; i < NUM_TILES; i++) {
-    canvas1[i] = ((unsigned char *)effect->Assets[0]) + delta;
+    canvas1[i] = ((unsigned char *)effect->Assets[0].Data) + delta;
     delta += TILE_SIZE;
   }
 
@@ -285,27 +291,9 @@ void initZoom(unsigned int tornadoOptions, tornadoEffect *effect) {
       (unsigned char **)tndo_malloc(NUM_TILES * sizeof(unsigned char *), 0);
   delta = 0;
   for (int i = 0; i < NUM_TILES; i++) {
-    canvas2[i] = ((unsigned char *)effect->Assets[1]) + delta;
+    canvas2[i] = ((unsigned char *)effect->Assets[1].Data) + delta;
     delta += TILE_SIZE;
   }
-
-#if 0
-  canvas3 =
-      (unsigned char **)tndo_malloc(NUM_TILES * sizeof(unsigned char *), 0);
-  delta = 0;
-  for (int i = 0; i < NUM_TILES; i++) {
-    canvas3[i] = ((unsigned char *)effect->Assets[2]) + delta;
-    delta += TILE_SIZE;
-  }
-
-  canvas4 =
-      (unsigned char **)tndo_malloc(NUM_TILES * sizeof(unsigned char *), 0);
-  delta = 0;
-  for (int i = 0; i < NUM_TILES; i++) {
-    canvas4[i] = ((unsigned char *)effect->Assets[3]) + delta;
-    delta += TILE_SIZE;
-  }
-#endif
 
   // Mipmaps...
   if (tornadoOptions & VERBOSE_DEBUGGING) {
@@ -341,38 +329,6 @@ void initZoom(unsigned int tornadoOptions, tornadoEffect *effect) {
       mSize /= 2;
     }
   }
-
-#if 0
-  allMipMaps3 =
-      (unsigned char ***)tndo_malloc(NUM_TILES * sizeof(unsigned char **), 0);
-  for (int i = 0; i < NUM_TILES; i++) {
-    allMipMaps3[i] = (unsigned char **)tndo_malloc(
-        ZOOM_MIPMAPS * sizeof(unsigned char *), 0);
-    int mSize = ZOOM_TXT_SIZE;
-    unsigned char **mipMaps3 = allMipMaps3[i];
-    mipMaps3[0] = canvas3[i];
-
-    for (int j = 1; j < ZOOM_MIPMAPS; j++) {
-      mipMaps3[j] = downSample(mipMaps3[j - 1], mSize);
-      mSize /= 2;
-    }
-  }
-
-  allMipMaps4 =
-      (unsigned char ***)tndo_malloc(NUM_TILES * sizeof(unsigned char **), 0);
-  for (int i = 0; i < NUM_TILES; i++) {
-    allMipMaps4[i] = (unsigned char **)tndo_malloc(
-        ZOOM_MIPMAPS * sizeof(unsigned char *), 0);
-    int mSize = ZOOM_TXT_SIZE;
-    unsigned char **mipMaps4 = allMipMaps4[i];
-    mipMaps4[0] = canvas4[i];
-
-    for (int j = 1; j < ZOOM_MIPMAPS; j++) {
-      mipMaps4[j] = downSample(mipMaps4[j - 1], mSize);
-      mSize /= 2;
-    }
-  }
-#endif
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
     printf("done\n");

@@ -41,8 +41,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "simple_screen.h"
 
-static const char *assetList[] = {
-    "data/Capsule_logo.tndo", // Compressed raw pixel data and palette.
+static TornadoAsset assetList[] = {
+    {
+        .Name = (uint8_t *)"data/Capsule_logo.tndo", // Compressed raw pixel
+                                                     // data and palette.
+    },
 };
 
 static int displayInstance;
@@ -66,11 +69,9 @@ void initSimpleScreen(unsigned int tornadoOptions, tornadoEffect *effect) {
     return;
   init = 1;
 
-  effect->numAssets = sizeof(assetList) / sizeof(char *);
-  effect->Assets = (void **)tndo_malloc(sizeof(void *) * effect->numAssets, 0);
-  effect->assetSizes = (int *)tndo_malloc(sizeof(int) * effect->numAssets, 0);
-  if (!loadAssets(effect->Assets, &assetList[0], effect->assetSizes,
-                  effect->numAssets, tornadoOptions, 0)) {
+  effect->numAssets = sizeof(assetList) / sizeof(TornadoAsset);
+  effect->Assets = assetList;
+  if (!loadAssets(assetList, effect->numAssets, tornadoOptions, 0)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & LOGGING) {
       printf("FATAL - Asset loading failed!\n");
@@ -79,14 +80,14 @@ void initSimpleScreen(unsigned int tornadoOptions, tornadoEffect *effect) {
   }
 
   // Palette is stored in LoadRGB32 format so we need to convert it first.
-  loadRGB32toRGB((uint32_t *)effect->Assets[0], pal);
+  loadRGB32toRGB((uint32_t *)effect->Assets[0].Data, pal);
 
   // 320x256 8 bitplanes. No sprites and no padding.
-  displayInstance = display_init((uint32_t *)effect->Assets[0], tornadoOptions,
-                                 RTG_NORMAL, 0, 0, 0);
+  displayInstance = display_init((uint32_t *)effect->Assets[0].Data,
+                                 tornadoOptions, RTG_NORMAL, 0, 0, 0);
 
   // The first 3080 bytes are the palette in LoadRGB32 format.
-  background = (char *)effect->Assets[0] + 3080;
+  background = (char *)effect->Assets[0].Data + 3080;
 }
 
 t_canvas *renderSimpleScreen(int frame) {

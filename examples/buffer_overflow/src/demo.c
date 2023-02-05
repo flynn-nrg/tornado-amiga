@@ -57,7 +57,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // BASS
 #ifndef __AMIGA__
-#include "bass.h"
 #include "display_sdl.h"
 #endif
 

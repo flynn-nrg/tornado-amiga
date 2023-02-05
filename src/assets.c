@@ -64,8 +64,8 @@ void emit_container_script(const char *fileName, const char *containerName) {
   fclose(fd);
 }
 
-int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
-               int numAssets, int tornadoOptions, demoParams *dp) {
+int loadAssets(TornadoAsset *assetList, int numAssets, int tornadoOptions,
+               demoParams *dp) {
   int num_errors = 0;
   int i;
   int res;
@@ -77,15 +77,16 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
     printf("\nDEBUG - Loading and unpacking data");
   }
 
-  int allocFlag = 0;
-  if (tornadoOptions & ASSETS_IN_REUSABLE_MEM) {
-    allocFlag |= TNDO_REUSABLE_MEM;
-  }
   for (i = 0; i < numAssets; i++) {
+
+    int allocFlag = 0;
+    if (assetList[i].Flags & ASSETS_IN_REUSABLE_MEM) {
+      allocFlag |= TNDO_REUSABLE_MEM;
+    }
 
     if (tornadoOptions & EMIT_CONTAINER_SCRIPT) {
       tndo_assert(numFiles < 256);
-      fileList[numFiles] = (char *)assetList[i];
+      fileList[numFiles] = (char *)assetList[i].Name;
       numFiles++;
     }
 
@@ -93,9 +94,9 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
       printf(".");
     }
 
-    fd = tndo_fopen(assetList[i], "r");
+    fd = tndo_fopen((char *)assetList[i].Name, "r");
     if (!fd) {
-      printf("\nMissing asset: %s\n", assetList[i]);
+      printf("\nMissing asset: %s\n", (char *)assetList[i].Name);
       num_errors++;
       continue;
     }
@@ -107,14 +108,14 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
       size = tndo_ftell(fd);
       tndo_fseek(fd, 0, SEEK_SET);
 
-      demoAssets[i] = tndo_malloc(size, allocFlag);
-      assetSizes[i] = size;
-      if (!demoAssets[i]) {
-        printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+      assetList[i].Data = tndo_malloc(size, allocFlag);
+      assetList[i].Size = size;
+      if (!assetList[i].Data) {
+        printf("\nCant allocate memory for asset: %s\n", assetList[i].Name);
         num_errors++;
         continue;
       }
-      read = tndo_fread(demoAssets[i], size, 1, fd);
+      read = tndo_fread(assetList[i].Data, size, 1, fd);
       if (!read)
         return 0;
 
@@ -126,7 +127,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           printf("DEBUG - Loading Audio asset...\n");
         }
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf("DEBUG - Sample rate: %u\n", ENDI4(th->sampleRate));
+          printf("DEBUG - Sample rate: %d\n", (int)ENDI4(th->sampleRate));
         }
         switch (ENDI4(th->sampleRate)) {
         case 11025:
@@ -141,7 +142,8 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         }
 
         if (tornadoOptions & VERBOSE_DEBUGGING) {
-          printf("DEBUG - Bits per sample: %u\n", ENDI4(th->bitsPerSample));
+          printf("DEBUG - Bits per sample: %d\n",
+                 (int)ENDI4(th->bitsPerSample));
         }
         switch (ENDI4(th->bitsPerSample)) {
         case 8:
@@ -160,7 +162,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           if (tornadoOptions & VERBOSE_DEBUGGING) {
             printf("DEBUG - Using DDPCM encoding.\n");
           }
-          
+
 #ifdef __AMIGA__
           if (tornadoOptions & DDPCM_UNPACK) {
 #endif
@@ -171,8 +173,8 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             dp->mixState2 = (char **)&decodedData->right;
             dp->numSamples = decodedData->numSamples;
             dp->bitsPerSample = decodedData->bitsPerSample;
-            demoAssets[i] = (unsigned int *)0xdeadbeef;
-            assetSizes[i] = 4;
+            assetList[i].Data = (unsigned int *)0xabadcafe;
+            assetList[i].Size = 4;
 #ifdef __AMIGA__
           } else {
             ddpcmData = ddpcmLoadFile(fd, tornadoOptions);
@@ -188,11 +190,11 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
             dp->tornadoOptions |= DDPCM_STREAMING;
             dp->sampleRate = ENDI4(th->sampleRate);
             dp->bitsPerSample = ENDI4(th->bitsPerSample);
-            // Dummy mix states to make the Paula output routines happy.
+            // Populate mix states to make the Paula output routines happy.
             dp->mixState = (char **)&decodedData;
             dp->mixState2 = (char **)&decodedData;
-            demoAssets[i] = (unsigned int *)0xdeadbeef;
-            assetSizes[i] = 4;
+            assetList[i].Data = (unsigned int *)0xabadcafe;
+            assetList[i].Size = 4;
           }
 #endif
           break;
@@ -211,105 +213,123 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
         switch (ENDI4(th->compression)) {
 
         case TNDO_COMPRESSION_NONE:
-          assetSizes[i] = ENDI4(th->uncompressed_size);
-          demoAssets[i] = tndo_malloc(ENDI4(th->uncompressed_size), allocFlag);
-          if (!demoAssets[i]) {
-            printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+          assetList[i].Size = ENDI4(th->uncompressed_size);
+          assetList[i].Data =
+              tndo_malloc(ENDI4(th->uncompressed_size), allocFlag);
+          if (!assetList[i].Data) {
+            printf("\nCant allocate memory for asset: %s\n",
+                   (char *)assetList[i].Name);
             num_errors++;
           }
-          read = tndo_fread(demoAssets[i], ENDI4(th->uncompressed_size), 1, fd);
+          read = tndo_fread(assetList[i].Data, ENDI4(th->uncompressed_size), 1,
+                            fd);
           if (!read)
             return 0;
           break;
 
         case TNDO_COMPRESSION_LZW:
-          if (tornadoOptions & NO_Z_DECOMPRESS) {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] = tndo_malloc(ENDI4(th->compressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+          if (assetList[i].Flags & NO_Z_DECOMPRESS) {
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
+                tndo_malloc(ENDI4(th->compressed_size), allocFlag);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
 
-            read = tndo_fread(demoAssets[i], ENDI4(th->compressed_size), 1, fd);
+            read = tndo_fread(assetList[i].Data, ENDI4(th->compressed_size), 1,
+                              fd);
             if (!read)
               return 0;
           } else {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] =
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
                 tndo_malloc(ENDI4(th->uncompressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
-            res = lzwLoadFile(fd, demoAssets[i], ENDI4(th->compressed_size));
+            res =
+                lzwLoadFile(fd, assetList[i].Data, ENDI4(th->compressed_size));
             if (res != 0) {
               fprintf(stderr, "WARNING - Error unpacking file %s. Skipping.\n",
-                      assetList[i]);
+                      (char *)assetList[i].Name);
               return 0;
             }
           }
           break;
 
         case TNDO_COMPRESSION_LZH:
-          if (tornadoOptions & NO_Z_DECOMPRESS) {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] = tndo_malloc(ENDI4(th->compressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+          if (assetList[i].Flags & NO_Z_DECOMPRESS) {
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
+                tndo_malloc(ENDI4(th->compressed_size), allocFlag);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
 
-            read = tndo_fread(demoAssets[i], ENDI4(th->compressed_size), 1, fd);
+            read = tndo_fread(assetList[i].Data, ENDI4(th->compressed_size), 1,
+                              fd);
             if (!read)
               return 0;
           } else {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] =
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
                 tndo_malloc(ENDI4(th->uncompressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
-            res = lzhLoadFile(fd, demoAssets[i], ENDI4(th->compressed_size));
+            res =
+                lzhLoadFile(fd, assetList[i].Data, ENDI4(th->compressed_size));
             if (res != 0) {
               fprintf(stderr, "WARNING - Error unpacking file %s. Skipping.\n",
-                      assetList[i]);
+                      (char *)assetList[i].Name);
               return 0;
             }
           }
           break;
 
         case TNDO_COMPRESSION_LZSS:
-          if (tornadoOptions & NO_Z_DECOMPRESS) {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] = tndo_malloc(ENDI4(th->compressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+          if (assetList[i].Flags & NO_Z_DECOMPRESS) {
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
+                tndo_malloc(ENDI4(th->compressed_size), allocFlag);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
 
-            read = tndo_fread(demoAssets[i], ENDI4(th->compressed_size), 1, fd);
+            read = tndo_fread(assetList[i].Data, ENDI4(th->compressed_size), 1,
+                              fd);
             if (!read)
               return 0;
           } else {
-            assetSizes[i] = ENDI4(th->uncompressed_size);
-            demoAssets[i] =
+            assetList[i].Size = ENDI4(th->uncompressed_size);
+            assetList[i].Data =
                 tndo_malloc(ENDI4(th->uncompressed_size), allocFlag);
-            if (!demoAssets[i]) {
-              printf("\nCant allocate memory for asset: %s\n", assetList[i]);
+            if (!assetList[i].Data) {
+              printf("\nCant allocate memory for asset: %s\n",
+                     (char *)assetList[i].Name);
               num_errors++;
               break;
             }
-            res = lzssLoadFile(fd, demoAssets[i], ENDI4(th->compressed_size));
+            res =
+                lzssLoadFile(fd, assetList[i].Data, ENDI4(th->compressed_size));
             if (res != 0) {
               fprintf(stderr, "WARNING - Error unpacking file %s. Skipping.\n",
-                      assetList[i]);
+                      (char *)assetList[i].Name);
               return 0;
             }
           }
@@ -319,7 +339,7 @@ int loadAssets(void **demoAssets, const char *const *assetList, int *assetSizes,
           fprintf(stderr,
                   "WARNING - Unsupported compression setting %x for file %s. "
                   "Skipping.\n",
-                  ENDI4(th->compression), assetList[i]);
+                  (int)ENDI4(th->compression), (char *)assetList[i].Name);
           break;
         }
       }

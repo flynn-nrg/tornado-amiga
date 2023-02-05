@@ -41,9 +41,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sprites.h"
 
-static const char *assetList[] = {
-    "data/Capsule_logo.tndo", // Compressed raw pixel data and palette.
-    "data/sprite.tndo", // Sprite that will overlayed on top of the background.
+static TornadoAsset assetList[] = {
+    {
+        .Name = (uint8_t *)"data/Capsule_logo.tndo", // Compressed raw pixel
+                                                     // data and palette.
+    },
+    {
+        .Name = (uint8_t *)"data/sprite.tndo", // Sprite that will overlayed on
+                                               // top of the background.
+    },
 };
 
 static int displayInstance;
@@ -66,11 +72,9 @@ void initSprites(unsigned int tornadoOptions, tornadoEffect *effect) {
     return;
   init = 1;
 
-  effect->numAssets = sizeof(assetList) / sizeof(char *);
-  effect->Assets = (void **)tndo_malloc(sizeof(void *) * effect->numAssets, 0);
-  effect->assetSizes = (int *)tndo_malloc(sizeof(int) * effect->numAssets, 0);
-  if (!loadAssets(effect->Assets, &assetList[0], effect->assetSizes,
-                  effect->numAssets, tornadoOptions, 0)) {
+  effect->numAssets = sizeof(assetList) / sizeof(TornadoAsset);
+  effect->Assets = assetList;
+  if (!loadAssets(assetList, effect->numAssets, tornadoOptions, 0)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & LOGGING) {
       printf("FATAL - Asset loading failed!\n");
@@ -79,7 +83,7 @@ void initSprites(unsigned int tornadoOptions, tornadoEffect *effect) {
   }
 
   // Palette is stored in LoadRGB32 format so we need to convert it first.
-  loadRGB32toRGB((uint32_t *)effect->Assets[0], pal);
+  loadRGB32toRGB((uint32_t *)effect->Assets[0].Data, pal);
 
   // Set up our sprites...
   so.num_sprites = 4;
@@ -95,13 +99,13 @@ void initSprites(unsigned int tornadoOptions, tornadoEffect *effect) {
   so.spritesAttach[1] = 1;
   so.spritesAttach[2] = 0;
   so.spritesAttach[3] = 1;
-  so.spr_data = (t_bpl_head *)effect->Assets[1];
+  so.spr_data = (t_bpl_head *)effect->Assets[1].Data;
 
   // 320x256 8 bitplanes. No padding. Sprites.
   displayInstance = display_init(pal, tornadoOptions, SCR_NORMAL, 0, 0, &so);
 
   // The first 3080 bytes are the palette in LoadRGB32 format.
-  background = (char *)effect->Assets[0] + 3080;
+  background = (char *)effect->Assets[0].Data + 3080;
 }
 
 t_canvas *renderSprites(int frame) {

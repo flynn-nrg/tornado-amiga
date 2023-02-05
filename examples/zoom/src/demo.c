@@ -230,27 +230,25 @@ void demoSettings(demoParams *dp) {
 // --------------------------------------------------------------------------
 // Music initialisation.
 // --------------------------------------------------------------------------
-static int *audioSizes;
-static int numAudioAssets;
-static void **audioAssets;
-
 // LOW QUALITY AUDIO TRACK FOR DEVELOPMENT ONLY!!!!!
 #warning "Using low quality audio track!!!"
-const char *audioList[] = {"data/brut_zoom.tndo"};
+
+static TornadoAsset audioList[] = {
+    {
+        .Name = (uint8_t *)"data/brut_zoom.tndo",
+    },
+};
 
 void demoAudioInit(unsigned int tornadoOptions) {
   int offset = 0;
 
   if (tornadoOptions & USE_AUDIO) {
-    numAudioAssets = sizeof(audioList) / sizeof(char *);
-    audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
-    audioAssets = (void **)tndo_malloc(sizeof(void *) * numAudioAssets, 0);
+    int numAudioAssets = sizeof(audioList) / sizeof(TornadoAsset);
     if (tornadoOptions & VERBOSE_DEBUGGING) {
       printf("DEBUG - Loading audio data...");
       fflush(stdout);
     }
-    if (!loadAssets(&audioAssets[0], &audioList[0], &audioSizes[0],
-                    numAudioAssets, tornadoOptions, my_dp)) {
+    if (!loadAssets(audioList, numAudioAssets, tornadoOptions, my_dp)) {
       tndo_memory_shutdown(tornadoOptions);
       if (tornadoOptions & VERBOSE_DEBUGGING) {
         printf("failed!\n");
@@ -506,7 +504,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
 #endif
 
     // Can't have profiling and mod replay at the same time.
-    //#define MOD_REPLAY 1
+    // #define MOD_REPLAY 1
 
 #ifndef MOD_REPLAY
 #warning "Profiling enabled: Mod replay during demo runtime will not work!!!"

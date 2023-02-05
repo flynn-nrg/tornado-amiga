@@ -76,7 +76,7 @@ static unsigned int zero_line[2048];
 static unsigned int *brush_cache[CACHE_ENTRIES] = {0, 0, 0};
 static int brush_cache_size = 0;
 
-static void **assets = 0;
+static TornadoAsset *assets = 0;
 
 static int n_banners = 0;
 static int displayInstance = 0;
@@ -455,7 +455,7 @@ static void banner_cache_update(int banner) {
   if (ce != -1)
     return;
 
-  rle_t *rle = (rle_t *)assets[banner];
+  rle_t *rle = (rle_t *)assets[banner].Data;
 
   tndo_assert((rle->w * rle->h * (int)sizeof(int)) < brush_cache_size);
   makeTexture_rle(brush_cache[cache_current], rle, rle->w, rle->h);
@@ -475,7 +475,7 @@ static int prepareOne(const int banner, float blur_factor, float cx, float cy,
   blur_t blurMax;
   blur_t blur;
 
-  rle_t *rle = (rle_t *)assets[banner];
+  rle_t *rle = (rle_t *)assets[banner].Data;
 
   banner_cache_update(banner);
 
@@ -565,14 +565,14 @@ static void fillOne(const bounds_t bounds, unsigned char *chunky, int banner) {
     int num = 1 + bounds.xmax - bounds.xmin;
 
     // "Mix" variants allow mixing against the background.
-    //#ifdef __AMIGA__
+    // #ifdef __AMIGA__
     //        //blurRenderScanlineAsm(p0, p1, xt, bounds.m, num, scr +
     //        bounds.xmin); blurRenderScanlineMixAsm(p0, p1, xt, bounds.m, num,
     //        scr + bounds.xmin);
-    //#else
+    // #else
     // blurRenderScanline(p0, p1, xt, bounds.m, num, scr + bounds.xmin);
     blurRenderScanlineMix(p0, p1, xt, bounds.m, num, scr + bounds.xmin);
-    //#endif
+    // #endif
   }
 }
 /*
@@ -729,41 +729,104 @@ void vblBlur(int frame) {
 #endif
 }
 
-static const char *rassetList[] = {
-    "data/blur-gr-1.rle",  // Batman Group
-    "data/blur-gr-2.rle",  // Dekadence
-    "data/blur-gr-3.rle",  // Desire
-    "data/blur-gr-4.rle",  // Elude
-    "data/blur-gr-5.rle",  // Ephidrena
-    "data/blur-gr-6.rle",  // Fairlight
-    "data/blur-gr-7.rle",  // Focus Design
-    "data/blur-gr-8.rle",  // Haujobb
-    "data/blur-gr-9.rle",  // Lemon
-    "data/blur-gr-10.rle", // Loonies
-    "data/blur-gr-11.rle", // Nah Kolor
-    "data/blur-gr-12.rle", // Nature
-    "data/blur-gr-13.rle", // Oxyron
-    "data/blur-gr-14.rle", // Scoopex
-    "data/blur-gr-15.rle", // Skarla
-    "data/blur-gr-16.rle", // Software Failure
-    "data/blur-gr-17.rle", // Spaceballs
-    "data/blur-gr-18.rle", // The Black Lotus
-    "data/blur-gr-19.rle", // Tulou
-    "data/blur-gr-20.rle", // Unique
-    "data/blur-gr-21.rle", // RGBA
-    "data/blur-gr-22.rle", // Ghostown
-    "data/blur-gr-23.rle", // Onslaught
-    "data/blur-gr-24.rle", // Paradox
-    "data/blur-gr-25.rle", // Mystic Bytes
-    "data/blur-gr-26.rle", // Dune
-    "data/blur-gr-27.rle", // Sector One
-    "data/blur-gr-28.rle", // New Beat
-    "data/blur-gr-29.rle", // TSCC
-    "data/blur-gr-30.rle", // IGN
+static TornadoAsset rassetList[] = {
+    {
+        .Name = (uint8_t *)"data/blur-gr-1.rle", // Batman Group
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-2.rle", // Dekadence
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-3.rle", // Desire
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-4.rle", // Elude
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-5.rle", // Ephidrena
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-6.rle", // Fairlight
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-7.rle", // Focus Design
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-8.rle", // Haujobb
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-9.rle", // Lemon
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-10.rle", // Loonies
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-11.rle", // Nah Kolor
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-12.rle", // Nature
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-13.rle", // Oxyron
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-14.rle", // Scoopex
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-15.rle", // Skarla
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-16.rle", // Software Failure
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-17.rle", // Spaceballs
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-18.rle", // The Black Lotus
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-19.rle", // Tulou
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-20.rle", // Unique
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-21.rle", // RGBA
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-22.rle", // Ghostown
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-23.rle", // Onslaught
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-24.rle", // Paradox
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-25.rle", // Mystic Bytes
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-26.rle", // Dune
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-27.rle", // Sector One
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-28.rle", // New Beat
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-29.rle", // TSCC
+    },
+    {
+        .Name = (uint8_t *)"data/blur-gr-30.rle", // IGN
+    },
 };
 
-const char *bassetList[] = {
-    "data/back_blur.tndo",
+static TornadoAsset bassetList[] = {
+    {
+        .Name = (uint8_t *)"data/back_blur.tndo",
+        .Flags = ASSETS_IN_REUSABLE_MEM,
+    },
 };
 
 void initBlur(unsigned int tornadoOptions, tornadoEffect *effect) {
@@ -777,13 +840,11 @@ void initBlur(unsigned int tornadoOptions, tornadoEffect *effect) {
   for (i = 0; i < 2048; i++)
     zero_line[i] = 0;
 
-  n_banners = sizeof(rassetList) / sizeof(char *);
+  n_banners = sizeof(rassetList) / sizeof(TornadoAsset);
   effect->numAssets = n_banners;
-  effect->Assets = (void **)tndo_malloc(sizeof(void *) * effect->numAssets, 0);
+  effect->Assets = (TornadoAsset *)rassetList;
   assets = effect->Assets;
-  effect->assetSizes = (int *)tndo_malloc(sizeof(int) * effect->numAssets, 0);
-  if (!loadAssets(effect->Assets, &rassetList[0], effect->assetSizes,
-                  effect->numAssets, tornadoOptions, 0)) {
+  if (!loadAssets(effect->Assets, effect->numAssets, tornadoOptions, 0)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & LOGGING) {
       printf("failed!\n");
@@ -792,8 +853,8 @@ void initBlur(unsigned int tornadoOptions, tornadoEffect *effect) {
   }
 
   // fix some endiannes issues
-  for (int i = 0; i < (int)(sizeof(rassetList) / sizeof(void *)); i++) {
-    rle_t *rle = (rle_t *)(effect->Assets[i]);
+  for (int i = 0; i < effect->numAssets; i++) {
+    rle_t *rle = (rle_t *)(effect->Assets[i].Data);
     tndo_assert(rle->head[0] == 'R' && rle->head[1] == 'L');
     rle->w = ENDI(rle->w);
     rle->h = ENDI(rle->h);
@@ -801,14 +862,13 @@ void initBlur(unsigned int tornadoOptions, tornadoEffect *effect) {
 
   void *basset = 0;
   int sasset = 0;
-  int loaded = loadAssets(&basset, &bassetList[0], &sasset, 1,
-                          tornadoOptions | ASSETS_IN_REUSABLE_MEM, 0);
+  int loaded = loadAssets(bassetList, 1, tornadoOptions, 0);
   if (!loaded) {
     tndo_memory_shutdown(tornadoOptions);
     exit(1);
   }
 
-  bm_load(&background, basset, 0, 0);
+  bm_load(&background, bassetList[0].Data, 0, 0);
 
   // Reserve brush caches
   brush_cache_size = 1024 * 1024;

@@ -55,10 +55,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Rocket control...
 #include "sync.h"
 
-// BASS and display overlay
+// Audio and display overlay
 #ifndef __AMIGA__
-#include "bass.h"
 #include "display_sdl.h"
+#include "sdl_audio.h"
 #endif
 
 // Do NOT touch this include!
@@ -188,10 +188,6 @@ void demoSettings(demoParams *dp) {
 // --------------------------------------------------------------------------
 // Music initialisation.
 // --------------------------------------------------------------------------
-static int *audioSizes;
-static int numAudioAssets;
-static void **audioAssets;
-
 void demoAudioInit(unsigned int tornadoOptions) {}
 
 void demoSplash(unsigned int tornadoOptions) {}
@@ -200,10 +196,10 @@ void demoSplash(unsigned int tornadoOptions) {}
 // Asset loading and effect initilisation for the entire demo.
 // --------------------------------------------------------------------------
 
-const char *audioList[] = {"data/p61.announcetro"};
-static int *audioSizes;
-static int numAudioAssets;
-static void **audioAssets;
+static TornadoAsset audioList[] = {
+    {.Name = (uint8_t *)"data/p61.announcetro"},
+};
+
 static void *chipBuffer;
 
 void demoInit(unsigned int tornadoOptions, int initialEffect) {
@@ -281,11 +277,8 @@ void demoInit(unsigned int tornadoOptions, int initialEffect) {
     }
   }
 
-  numAudioAssets = sizeof(audioList) / sizeof(char *);
-  audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
-  audioAssets = (void **)tndo_malloc(sizeof(void *) * numAudioAssets, 0);
-  if (!loadAssets(&audioAssets[0], &audioList[0], &audioSizes[0],
-                  numAudioAssets, tornadoOptions, my_dp)) {
+  int numAudioAssets = sizeof(audioList) / sizeof(TornadoAsset);
+  if (!loadAssets(audioList, numAudioAssets, tornadoOptions, my_dp)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & VERBOSE_DEBUGGING) {
       printf("failed!\n");
@@ -295,8 +288,8 @@ void demoInit(unsigned int tornadoOptions, int initialEffect) {
 
   // Copy module to chip mem
 #ifdef __AMIGA__
-  chipBuffer = tndo_malloc(audioSizes[0], TNDO_ALLOC_CHIP);
-  memcpy(chipBuffer, audioAssets[0], audioSizes[0]);
+  chipBuffer = tndo_malloc(audioList[0].Size, TNDO_ALLOC_CHIP);
+  memcpy(chipBuffer, audioList[0].Data, audioList[0].Size);
 #endif
 
 #ifdef __AMIGA__
