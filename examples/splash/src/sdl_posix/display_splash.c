@@ -52,8 +52,9 @@ static int flip_delay = 25;
 // --------------------------------------------------
 static t_canvas _fb_splash = {.w = 1, .h = 1, .bypp = 1};
 static unsigned int _pal256_splash[256];
-static void **splashAssets = 0;
-static int *splashSizes = 0;
+
+static TornadoAsset *splashAssets;
+
 static int splashHires = 0;
 
 void display_set_palette_splash(void *pal) {
@@ -84,12 +85,13 @@ void display_init_splash(const char *const *splashFiles, int numFiles,
       tndo_malloc(_fb_splash.w * _fb_splash.h * _fb_splash.bypp, 0);
 
   if (numFiles > 0) {
-    splashAssets = (void **)tndo_malloc(sizeof(void *) * numFiles, 0);
-    splashSizes = (int *)tndo_malloc(sizeof(int) * numFiles, 0);
-    if (!loadAssets(&splashAssets[0], &splashFiles[0], &splashSizes[0],
-                    numFiles, tornadoOptions, 0)) {
-      fprintf(stderr, "Failed to load splash asserts. Aborting");
-      abort();
+    splashAssets =
+        (TornadoAsset *)tndo_malloc(sizeof(TornadoAsset) * numFiles, 0);
+    for (int i = 0; i < numFiles; i++) {
+      splashAssets[i].Name = (uint8_t *)splashFiles[i];
+    }
+    if (!loadAssets(splashAssets, numFiles, tornadoOptions, 0)) {
+      return;
     }
   }
 
@@ -98,7 +100,7 @@ void display_init_splash(const char *const *splashFiles, int numFiles,
   }
 
   if (numFiles > 0) {
-    display_set_palette_splash(splashAssets[0]);
+    display_set_palette_splash(splashAssets[0].Data);
   }
 
   dev_window_output_init(flip_delay, 0);
@@ -160,11 +162,11 @@ void display_flip_splash() {
 }
 
 void display_show_splash() {
-  unsigned char *source = (unsigned char *)splashAssets[0];
+  unsigned char *source = (unsigned char *)splashAssets[0].Data;
   // Skip palette
-  source += display_get_palette_skip_splash(splashAssets[0]);
+  source += display_get_palette_skip_splash(splashAssets[0].Data);
 
-  display_set_palette_splash(splashAssets[0]);
+  display_set_palette_splash(splashAssets[0].Data);
 
   memcpy(_fb_splash.p.pix8, source, _fb_splash.w * _fb_splash.h);
   display_flip_splash();

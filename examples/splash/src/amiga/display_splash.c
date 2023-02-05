@@ -72,6 +72,8 @@ void display_show_splash() { splash_show(); }
 void display_flip_splash() { splash_swap_screens(); }
 
 void display_end_splash(uint32_t *pal) {
-  splash_fadeout(pal, 50);
+  if (pal) {
+    splash_fadeout(pal, 50);
+  }
   splash_end();
 }

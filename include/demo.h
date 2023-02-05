@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDE_DEMO_H
 #define INCLUDE_DEMO_H
 
+#include <assets.h>
 #include <canvas.h>
 #include <copper.h>
 #include <debug.h>
@@ -40,8 +41,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct tornadoEffect {
   int minTime;
   int numAssets;
-  void **Assets;
-  int *assetSizes;
+  TornadoAsset *Assets;
   int debug_color;
   int debug_pos_y;
   // Set to the # of telemetry tracks you need.

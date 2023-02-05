@@ -31,8 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "memory.h"
 #include "splash.h"
 
-static void **splashAssets;
-static int *splashSizes;
+static TornadoAsset *splashAssets;
 
 static int palette[256 * 3 + 2];
 
@@ -51,10 +50,12 @@ unsigned char *splash_init(const char *const *splashFiles, int numFiles,
   screenDepth = depth;
 
   if (numFiles > 0) {
-    splashAssets = (void **)tndo_malloc(sizeof(void *) * numFiles, 0);
-    splashSizes = (int *)tndo_malloc(sizeof(int) * numFiles, 0);
-    if (!loadAssets(&splashAssets[0], &splashFiles[0], &splashSizes[0],
-                    numFiles, tornadoOptions, 0)) {
+    splashAssets =
+        (TornadoAsset *)tndo_malloc(sizeof(TornadoAsset) * numFiles, 0);
+    for (int i = 0; i < numFiles; i++) {
+      splashAssets[i].Name = (uint8_t *)splashFiles[i];
+    }
+    if (!loadAssets(splashAssets, numFiles, tornadoOptions, 0)) {
       return 0;
     }
   }

@@ -138,7 +138,12 @@ static void **animAssets;
 
 const char *splashList[] = {"data/loading_640_360.tndo",
                             "data/loading_music.tndo"};
-const char *animList[] = {"data/capsulflix.tndo"};
+static TornadoAsset animList[] = {
+    {
+        .Name = (uint8_t *)"data/capsulflix.tndo",
+        .Flags = ASSETS_IN_REUSABLE_MEM,
+    },
+};
 const char *splashMod = "data/capsulflix.p61";
 
 #define SPLASH_X 640
@@ -159,15 +164,12 @@ void demoSplash(unsigned int tornadoOptions) {
   display_init_splash(0, 0, SPLASH_ANIM_X, SPLASH_ANIM_Y, SPLASH_ANIM_Y_OFFSET,
                       8, tornadoOptions | DOUBLE_BUFFERED_SPLASH);
 
-  numAnimAssets = sizeof(animList) / sizeof(char *);
-  animSizes = (int *)tndo_malloc(sizeof(int) * numAnimAssets, 0);
-  animAssets = (void **)tndo_malloc(sizeof(void *) * numAnimAssets, 0);
+  numAnimAssets = sizeof(animList) / sizeof(TornadoAsset);
   if (tornadoOptions & VERBOSE_DEBUGGING) {
     printf("DEBUG - Loading anim data...\n");
   }
 
-  if (!loadAssets(&animAssets[0], &animList[0], &animSizes[0], numAnimAssets,
-                  tornadoOptions | ASSETS_IN_REUSABLE_MEM, my_dp)) {
+  if (!loadAssets(animList, numAnimAssets, tornadoOptions, my_dp)) {
     tndo_memory_shutdown(tornadoOptions);
     if (tornadoOptions & VERBOSE_DEBUGGING) {
       printf("FATAL - Anim data loading failed!\n");
@@ -175,10 +177,10 @@ void demoSplash(unsigned int tornadoOptions) {
     exit(1);
   }
 
-  display_set_palette_splash((uint32_t *)animAssets[0]);
-  uint32_t skip = display_get_palette_skip_splash(animAssets[0]);
+  display_set_palette_splash((uint32_t *)animList[0].Data);
+  uint32_t skip = display_get_palette_skip_splash(animList[0].Data);
 
-  unsigned char *data = (unsigned char *)animAssets[0];
+  unsigned char *data = (unsigned char *)animList[0].Data;
   int num_frames = decoder_init(data + skip);
 
   t_canvas *c = display_get_splash();
@@ -202,7 +204,7 @@ void demoSplash(unsigned int tornadoOptions) {
   splash_end_mod();
 #endif
 
-  display_end_splash((uint32_t *)animAssets[0]);
+  display_end_splash((uint32_t *)animList[0].Data);
 
   // Free anim data.
   tndo_free();

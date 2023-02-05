@@ -25,9 +25,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef INCLUDE_ASSETS_H
 #define INCLUDE_ASSETS_H
+
+#include <stdint.h>
 #include <tornado_settings.h>
 
-int loadAssets(void **, const char *const *, int *, int, int, demoParams *);
+typedef struct {
+  uint8_t *Name;
+  uint32_t Flags;
+  void *Data;
+  uint32_t Size;
+} TornadoAsset;
+
+int loadAssets(TornadoAsset *assetList, int numAssets, int tornadoOptions,
+               demoParams *dp);
 void emit_container_script(const char *, const char *);
 
 #endif

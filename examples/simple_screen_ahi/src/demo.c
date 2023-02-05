@@ -189,25 +189,22 @@ void demoSettings(demoParams *dp) {
 // --------------------------------------------------------------------------
 // Music initialisation.
 // --------------------------------------------------------------------------
-static int *audioSizes;
-static int numAudioAssets;
-static void **audioAssets;
-
-const char *audioList[] = {"data/tornado_approaching.tndo"};
+static TornadoAsset audioList[] = {
+    {
+        .Name = (uint8_t *)"data/tornado_approaching.tndo",
+    },
+};
 
 void demoAudioInit(unsigned int tornadoOptions) {
   int offset = 0;
 
   if (tornadoOptions & USE_AUDIO) {
-    numAudioAssets = sizeof(audioList) / sizeof(char *);
-    audioSizes = (int *)tndo_malloc(sizeof(int) * numAudioAssets, 0);
-    audioAssets = (void **)tndo_malloc(sizeof(void *) * numAudioAssets, 0);
+    int numAudioAssets = sizeof(audioList) / sizeof(TornadoAsset);
     if (tornadoOptions & VERBOSE_DEBUGGING) {
       printf("DEBUG - Loading audio data...");
       fflush(stdout);
     }
-    if (!loadAssets(&audioAssets[0], &audioList[0], &audioSizes[0],
-                    numAudioAssets, tornadoOptions, my_dp)) {
+    if (!loadAssets(audioList, numAudioAssets, tornadoOptions, my_dp)) {
       tndo_memory_shutdown(tornadoOptions);
       if (tornadoOptions & VERBOSE_DEBUGGING) {
         printf("failed!\n");
@@ -228,7 +225,7 @@ void demoAudioInit(unsigned int tornadoOptions) {
   }
 
 #ifndef __AMIGA__
-   // SDL Audio initialization.
+  // SDL Audio initialization.
   if (tornadoOptions & USE_AUDIO) {
     if (Audio_Init(my_dp, offset)) {
       fprintf(stderr, "FATAL - Failed to init SDL audio. Aborting.\n");
@@ -238,13 +235,11 @@ void demoAudioInit(unsigned int tornadoOptions) {
 #endif
 }
 
-
 void demoSplash(unsigned int tornadoOptions) {}
 
 // --------------------------------------------------------------------------
 // Asset loading and effect initilisation for the entire demo.
 // --------------------------------------------------------------------------
-
 
 void demoInit(unsigned int tornadoOptions, int initialEffect) {
   uint32_t before, after, initTime;
@@ -363,7 +358,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
     Audio_ChannelPlay();
   }
 #endif
-  
+
   int requires_forefront = 0;
   lastFrame = -1;
 
@@ -380,7 +375,7 @@ void demoMain(unsigned int tornadoOptions, memoryLog *log) {
     }
 
     int effectLocalTime = oldTime - e->minTime;
-    t_canvas *c = 0;
+    t_canvas *c;
 
 #ifndef __AMIGA__
 
@@ -433,9 +428,7 @@ void demoFree() {
   for (int i = 0; i < numEffects; i++) {
     effects[i].free(&effects[i]);
   };
-
 #ifndef __AMIGA__
   Audio_Close();
 #endif
-
 }
