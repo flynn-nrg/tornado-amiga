@@ -11,6 +11,7 @@ TORNADO_OBJ += hardware_check.o amiga/chrono.o amiga/freq_estimation.o
 TORNADO_OBJ += telemetry.o prof.o amiga/time.o dprint.o
 TORNADO_OBJ += amiga/audio.o amiga/paula_output.o
 TORNADO_OBJ += amiga/audio_lowlevel.o
+TORNADO_OBJ += placeholder.o
 
 # Intro mode allows you to selectively enable the tornado modules you need
 # and save some bytes.
@@ -129,6 +130,8 @@ LIBDIR   = lib
 ################################################################################
 
 ifdef OSX_BREW_HOST
+OSX_HOST = true
+
 VBCC   := $(shell brew --prefix vbcc)
 VASM   := $(shell brew --prefix vasm)
 VLINK  := $(shell brew --prefix vlink)

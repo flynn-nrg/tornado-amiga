@@ -9,6 +9,7 @@ TORNADO_OBJ += sdl_posix/chrono.o sdl_posix/splash.o sdl_posix/imgui_overlay.o s
 TORNADO_OBJ += c2p.o tndo.o debug.o memory.o ddpcm_loader.o
 TORNADO_OBJ += telemetry.o prof.o lzw_loader.o lzss_loader.o lzh_loader.o
 TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddpcm_decode.o
+TORNADO_OBJ += placeholder.o
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 
 LZW_BASE = $(TORNADO_BASE)/tools/compress
