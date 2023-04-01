@@ -41,8 +41,6 @@ INCDIR = $(TORNADO_BASE)/include
 INCDIR += $(LZW_INCDIR)
 INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(ROCKET_INCDIR)
-# BASS includes are platform-dependant below.
-#INCDIR += $(BASS_INCDIR)
 INCDIR += $(IMGUI_INCDIR)
 INCDIR += $(IMGUI_SDL_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
@@ -65,16 +63,6 @@ SRCDIR   = src
 BUILDDIR ?= build
 INCDIR   += include
 INCDIR   += ../../libs
-ifdef OSX_BREW_HOST
-INCDIR   += /usr/local/include/SDL2/
-endif
-ifdef OSX_HOST
-INCDIR += /Library/Frameworks/SDL2.framework/Versions/Current/Headers/
-INCDIR += /Library/Frameworks/SDL2_mixer.framework/Headers
-endif
-ifdef LINUX_HOST
-INCDIR += /usr/include/SDL2/ 
-endif
 LIBDIR   = lib
 
 ################################################################################
@@ -109,6 +97,10 @@ CCFLAGS += -Wno-missing-braces
 CCFLAGS += -DUSE_GETADDRINFO
 CCFLAGS += -fsanitize=address -fsanitize=undefined
 
+# SDL2 and SDL2_Mixer
+CCFLAGS += $(shell pkg-config --cflags SDL2)
+CCFLAGS += $(shell pkg-config --cflags SDL2_Mixer)
+
 CXXFLAGS = $(CCFLAGS)
 CXXFLAGS += --std=c++14
 
@@ -117,17 +109,9 @@ LDFLAGS := -lc
 LDFLAGS += -lm
 LDFLAGS += -fno-omit-frame-pointer
 
-ifdef OSX_HOST
-LDFLAGS += -F/Library/Frameworks/
-LDFLAGS += -framework SDL2
-LDFLAGS += -framework SDL2_Mixer
-LDFLAGS += -framework CoreFoundation
-LDFLAGS += -framework ApplicationServices
-endif
-ifdef LINUX_HOST
-LDFLAGS += -lSDL2 -lSDL2_mixer
-endif
-
+# SDL2 and SDL2_Mixer
+LDFLAGS += $(shell pkg-config --libs SDL2)
+LDFLAGS += $(shell pkg-config --libs SDL2_Mixer)
 
 LDFLAGS += -fsanitize=address -fsanitize=undefined
 

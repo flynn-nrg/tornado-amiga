@@ -25,4 +25,5 @@ misrepresented as being the original software.
 #include "tornado_settings.h"
 
 uint32_t audioAhiInit(demoParams *dp);
+void audioAHIStart();
 void audioAHIEnd(void);
