@@ -156,8 +156,8 @@ TOOL_BIN = bin-linux
 endif 
 
 ifdef VBCC_HOST
-INCDIR  += $(TORNADO_BASE)/third_party/ndk/ndk_3.9/include/include_h
-INCDIR  += $(TORNADO_BASE)/third_party/ndk/ndk_3.9/include/include_i
+INCDIR  += $(TORNADO_BASE)/third_party/ndk/include_h
+INCDIR  += $(TORNADO_BASE)/third_party/ndk/include_i
 INCDIR  += $(TORNADO_BASE)/third_party/ndk/
 
 INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_h

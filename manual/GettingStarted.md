@@ -9,6 +9,7 @@ Before you can use Tornado there's a few things you need to setup:
 
 * A working [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) compiler with [AddressSanitizer](https://en.wikipedia.org/wiki/AddressSanitizer) support. Mac OS X uses clang by default and it's available in every GNU/Linux distribution as a package.
 * [SDL2](https://www.libsdl.org/). This is used by the posix/SDL target and it's a dependency for ImGui and ImGuiSDL.
+* [SDL_Mixer](https://github.com/libsdl-org/SDL_mixer). Used for audio replay.
 * A working [vbcc](http://sun.hasenbraten.de/vbcc/index.php?view=main) setup.
 
 I suggest that you build your vbcc toolchain and add it to your repo. This makes everyone use the same set of tools.
@@ -98,7 +99,6 @@ mmendez$ export TOOLCHAIN=`pwd`
 mmendez$ echo $TOOLCHAIN
 /Users/mmendez/Amiga/toolchain
 mmendez$ export OSX_HOST=true
-mmendez$ export PATH=${TOOLCHAIN}/bin-osx:${PATH}
 ```
 
 On GNU/Linux systems you would instead export ```LINUX_HOST``` and use ```bin``` instead of ```bin-osx``` in the ```PATH```.
@@ -128,39 +128,71 @@ Submodule path '../rocket': checked out '901db86412a0d57600cb072c16deac9c3ebc709
 Adding the NDK
 ----------------------
 
-Download the [Amiga NDK](http://www.haage-partner.de/download/AmigaOS/NDK39.lha) and unpack it inside of the ```third_party/ndk``` directory. You should end up with a directory structure like this:
+Download the [Amiga NDK](http://aminet.net/dev/misc/NDK3.2.lha) and unpack it inside of the ```third_party/ndk``` directory. You should end up with a directory structure like this:
 
 ```
 mmendez$ cd third_party/ndk
 mmendez$ tree -d .
 .
-└── ndk_3.9
-    ├── documentation
-    │   ├── autodocs
-    │   ├── releasenotes
-    │   └── workbench
-    ├── examples
-    │   ├── asynchio
-    │   ├── datatypes
-    │   │   ├── aiff
-    │   │   ├── cdxl
-    │   │   └── memory
-    │   ├── hdwrench
+├── autodocs
+│   └── ag
+├── dacontrol+trackfile
+│   ├── dacontrol
+│   └── trackfile
+│       └── goodies
+├── developerdocumentation
+│   └── memorypools
+├── examples
+│   ├── arexx
+│   ├── backfill
+│   └── bitmap
+├── fd
 [...]    
 ```
+
+Local dependencies
+----------------------
+
+If you're on a MacOS machine, use brew to install SDL2, SDL_Mixer and pkg-config:
+
+```
+brew install pkg-config sdl2 sdl2_mixer
+```
+
+On GNU/Linux systems, use your package manager to do the same.
+
+Testing that everything is setup correctly
+-------------------------------------------
 
 Let's do a quick test:
 
 ```
-mmendez$ cd ../tornado2/examples/simple_screen/
+mmendez$ cd examples/simple_screen
 mmendez$ make clean all
-rm -rf /tmp/build-amiga ./simple_screen.68k
-/Users/mmendez/Amiga/toolchain/bin-osx/vbccm68k -I../../include -I../../third_party -I../../third_party/rocket/lib -I../../tools/compress -I./src -Iinclude -I../../third_party/ndk -I/Users/mmendez/Amiga/toolchain/targets/m68k-amigaos/include  -DNDEBUG -D__DEBUG_CODE -quiet               -c99                 -O=5279              -no-alias-opt           -no-delayed-popping  -inline-size=100     -inline-depth=10     -cpu=68060           -fpu=68060           -no-intz             -D__AMIGA__ -D__VBCC__ ../../src/amiga/startup.c "-o="/tmp/build-amiga/amiga/startup.s
-/Users/mmendez/Amiga/toolchain/bin-osx/vasmm68k_mot -I../../include -I../../third_party -I../../third_party/rocket/lib -I../../tools/compress -I./src -Iinclude -I../../third_party/ndk -I/Users/mmendez/Amiga/toolchain/targets/m68k-amigaos/include  -quiet       -Fhunk       -align       -phxass      -x           -noesc       -nosym       -m68060      -opt-allbra  -opt-fconst  -opt-lsl     -opt-movem   -opt-mul     -opt-div     -opt-pea     -opt-speed   -opt-st      -D__AMIGA__ -D__VASM__ -o /tmp/build-amiga/amiga/startup.o /tmp/build-amiga/amiga/startup.s
+(CC) -> /tmp/build-amiga/amiga/startup.o
+(AS) -> /tmp/build-amiga/amiga/cpu.o
+(AS) -> /tmp/build-amiga/amiga/aga.o
 [...]
-/Users/mmendez/Amiga/toolchain/bin-osx/vlink /Users/mmendez/Amiga/toolchain/targets/m68k-amigaos/lib/startup.o -Llib -L/Users/mmendez/Amiga/toolchain/targets/m68k-amigaos/lib /tmp/build-amiga/amiga/startup.o /tmp/build-amiga/amiga/cpu.o /tmp/build-amiga/amiga/aga.o /tmp/build-amiga/amiga/assets.o /tmp/build-amiga/hardware_check.o /tmp/build-amiga/amiga/graphics.o /tmp/build-amiga/memory.o /tmp/build-amiga/amiga/system.o /tmp/build-amiga/amiga/copper.o /tmp/build-amiga/debug.o /tmp/build-amiga/amiga/c2p1x1_8_c5.o /tmp/build-amiga/amiga/c2p1x1_8_c5_040_16_9.o /tmp/build-amiga/amiga/c2p32.o /tmp/build-amiga/amiga/c2p64.o /tmp/build-amiga/amiga/c2p1x1_6_c5_040.o /tmp/build-amiga/amiga/c2p1x1_8_c5_040.o /tmp/build-amiga/amiga/c2p1x1_4_c5_16_9.o /tmp/build-amiga/amiga/audio.o /tmp/build-amiga/amiga/paula_output.o /tmp/build-amiga/amiga/audio_lowlevel.o /tmp/build-amiga/wav_delta.o /tmp/build-amiga/tndo.o /tmp/build-amiga/amiga/splash.o /tmp/build-amiga/amiga/c2p1x1_8_c5_bm.o /tmp/build-amiga/amiga/mod_replay.o /tmp/build-amiga/amiga/c2p1x1_4_c5_16_9_h.o /tmp/build-amiga/amiga/chrono.o /tmp/build-amiga/amiga/freq_estimation.o /tmp/build-amiga/caps_loader.o /tmp/build-amiga/de-encapsulator.o /tmp/build-amiga/telemetry.o /tmp/build-amiga/prof.o /tmp/build-amiga/lzw_loader.o /tmp/build-amiga/amiga/lzw_unpack.o /tmp/build-amiga/amiga/lzw_unpack_inner.o /tmp/build-amiga/amiga/time.o /tmp/build-amiga/amiga/mod_replay_os_legal.o /tmp/build-amiga/lzss_loader.o /tmp/build-amiga/lzh_loader.o /tmp/build-amiga/amiga/lzss_unpack.o /tmp/build-amiga/amiga/lzh_unpack.o /tmp/build-amiga/amiga/tndo_assert.o /tmp/build-amiga/tndo_file.o /tmp/build-amiga/amiga/display.o /tmp/build-amiga/dprint.o /tmp/build-amiga/demo.o /tmp/build-amiga/simple_screen/simple_screen.o -Bstatic                    -bamigahunk                 -x                          -Cvbcc                      -nostdlib                   -lm060                      -lamiga                     -lvc                        -lauto                      -o simple_screen.68k
-mmendez$ ls -la simple_screen.68k 
--rwxr-xr-x  1 mmendez  staff  109376 22 Jun 16:05 simple_screen.68k
+(CC) -> /tmp/build-amiga/demo.o
+>#warning "Building with debugging and profiling enabled!"
+warning 325 in line 71 of "src/demo.c": #warning "Building with debugging and profiling enabled!"
+(CC) -> /tmp/build-amiga/simple_screen/simple_screen.o
+(LD) -> simple_screen.68k
+mmendez$ ls -la simple_screen.68k
+-rwxr-xr-x@ 1 mmendez  staff  263532  1 Apr 16:19 simple_screen.68k
+```
+
+And now let's build the posix version of the zoom effect:
+
+```
+mmendez$ cd ../zoom
+mmendez$ make -f Makefile_sdl_posix clean all
+rm -rf /tmp/build-posix ./zoom.elf
+(CC) -> /tmp/build-posix/assets.o
+(CC) -> /tmp/build-posix/sdl_posix/display.o
+[...]
+mmendez$ ls -la zoom.elf
+-rwxr-xr-x@ 1 mmendez  staff  11864549  1 Apr 16:21 zoom.elf
 ```
 
 We're ready to go!
