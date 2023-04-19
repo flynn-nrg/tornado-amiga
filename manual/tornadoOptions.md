@@ -8,7 +8,7 @@ The examples use a sane default that should work for every use case. These are t
 ```c
   dp->minCPU = MIN_CPU_040;
   dp->tornadoOptions =
-      KILL_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;
@@ -33,7 +33,7 @@ CPU settings
 Hardware control
 -----------------------
 
-* ```KILL_OS``` : Shut down AmigaOS and take full control of the hardware while the demo runs. Not setting this will break many things, so please don't do it.
+* ```CLOSE_OS``` : Shut down AmigaOS and take full control of the hardware while the demo runs. Not setting this will break many things, so please don't do it.
 * ```INSTALL_LEVEL3``` : This will install the VBL handler that is used to drive PCM audio replay and each effect's VBL callback. Again, do not disable this unless you have a very good reason to.
 * ```INSTALL_LEVEL2``` : This setting allows you to read the keyboard while the demo is running.
 * ```USE_AUDIO``` : This flag instructs Tornado to initialise the audio hardware for PCM replay. Set only if you use streaming music in your demo, which is most likely the case.

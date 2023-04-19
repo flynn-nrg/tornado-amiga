@@ -86,7 +86,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SCR_GBUFFER_PIXEL_SIZE 4
 
 // Kill the system while the demo is running?
-#define KILL_OS 1
+#define CLOSE_OS 1
 
 // Install Level3 handler
 #define INSTALL_LEVEL3 1 << 1

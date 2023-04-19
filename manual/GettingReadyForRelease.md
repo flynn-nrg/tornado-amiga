@@ -38,7 +38,7 @@ As you may have noticed in the examples, the ```EMIT_CONTAINER_SCRIPT``` flag is
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
   dp->tornadoOptions =
-      KILL_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;
@@ -96,7 +96,7 @@ static const char *dataPath = "zoom_data.tndo";
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
   dp->tornadoOptions =
-      KILL_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO | ENABLE_TNDO_VFS;
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO | ENABLE_TNDO_VFS;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;
