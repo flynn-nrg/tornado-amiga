@@ -107,7 +107,7 @@ static struct timeval initEffectEnd;
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
   dp->tornadoOptions =
-      KILL_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | SHOW_SPLASH;
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | SHOW_SPLASH;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;

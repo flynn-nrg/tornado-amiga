@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
 
   // Signal the memory manager that we are done with the init stage.
   // This will also free the packed data buffer.
-  if (dp->tornadoOptions & KILL_OS) {
+  if (dp->tornadoOptions & CLOSE_OS) {
     tndo_memory_init_done();
   }
 
@@ -198,7 +198,7 @@ int main(int argc, char **argv) {
   // WARNING: No OS calls beyond this point!!!
   // ---------------------------------------------------------------------------
 
-  if (dp->tornadoOptions & KILL_OS) {
+  if (dp->tornadoOptions & CLOSE_OS) {
     closeOS(hw->vbr);
 
     if (dp->tornadoOptions & INSTALL_LEVEL2) {
@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
   // Main demo loop ends...
   // ---------------------------------------------------------------------------
 
-  if (dp->tornadoOptions & KILL_OS) {
+  if (dp->tornadoOptions & CLOSE_OS) {
     if (dp->tornadoOptions & USE_AUDIO) {
       int am = getAudioMode();
       if (am == P61_REPLAY_MODE) {

@@ -132,7 +132,7 @@ We have also set the ```USE_AUDIO``` flag in our demo settings function:
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
   dp->tornadoOptions =
-      KILL_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
 ```
 
 And this is our audio init function:
