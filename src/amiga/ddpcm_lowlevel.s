@@ -1,5 +1,5 @@
 ;;; Optimised DDPCM frame decoder.
-;;; Version 1.0 August 2019.
+;;; Version 2.0 October 2023.
 ;;; Created by Miguel Mendez
 ;;; This file is public domain.
 
