@@ -110,7 +110,7 @@ static inline uint32_t bestMatch(int16_t y1, int16_t y2, int16_t to,
 
 // Encodes a single frame from src to dst using the provided q_table.
 // Returns the scaling factor that produces the smallest cumulative error.
-uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
+int32_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   uint8_t bestScale = 1;
   uint32_t bestError = UINT32_MAX;
 
@@ -190,6 +190,9 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
 
   inverseBestScale = 1.0f / (float)bestScale;
 
+  int32_t iBestScale =
+      (int32_t)roundf(inverseBestScale * (1 << DDPCM_SCALE_RADIX));
+
   y1 = src[0];
   y2 = src[1];
   to = src[2];
@@ -197,8 +200,12 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   error += res >> 16;
   unpacked[0] = res & 0xff;
   p = predict(y1, y2);
-  fDelta = ((float)q_table[unpacked[0]] * inverseBestScale);
-  buffer[0] = p + (int16_t)floorf(fDelta);
+
+  int32_t delta;
+  int16_t delta16;
+  delta = ((int32_t)q_table[unpacked[0]] * iBestScale);
+  delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+  buffer[0] = p + delta16;
 
   y1 = src[1];
   y2 = buffer[0];
@@ -207,8 +214,10 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   error += res >> 16;
   unpacked[1] = res & 0xff;
   p = predict(y1, y2);
-  fDelta = ((float)q_table[unpacked[1]] * inverseBestScale);
-  buffer[1] = p + (int16_t)floorf(fDelta);
+
+  delta = ((int32_t)q_table[unpacked[1]] * iBestScale);
+  delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+  buffer[1] = p + delta16;
 
   for (uint32_t i = 4; i < DDPCM_FRAME_NUMSAMPLES; i++) {
     y1 = buffer[i - 4];
@@ -218,8 +227,10 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
     error += res >> 16;
     unpacked[i - 2] = res & 0xff;
     p = predict(y1, y2);
-    fDelta = ((float)q_table[unpacked[i - 2]] * inverseBestScale);
-    buffer[i - 2] = p + (int16_t)floorf(fDelta);
+
+    delta = ((int32_t)q_table[unpacked[i - 2]] * iBestScale);
+    delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+    buffer[i - 2] = p + delta16;
   }
 
   pack8to6(unpacked, &dst[4]);
@@ -229,11 +240,11 @@ uint8_t encodeFrame(int16_t *src, uint8_t *dst, int16_t *q_table) {
   pack8to6(&unpacked[32], &dst[28]);
   pack8to6(&unpacked[40], &dst[34]);
 
-  return bestScale;
+  return iBestScale;
 }
 
 // Decodes a single frame from src to dst using the provided q_table.
-void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
+void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, int32_t scale) {
   uint8_t unpacked[DDPCM_FRAME_NUMSAMPLES - 2];
   int16_t y1, y2, p;
 
@@ -248,15 +259,57 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   unpack6to8(&src[28], &unpacked[32]);
   unpack6to8(&src[34], &unpacked[40]);
 
-  float inverseScale = 1.0f / (float)scale;
-  float fdelta;
+  int32_t delta;
+  int16_t delta16;
 
   for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++) {
     y1 = dst[i - 2];
     y2 = dst[i - 1];
     p = predict(y1, y2);
-    fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale);
-    dst[i] = p + (int16_t)floorf(fdelta);
+    delta = ((int32_t)q_table[unpacked[i - 2]] * scale);
+    delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+    dst[i] = p + delta16;
+  }
+}
+
+// Decodes a single frame from src to dst using the provided q_table.
+void decodeCompare(uint8_t *src, int16_t *dst, int16_t *q_table,
+                   int32_t scale) {
+  uint8_t unpacked[DDPCM_FRAME_NUMSAMPLES - 2];
+  int16_t y1, y2, p;
+
+  uint16_t *first = (uint16_t *)src;
+  dst[0] = ntohs((int16_t)first[0]);
+  dst[1] = ntohs((int16_t)first[1]);
+
+  unpack6to8(&src[4], unpacked);
+  unpack6to8(&src[10], &unpacked[8]);
+  unpack6to8(&src[16], &unpacked[16]);
+  unpack6to8(&src[22], &unpacked[24]);
+  unpack6to8(&src[28], &unpacked[32]);
+  unpack6to8(&src[34], &unpacked[40]);
+
+  int32_t delta;
+  int16_t delta16;
+  int16_t reconstructed;
+  int16_t original;
+
+  int16_t minDelta = 0;
+  int16_t maxDelta = 0;
+  int16_t curDelta;
+
+  for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++) {
+    y1 = dst[i - 2];
+    y2 = dst[i - 1];
+    p = predict(y1, y2);
+    delta = ((int32_t)q_table[unpacked[i - 2]] * scale);
+    delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+
+    reconstructed = p + delta16;
+    original = dst[i];
+    printf("i: %i, r: %i, o: %i, delta: %i\n", i, reconstructed, original,
+           original - reconstructed);
+    dst[i] = p + delta16;
   }
 }
 
