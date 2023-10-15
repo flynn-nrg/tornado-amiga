@@ -98,10 +98,10 @@ ddpcmHeader *ddpcmLoadHeader(FILE *fd, int tornadoOptions) {
   ddpcmData->framesPerQTable = ENDI4(framesPerQTable);
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
-    printf("DEBUG - Number of samples: %u\n", ddpcmData->numSamples);
-    printf("DEBUG - Number of frames: %u\n", ddpcmData->numFrames);
-    printf("DEBUG - Number of q_tables: %u\n", ddpcmData->numQTables);
-    printf("DEBUG - Frames per q_table: %u\n", ddpcmData->framesPerQTable);
+    printf("DEBUG - Number of samples: %d\n", (int)ddpcmData->numSamples);
+    printf("DEBUG - Number of frames: %d\n", (int)ddpcmData->numFrames);
+    printf("DEBUG - Number of q_tables: %d\n", (int)ddpcmData->numQTables);
+    printf("DEBUG - Frames per q_table: %d\n", (int)ddpcmData->framesPerQTable);
   }
 
   ddpcmData->qtablesLeft =
@@ -114,7 +114,7 @@ ddpcmHeader *ddpcmLoadHeader(FILE *fd, int tornadoOptions) {
   // Two qtables and two scales.
   uint32_t to_read =
       (2 * ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t)) +
-      (2 * ddpcmData->numFrames);
+      (2 * ddpcmData->numFrames * sizeof(int32_t));
   tndo_fread(buffer, to_read, sizeof(uint8_t), fd);
   size -= to_read;
 
@@ -146,8 +146,20 @@ ddpcmHeader *ddpcmLoadHeader(FILE *fd, int tornadoOptions) {
 
   uint8_t *scales = (uint8_t *)buffer;
   scales += ddpcmData->numQTables * DDPCM_QTABLE_ENTRIES * sizeof(int16_t) * 2;
-  ddpcmData->scalesLeft = scales;
-  ddpcmData->scalesRight = scales + ddpcmData->numFrames;
+
+  int32_t *scales32 = (int32_t *)scales;
+
+#ifndef __AMIGA__
+  // scales are stored in network order.
+  for (uint32_t i = 0; i < ddpcmData->numFrames * 2; i++) {
+    int32_t s = *scales32;
+    *scales32++ = ntohl(s);
+  }
+#endif
+
+  ddpcmData->scalesLeft = (int32_t *)scales;
+  ddpcmData->scalesRight =
+      (int32_t *)(scales + (ddpcmData->numFrames * sizeof(uint32_t)));
 
   return ddpcmData;
 }

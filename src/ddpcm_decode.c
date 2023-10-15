@@ -91,7 +91,7 @@ static inline void unpack6to8(uint8_t *src, uint8_t *dst) {
 }
 
 // Decodes a single frame from src to dst using the provided q_table.
-void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
+void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, int32_t scale) {
   uint8_t unpacked[DDPCM_FRAME_NUMSAMPLES - 2];
   int16_t y1, y2, p, p2;
 
@@ -112,16 +112,16 @@ void decodeFrame(uint8_t *src, int16_t *dst, int16_t *q_table, uint8_t scale) {
   unpack6to8(&src[28], &unpacked[32]);
   unpack6to8(&src[34], &unpacked[40]);
 
-  float inverseScale = 1.0f / (float)scale;
-  float fdelta;
+  int32_t delta;
+  int16_t delta16;
 
   for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++) {
     y1 = dst[i - 2];
     y2 = dst[i - 1];
     p = predict(y1, y2);
-
-    fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale);
-    dst[i] = p + (int16_t)floorf(fdelta);
+    delta = ((int32_t)q_table[unpacked[i - 2]] * scale);
+    delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+    dst[i] = p + delta16;
   }
 }
 
@@ -141,8 +141,8 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
       tndo_malloc(ddpcmh->framesPerQTable * DDPCM_COMPRESSED_FRAME_SIZE, 0);
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
-    printf("DEBUG - Unpacking left channel (%u samples)\n",
-           ddpcmdd->numSamples);
+    printf("DEBUG - Unpacking left channel (%d samples)\n",
+           (int)ddpcmdd->numSamples);
   }
 
   // Left channel...
@@ -169,8 +169,8 @@ ddpcmDecodedData *decodeDDPCMStream(ddpcmHeader *ddpcmh, FILE *fd,
   }
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
-    printf("DEBUG - Unpacking right channel (%u samples)\n",
-           ddpcmdd->numSamples);
+    printf("DEBUG - Unpacking right channel (%d samples)\n",
+           (int)ddpcmdd->numSamples);
   }
 
   // Right channel...

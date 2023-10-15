@@ -4,7 +4,6 @@
 ;;; This file is public domain.
 
 	machine 68060
-	fpu     1
 
 	section text
 	public _decodeFrame_asm
@@ -14,6 +13,7 @@
 	
 INT16_MAX equ 32767
 INT16_MIN equ -32768
+DDPCM_SCALE_RADIX equ 14
 DDPCM_FRAME_NUMSAMPLES equ 50
 DDPCM_COMPRESSED_FRAME_SIZE equ 40
 WORK_BUFFERS_SIZE equ 81920
@@ -24,9 +24,8 @@ WORK_BUFFERS_SIZE equ 81920
 ;;; a0 = uint8_t *src
 ;;; a6 = int16_t *dst
 ;;; a5 = int16_t *q_table
-;;; d7 = uint8_t scale
+;;; d7 = int32_t scale
 _decodeFrame_asm:
-	fmovem.x  _fp_st,-(sp)
 	movem.l d0-d7/a0-a6, -(sp)
 	
 	;; int16_t *first = (int16_t *)src;
@@ -34,12 +33,8 @@ _decodeFrame_asm:
 	;; dst[1] = (int16_t)first[1];
 	move.l (a0)+, (a6)
 
-	;; float inverseScale = 1.0f / (float)scale;
-	fmove.s #$3f800000,fp2
-	moveq #0, d0
-	move.b d7, d0
-	fmove.l d0, fp0
-	fdiv.x fp0, fp2		; fp2 = inverseScale
+	;; a3.l = scale
+	move.l d7, a3
 
 ;;; Unpacks 6 groups of 6 bytes containing 6bit deltas to 6 groups of 8 bytes with 8bit values.
 ;;; a0 = source
@@ -170,6 +165,9 @@ _decodeFrame_asm:
 
 	lea unpacked_buffer, a1
 	
+	;; d5.l scale
+	move.l a3, d5
+
 	;; for (uint32_t i = 2; i < DDPCM_FRAME_NUMSAMPLES; i++)
 	moveq.l #2, d7
 	moveq.l #DDPCM_FRAME_NUMSAMPLES, d6
@@ -205,32 +203,26 @@ _p2:
 	;; q_table[unpacked[i - 2]]
 	lsl.l   #1, d2
 	lea (a5, d2.l), a4
-	;; ((float)q_table[unpacked[i - 2]]
-	fmove.w (a4), fp1
-	;; fdelta = ((float)q_table[unpacked[i - 2]] * inverseScale)
-	fmul.x fp2, fp1
-	;; (int16_t)floorf(fdelta)
-	fmove.x fp1, fp0
-	fintrz.x fp0
-	fcmp.x fp1, fp0
-	fbole .skip
-	fsub.s #$3f800000,fp0
-.skip:
-	fmove.w fp0, d3
-	;;  p + (int16_t)floorf(fdelta)
+	;; d3.w = q_table[unpacked[i - 2]]
+	move.w (a4), d3
+	ext.l   d3
+	;; delta = ((int32_t)q_table[unpacked[i - 2]] * scale);
+	muls.l  d5,d3
+	;; delta16 = (int16_t)(delta >> DDPCM_SCALE_RADIX);
+	moveq   #DDPCM_SCALE_RADIX,d4
+	asr.l   d4,d3
+	;; p + delta16;
 	add.w d3, d0
 	
 	addq.l #1, d7	       ; i++
 	
-	;; dst[i] = p + (int16_t)floorf(fdelta)
+	;; dst[i] = p + delta16;
 	move.w d0, (a2)
 
 	cmp.l d7, d6
 	bhi   _decodeLoop
 	
 	movem.l (sp)+,d0-d7/a0-a6
-_fp_st  freg    fp0-fp2
-        fmovem.x        (sp)+,_fp_st
 	rts
 
 _getDDPCMMixRoutine16:
