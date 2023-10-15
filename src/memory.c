@@ -192,8 +192,8 @@ void tndo_memory_init_done() {
   }
 
 #ifdef __DEBUG_CODE
-  printf("DEBUG - Maximum packed data buffer size: %u\n",
-         packedDataBufferMaxUsed);
+  printf("DEBUG - Maximum packed data buffer size: %d\n",
+         (int)packedDataBufferMaxUsed);
 #endif
 
   initDone = 1;
@@ -206,15 +206,15 @@ void tndo_memory_shutdown(unsigned int tornadoOptions) {
   if (tornadoOptions & MEMORY_PROFILING) {
     printf("Memory profile:\n");
     printf("---------------\n");
-    printf("%u fast memory allocations for a total of %u bytes.\n",
-           numFastAllocs, totalFastAllocated);
-    printf("%u bytes of fast memory pool used.\n", maxFastPoolUsage);
+    printf("%d fast memory allocations for a total of %d bytes.\n",
+           (int)numFastAllocs, (int)totalFastAllocated);
+    printf("%d bytes of fast memory pool used.\n", (int)maxFastPoolUsage);
 #ifdef __AMIGA__
-    printf("%u chip memory allocations for a total of %u bytes.\n",
-           numChipAllocs, totalChipAllocated);
-    printf("%u bytes of chip memory pool used.\n", maxChipPoolUsage);
-    printf("%u/%u bytes of scratch chip memory used.\n", scratchMax,
-           scratchSize);
+    printf("%d chip memory allocations for a total of %d bytes.\n",
+           (int)numChipAllocs, (int)totalChipAllocated);
+    printf("%d bytes of chip memory pool used.\n", (int)maxChipPoolUsage);
+    printf("%d/%d bytes of scratch chip memory used.\n", (int)scratchMax,
+           (int)scratchSize);
 #endif
   }
 
@@ -323,8 +323,8 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
       void *ptr = allocChipmem(size + align_pad);
       if (!ptr) {
         fprintf(stderr,
-                "FATAL - Failed to allocate %zu bytes of chipmem. Aborting.\n",
-                size + align_pad);
+                "FATAL - Failed to allocate %d bytes of chipmem. Aborting.\n",
+                (int)(size + align_pad));
         exit(0);
       }
       chipAllocs[numChipAllocs] = ptr;
@@ -339,8 +339,8 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
       void *ptr = calloc(1, size + align_pad);
       if (!ptr) {
         fprintf(stderr,
-                "FATAL - Failed to allocate %zu bytes of fastmem. Aborting.\n",
-                size + align_pad);
+                "FATAL - Failed to allocate %d bytes of fastmem. Aborting.\n",
+                (int)(size + align_pad));
         exit(0);
       }
       fastAllocs[numFastAllocs] = ptr;

@@ -34,8 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory.h>
 #include <tndo_assert.h>
 
-#define NBITPLANES (2)
-
 // ---------------------------------------------------------------------------
 
 #define MAX_LEN (1024)
@@ -215,14 +213,12 @@ void dprint_mode(int wMode) {
 
 #define PIXEL(N) pChunk[N] = pChunk[N] >> 1;
 
-static void SquarePlanar(unsigned char *pChunk, int wModulo, int wColor) {
-  int t;
+static void SquarePlanar(unsigned char *pChunk, int wModulo, int wColor, int planes) {
+  int t, n;
   for (t = 0; t < 8; t++) {
-    pChunk[0] = 0;
-    pChunk[4] = 0;
-#if NBITPLANES == 3
-    pChunk[12] = 0;
-#endif
+    for (n=0; n<planes; n++)
+      pChunk[n * 4] = 0;
+
     pChunk += wModulo;
   }
 }
@@ -269,17 +265,15 @@ static void Square32(unsigned int *pChunk, int wModulo, int wColor) {
   nPix8 = (int)(((unsigned int)nPix8) << 1);
 
 static void DrawCharPlanar(unsigned char ubChar, unsigned char *pChunk,
-                           int wModulo, int wColor) {
+                           int wModulo, int wColor, int planes) {
   const unsigned char *pCharBits = g_pCharset + ((int)ubChar) * 8;
-  int t;
+  int t, n;
   for (t = 0; t < 8; t++) {
     int nPix8;
     nPix8 = (int)pCharBits[t];
-    pChunk[0] = nPix8;
-    pChunk[4] = nPix8;
-#if NBITPLANES == 3
-    pChunk[8] = nPix8;
-#endif
+    for (n=0; n<planes; n++)
+      pChunk[n * 4] = nPix8;
+
     pChunk += wModulo;
   }
 }
@@ -357,17 +351,17 @@ void dprint_at(t_canvas *s, const char *psCadena, int x, int y, int Color) {
       int sqx = g_wX * 8;
       int sqy = g_wY * 8;
 
-      int poffs = (sqy * (wWidth >> 3)) * NBITPLANES;
+      int poffs = (sqy * (wWidth >> 3)) * s->planes;
       int subspan = (sqx >> 3) & 0x3;
 #ifndef __AMIGA__
       subspan = (~subspan) & 0x3; // HACK! Fix
 #endif
-      poffs += ((sqx >> 5) * sizeof(int) * NBITPLANES) + subspan;
-      int pmod = (wWidth >> 3) * NBITPLANES;
+      poffs += ((sqx >> 5) * sizeof(int) * s->planes) + subspan;
+      int pmod = (wWidth >> 3) * s->planes;
       if (g_wPrintMode == PRINTMODE_SHADOW) {
         int offs = (g_wX * 8 + 1) + (sqy + 1) * wWidth;
         if (wSize == 0)
-          SquarePlanar(s->p.pix8 + poffs, pmod, 0);
+          SquarePlanar(s->p.pix8 + poffs, pmod, 0, s->planes);
         if (wSize == 1)
           Square8(s->p.pix8 + sqx + sqy * wWidth, wWidth, 0);
         if (wSize == 2)
@@ -377,7 +371,7 @@ void dprint_at(t_canvas *s, const char *psCadena, int x, int y, int Color) {
       }
 
       if (wSize == 0)
-        DrawCharPlanar(psCadena[iXc], s->p.pix8 + poffs, pmod, Color);
+        DrawCharPlanar(psCadena[iXc], s->p.pix8 + poffs, pmod, Color, s->planes);
       if (wSize == 1)
         DrawChar8(psCadena[iXc], s->p.pix8 + sqx + sqy * wWidth, wWidth, Color);
       if (wSize == 2)

@@ -96,8 +96,8 @@ int tndo_vfs_init(const char *path, int tornadoOptions,
   }
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
-    printf("DEBUG - VFS container <%s> opened with %u chunks.\n", path,
-           tvfsh.numChunks);
+    printf("DEBUG - VFS container <%s> opened with %d chunks.\n", path,
+           (int)tvfsh.numChunks);
   }
 
   chunks = (tndo_chunk *)calloc(tvfsh.numChunks, sizeof(tndo_chunk));
