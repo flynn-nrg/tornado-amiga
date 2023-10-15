@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 
   if (!quiet) {
     printf("\n");
-    printf("Tornado DDPCM encoder. (C) 2019 Miguel Mendez.\n");
+    printf("Tornado DDPCM encoder. (C) 2019-2023 Miguel Mendez.\n");
     printf("\n");
     printf("Audio data information:\n");
     printf("-----------------------\n");
@@ -152,8 +152,8 @@ int main(int argc, char **argv) {
   ddpcmh->framesPerQTable = fpqt;
   ddpcmh->qtablesLeft = calloc(ddpcmh->numQTables, sizeof(q_entry *));
   ddpcmh->qtablesRight = calloc(ddpcmh->numQTables, sizeof(q_entry *));
-  ddpcmh->scalesLeft = calloc(ddpcmh->numFrames, sizeof(uint8_t));
-  ddpcmh->scalesRight = calloc(ddpcmh->numFrames, sizeof(uint8_t));
+  ddpcmh->scalesLeft = calloc(ddpcmh->numFrames, sizeof(int32_t));
+  ddpcmh->scalesRight = calloc(ddpcmh->numFrames, sizeof(int32_t));
   ddpcmh->left = calloc(ddpcmh->numFrames, DDPCM_COMPRESSED_FRAME_SIZE);
   ddpcmh->right = calloc(ddpcmh->numFrames, DDPCM_COMPRESSED_FRAME_SIZE);
 
@@ -168,8 +168,9 @@ int main(int argc, char **argv) {
     ddpcmh->qtablesLeft[i] =
         quantiser(&leftSrc[lOffset], samplesPerTable, deltaMode);
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
-      ddpcmh->scalesLeft[lFrame++] = encodeFrame(
-          &leftSrc[lOffset], &lDest[lDstOffset], ddpcmh->qtablesLeft[i]);
+      int32_t l = encodeFrame(&leftSrc[lOffset], &lDest[lDstOffset],
+                              ddpcmh->qtablesLeft[i]);
+      ddpcmh->scalesLeft[lFrame++] = htonl(l);
       lOffset += DDPCM_FRAME_NUMSAMPLES;
       lDstOffset += DDPCM_COMPRESSED_FRAME_SIZE;
       printf("Compressing left channel: %i/%i\r", lDone++, ddpcmh->numFrames);
@@ -189,8 +190,9 @@ int main(int argc, char **argv) {
     ddpcmh->qtablesRight[i] =
         quantiser(&rightSrc[rOffset], samplesPerTable, deltaMode);
     for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
-      ddpcmh->scalesRight[rFrame++] = encodeFrame(
-          &rightSrc[rOffset], &rDest[rDstOffset], ddpcmh->qtablesRight[i]);
+      int32_t r = encodeFrame(&rightSrc[rOffset], &rDest[rDstOffset],
+                              ddpcmh->qtablesRight[i]);
+      ddpcmh->scalesRight[rFrame++] = htonl(r);
       rOffset += DDPCM_FRAME_NUMSAMPLES;
       rDstOffset += DDPCM_COMPRESSED_FRAME_SIZE;
       printf("Compressing right channel: %i/%i\r", rDone++, ddpcmh->numFrames);
@@ -202,7 +204,7 @@ int main(int argc, char **argv) {
 
   uint32_t qtableUsage = ddpcmh->numQTables * 2 * 64 * 2;
   uint32_t framesUsage = ddpcmh->numFrames * 2 * DDPCM_COMPRESSED_FRAME_SIZE;
-  uint32_t scalesUsage = ddpcmh->numFrames * 2;
+  uint32_t scalesUsage = ddpcmh->numFrames * 2 * sizeof(int32_t);
   printf("Uncompressed size: %u bytes\n", wh->dataLen);
   printf("Compressed size: %u bytes (%u bytes in qtables, %u bytes in scale "
          "tables, %u bytes in compressed frames)\n",
@@ -221,7 +223,8 @@ int main(int argc, char **argv) {
     for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
       for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
         decodeFrame(&uleftSrc[ulOffset], &ulDest[ulDstOffset],
-                    ddpcmh->qtablesLeft[i], ddpcmh->scalesLeft[ulFrame++]);
+                    ddpcmh->qtablesLeft[i],
+                    ntohl(ddpcmh->scalesLeft[ulFrame++]));
         ulOffset += DDPCM_COMPRESSED_FRAME_SIZE;
         ulDstOffset += DDPCM_FRAME_NUMSAMPLES;
         printf("Decompressing left channel: %i/%i\r", ulDone++,
@@ -241,7 +244,8 @@ int main(int argc, char **argv) {
     for (uint32_t i = 0; i < ddpcmh->numQTables; i++) {
       for (uint32_t j = 0; j < ddpcmh->framesPerQTable; j++) {
         decodeFrame(&urightSrc[urOffset], &urDest[urDstOffset],
-                    ddpcmh->qtablesRight[i], ddpcmh->scalesRight[urFrame++]);
+                    ddpcmh->qtablesRight[i],
+                    ntohl(ddpcmh->scalesRight[urFrame++]));
         urOffset += DDPCM_COMPRESSED_FRAME_SIZE;
         urDstOffset += DDPCM_FRAME_NUMSAMPLES;
         printf("Decompressing right channel: %i/%i\r", urDone++,
@@ -302,8 +306,8 @@ int main(int argc, char **argv) {
     fwrite(ddpcmh->qtablesRight[i], sizeof(int16_t), 64, outfile);
   }
 
-  fwrite(ddpcmh->scalesLeft, ddpcmh->numFrames, 1, outfile);
-  fwrite(ddpcmh->scalesRight, ddpcmh->numFrames, 1, outfile);
+  fwrite(ddpcmh->scalesLeft, ddpcmh->numFrames * sizeof(int32_t), 1, outfile);
+  fwrite(ddpcmh->scalesRight, ddpcmh->numFrames * sizeof(int32_t), 1, outfile);
 
   fwrite(ddpcmh->left, ddpcmh->numFrames, DDPCM_COMPRESSED_FRAME_SIZE, outfile);
   fwrite(ddpcmh->right, ddpcmh->numFrames, DDPCM_COMPRESSED_FRAME_SIZE,

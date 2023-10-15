@@ -42,7 +42,7 @@ void *getDDPCMMixRoutine16(void);
 void decodeFrame_asm(__ASMPARM("a0", uint8_t *src),
                      __ASMPARM("a6", int16_t *dst),
                      __ASMPARM("a5", int16_t *q_table),
-                     __ASMPARM("d7", uint8_t scale));
+                     __ASMPARM("d7", int32_t scale));
 
 void ddpcmAHIPlayerFunc(__ASMPARM("d0", uint32_t numSamples),
                         __ASMPARM("a0", uint16_t *left),

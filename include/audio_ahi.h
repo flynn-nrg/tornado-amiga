@@ -20,6 +20,9 @@ misrepresented as being the original software.
     3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef AUDIO_AHI_H
+#define AUDIO_AHI_H
+
 #include <stdint.h>
 
 #include "tornado_settings.h"
@@ -27,3 +30,5 @@ misrepresented as being the original software.
 uint32_t audioAhiInit(demoParams *dp);
 void audioAHIStart();
 void audioAHIEnd(void);
+
+#endif

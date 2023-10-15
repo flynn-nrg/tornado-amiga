@@ -98,7 +98,7 @@ static tornadoEffect effects[] = {
     },
 #endif
     {
-        .minTime = SMPTE(0, 33, 0),
+        .minTime = SMPTE(0, 25, 0),
         .init = initNull,
         .flip = 0,
         .free = freeNull,
@@ -170,7 +170,7 @@ void loaderCallback(int loaded, int total) {
 
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
-  dp->tornadoOptions = LOGGING | INSTALL_LEVEL3 | USE_AUDIO;
+  dp->tornadoOptions = LOGGING | INSTALL_LEVEL3 | USE_AUDIO | DDPCM_UNPACK;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |= VERBOSE_DEBUGGING | MEMORY_PROFILING;
 #endif

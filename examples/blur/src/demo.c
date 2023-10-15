@@ -210,8 +210,8 @@ void loaderCallback(int loaded, int total) {
 
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
-  dp->tornadoOptions =
-      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
+  dp->tornadoOptions = CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 |
+                       USE_AUDIO | DDPCM_UNPACK;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;
@@ -565,7 +565,7 @@ void demoFree() {
     effects[i].free(&effects[i]);
   };
 
-    // Shut down rocket if necessary.
+  // Shut down rocket if necessary.
 #ifndef __AMIGA__
   if (rocket_control) {
     sync_save_tracks(rocket);

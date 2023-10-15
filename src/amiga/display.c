@@ -171,7 +171,7 @@ void display_subsystem_init(int numInstances) {
 
 void display_subsystem_end() {
 #ifdef __DEBUG_CODE
-  printf("DEBUG - display_subsystem_end(): %u/%u display instances used.\n",
+  printf("DEBUG - display_subsystem_end(): %d/%d display instances used.\n",
          lastInstance, maxDisplayInstances);
 #endif
 }
@@ -192,7 +192,7 @@ static int display_init_aga(unsigned int *pal, unsigned int options, int mode,
                                  CUSTOM_C2P | PALETTE_IN_COPPER,
                         .tornadoOptions = options,
                         .copperSize = 680, // Obtained from the logs.
-                        .customPal = pal,
+                        .customPal = (uint32_t*)pal,
                         .numSprites = so->num_sprites};
 
   if (so->num_sprites > 0) {
@@ -465,7 +465,7 @@ static int display_init_rtg(unsigned int *pal, unsigned int options, int mode,
   }
 
   rtgChunkyBuffer = tndo_malloc(rtgScreenSizeX * rtgScreenSizeY, 0);
-  rtgPal = pal;
+  rtgPal = (uint32_t*)pal;
   rtgInitDone = 1;
 
   instances[lastInstance].isRTG = 1;

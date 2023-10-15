@@ -110,8 +110,8 @@ LDFLAGS += -lm
 LDFLAGS += -fno-omit-frame-pointer
 
 # SDL2 and SDL2_Mixer
-LDFLAGS += $(shell pkg-config --libs SDL2)
-LDFLAGS += $(shell pkg-config --libs SDL2_Mixer)
+LDFLAGS += $(shell pkg-config --libs sdl2)
+LDFLAGS += $(shell pkg-config --libs SDL2_mixer)
 
 LDFLAGS += -fsanitize=address -fsanitize=undefined
 
