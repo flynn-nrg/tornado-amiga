@@ -317,7 +317,7 @@ _have_enough:
 _decode_frames:
 	;; left channel
 	move.l  scales_left, a4
-	move.b  (a4, d2.l), d7	; d7 -> scale
+	move.l  (a4, d2.l*4), d7	; d7 -> scale
 
 	move.l	frame_in_qtable, d3
 	move.l	frames_per_qtable, d5
@@ -350,7 +350,7 @@ _inside_qtable:
 	;; right channel
 	move.l  scales_right, a4
 	move.l  frames_done, d2
-	move.b  (a4, d2.l), d7	; d7 -> scale
+	move.l  (a4, d2.l*4), d7	; d7 -> scale
 
 	move.l	q_tables_right, a4
 	move.l  (a4, d6.l*4), a5	; a5 -> qtable
@@ -545,7 +545,7 @@ _have_enough_ahi:
 _decode_frames_ahi:
 	;; left channel
 	move.l  scales_left, a4
-	move.b  (a4, d2.l), d7	; d7 -> scale
+	move.l  (a4, d2.l*4), d7	; d7 -> scale
 
 	move.l	frame_in_qtable, d3
 	move.l	frames_per_qtable, d5
@@ -578,7 +578,7 @@ _inside_qtable_ahi:
 	;; right channel
 	move.l  scales_right, a4
 	move.l  frames_done, d2
-	move.b  (a4, d2.l), d7	; d7 -> scale
+	move.l  (a4, d2.l*4), d7	; d7 -> scale
 
 	move.l	q_tables_right, a4
 	move.l  (a4, d6.l*4), a5	; a5 -> qtable

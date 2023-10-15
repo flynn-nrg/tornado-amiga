@@ -209,8 +209,8 @@ void loaderCallback(int loaded, int total) {
 
 void demoSettings(demoParams *dp) {
   dp->minCPU = MIN_CPU_040;
-  dp->tornadoOptions = CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 |
-                       USE_AUDIO | DDPCM_UNPACK;
+  dp->tornadoOptions =
+      CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
 #ifdef __DEBUG_CODE
   dp->tornadoOptions |=
       VERBOSE_DEBUGGING | MEMORY_PROFILING | EMIT_CONTAINER_SCRIPT;
