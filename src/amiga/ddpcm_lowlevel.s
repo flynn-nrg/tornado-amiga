@@ -173,8 +173,7 @@ _decodeFrame_asm:
 	moveq.l #DDPCM_FRAME_NUMSAMPLES, d6
 _decodeLoop:
 	move.l d7, d3
-	lsl.l #1, d3
-	lea (a6, d3.l), a2
+	lea (a6, d3.l*2), a2
 	;; y1 = dst[i - 2];
 	move.w (-4, a2), d0
 	;; y2 = dst[i - 1];
@@ -201,8 +200,7 @@ _p2:
 	moveq   #0, d2
 	move.b  (-2, a1, d7.l), d2
 	;; q_table[unpacked[i - 2]]
-	lsl.l   #1, d2
-	lea (a5, d2.l), a4
+	lea (a5, d2.l*2), a4
 	;; d3.w = q_table[unpacked[i - 2]]
 	move.w (a4), d3
 	ext.l   d3
