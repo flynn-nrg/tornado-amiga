@@ -135,6 +135,8 @@ void demoSettings(demoParams *dp) {
       CLOSE_OS | LOGGING | INSTALL_LEVEL3 | INSTALL_LEVEL2 | USE_AUDIO;
 ```
 
+*NOTE*: If you need to use every possibly CPU cycle you can decompress the DDPCM stream during loading time by setting the `DDPCM_UNPACK` in your tornadoOptions. The tradeoff is, of course, increased memory use. On a 50Mhz 68060 processor the realtime decompression plus the mixing and copying to the chip memory buffers consumes 1.1ms per frame whereas the pre-decompressed version just needs 0.5ms.
+
 And this is our audio init function:
 
 ```c
