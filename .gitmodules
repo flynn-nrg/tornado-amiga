@@ -6,4 +6,4 @@
 	url = https://github.com/rocket/rocket
 [submodule "third_party/imgui_sdl"]
 	path = third_party/imgui_sdl
-	url = https://github.com/windenntw/imgui_sdl.git
+	url = git@github.com:flynn-nrg/imgui_sdl.git
