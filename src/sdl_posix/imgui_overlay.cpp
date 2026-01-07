@@ -35,6 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SMPTE_BANNER_HEIGHT 60
 #define MAX_SLIDERS 64
 
+#include "amiga_topaz.cpp"
+
 static bool show_text = true;
 static bool sliders_attach[MAX_SLIDERS];
 static float sliders_value[MAX_SLIDERS];
@@ -48,10 +50,21 @@ extern "C" void imgui_overlay_init(SDL_Renderer *renderer, int sizex, int sizey,
                                    int rocket_enable) {
 
   ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+
   ImGui::StyleColorsDark();
-  ImGuiSDL::Initialize(renderer, sizex, sizey);
   screenSize = ImVec2(sizex, sizey);
   rocket_enabled = rocket_enable;
+
+  ImFontConfig config;
+  ImFont *font = io.Fonts->AddFontFromMemoryCompressedTTF(
+      AmigaTopaz_compressed_data, AmigaTopaz_compressed_size, 8.0f, &config,
+      NULL);
+  (void)font; // Silence unused variable warning
+
+  // ImGuiSDL::Initialize will call GetTexDataAsRGBA32 and set up the font
+  // texture
+  ImGuiSDL::Initialize(renderer, sizex, sizey);
 
   for (int i = 0; i < MAX_SLIDERS; i++) {
     sliders_attach[i] = true;
@@ -114,6 +127,7 @@ extern "C" void imgui_overlay_render() {
           ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
               ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse |
               ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+      ImGui::SetWindowFontScale(2.5); // Scale up the pixel font for legibility
       for (int i = 0; i < od->sliderNum; i++) {
         if (sliders_attach[i] == true) {
           od->sliders[i].attached = 1;
@@ -137,6 +151,7 @@ extern "C" void imgui_overlay_render() {
   }
 
   ImGui::Render();
+  //  SDL_RenderSetClipRect(renderer, NULL);
   ImGuiSDL::Render(ImGui::GetDrawData());
 }
 
