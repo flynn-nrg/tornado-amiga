@@ -43,6 +43,7 @@ It also makes use of the following third party software:
 * [Pretracker](http://www.pouet.net/prod.php?which=80999) by Pink/Abyss.
 * [AHI](https://en.wikipedia.org/wiki/AHI_(Amiga)) by Martin Blom.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
+* [Amiga Topaz font](https://fontstruct.com/fontstructions/show/675155) created by Patrick H. Lauke used in the SDL/Posix UI.
 
 License
 ----------
