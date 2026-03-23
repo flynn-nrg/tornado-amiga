@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef __AMIGA__
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "stdint.h"
 
 #endif
@@ -53,11 +53,12 @@ typedef struct {
 extern "C" {
 #endif
 
-void imgui_overlay_init(SDL_Renderer *renderer, int sizex, int sizey,
-                        int rocket_enable);
+void imgui_overlay_init(SDL_Window *window, SDL_Renderer *renderer, int sizex,
+                        int sizey, int rocket_enable);
 void imgui_overlay_close();
 void imgui_overlay_set(imguiOverlayData *overlayData);
 void imgui_overlay_render(void);
+void imgui_overlay_process_event(const SDL_Event *event);
 
 #ifdef __cplusplus
 }

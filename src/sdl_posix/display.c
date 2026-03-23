@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <arpa/inet.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <assets.h>
 #include <canvas.h>
@@ -199,12 +199,12 @@ int display_init(unsigned int *pal, unsigned int options, int mode,
       k++;
       uint32_t b = htonl(pal[k]) >> 24;
       k++;
-      di[display_last_instance].pal256[i] = b | (g << 8) | (r << 16);
+      di[display_last_instance].pal256[i] = b | (g << 8) | (r << 16) | (0xFFu << 24);
     }
     break;
   default:
     for (int i = 0; i < 256; i++) {
-      di[display_last_instance].pal256[i] = pal[i];
+      di[display_last_instance].pal256[i] = pal[i] | (0xFFu << 24);
     }
   }
 

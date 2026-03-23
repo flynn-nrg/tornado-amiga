@@ -23,10 +23,11 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "imgui.h"
-#include "imgui_sdl.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 
 #include "dev_window.h"
 
@@ -45,9 +46,11 @@ static imguiOverlayData *od = 0;
 static ImVec2 screenSize;
 
 static int rocket_enabled = 0;
+static SDL_Renderer *gRenderer = NULL;
 
-extern "C" void imgui_overlay_init(SDL_Renderer *renderer, int sizex, int sizey,
-                                   int rocket_enable) {
+extern "C" void imgui_overlay_init(SDL_Window *window, SDL_Renderer *renderer,
+                                   int sizex, int sizey, int rocket_enable) {
+  gRenderer = renderer;
 
   ImGui::CreateContext();
   ImGuiIO &io = ImGui::GetIO();
@@ -60,11 +63,10 @@ extern "C" void imgui_overlay_init(SDL_Renderer *renderer, int sizex, int sizey,
   ImFont *font = io.Fonts->AddFontFromMemoryCompressedTTF(
       AmigaTopaz_compressed_data, AmigaTopaz_compressed_size, 8.0f, &config,
       NULL);
-  (void)font; // Silence unused variable warning
+  (void)font;
 
-  // ImGuiSDL::Initialize will call GetTexDataAsRGBA32 and set up the font
-  // texture
-  ImGuiSDL::Initialize(renderer, sizex, sizey);
+  ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+  ImGui_ImplSDLRenderer3_Init(renderer);
 
   for (int i = 0; i < MAX_SLIDERS; i++) {
     sliders_attach[i] = true;
@@ -72,31 +74,8 @@ extern "C" void imgui_overlay_init(SDL_Renderer *renderer, int sizex, int sizey,
 }
 
 extern "C" void imgui_overlay_render() {
-
-  if (rocket_enabled) {
-    ImGuiIO &io = ImGui::GetIO();
-    int wheel = 0;
-    SDL_Event e;
-
-    while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_QUIT)
-        exit(EXIT_SUCCESS);
-      else if (e.type == SDL_MOUSEWHEEL) {
-        wheel = e.wheel.y;
-      }
-    }
-
-    int mouseX, mouseY;
-    const int buttons = SDL_GetMouseState(&mouseX, &mouseY);
-
-    io.DeltaTime = 1.0f / 60.0f;
-    io.MousePos =
-        ImVec2(static_cast<float>(mouseX), static_cast<float>(mouseY));
-    io.MouseDown[0] = buttons & SDL_BUTTON(SDL_BUTTON_LEFT);
-    io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
-    io.MouseWheel = static_cast<float>(wheel);
-  }
-
+  ImGui_ImplSDLRenderer3_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
   if (od) {
     ImGui::SetNextWindowPos(ImVec2(0, screenSize.y - SMPTE_BANNER_HEIGHT), 0,
@@ -151,12 +130,19 @@ extern "C" void imgui_overlay_render() {
   }
 
   ImGui::Render();
-  //  SDL_RenderSetClipRect(renderer, NULL);
-  ImGuiSDL::Render(ImGui::GetDrawData());
+  ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gRenderer);
 }
 
 extern "C" void imgui_overlay_set(imguiOverlayData *overlayData) {
   od = overlayData;
 }
 
-extern "C" void imgui_overlay_close() { ImGui::DestroyContext(); }
+extern "C" void imgui_overlay_process_event(const SDL_Event *event) {
+  ImGui_ImplSDL3_ProcessEvent(event);
+}
+
+extern "C" void imgui_overlay_close() {
+  ImGui_ImplSDLRenderer3_Shutdown();
+  ImGui_ImplSDL3_Shutdown();
+  ImGui::DestroyContext();
+}

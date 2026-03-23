@@ -28,21 +28,18 @@ ROCKET_OBJS = device.o track.o tcp.o
 
 IMGUI_BASE = $(TORNADO_BASE)/third_party/imgui
 IMGUI_INCDIR = $(IMGUI_BASE)
-IMGUI_SOURCES = $(IMGUI_BASE)/backends/imgui_impl_sdl2.cpp
+IMGUI_BACKENDS_INCDIR = $(IMGUI_BASE)/backends
+IMGUI_SOURCES = $(IMGUI_BASE)/backends/imgui_impl_sdl3.cpp
+IMGUI_SOURCES += $(IMGUI_BASE)/backends/imgui_impl_sdlrenderer3.cpp
 IMGUI_SOURCES += $(IMGUI_BASE)/imgui.cpp $(IMGUI_BASE)/imgui_demo.cpp $(IMGUI_BASE)/imgui_draw.cpp $(IMGUI_BASE)/imgui_widgets.cpp $(IMGUI_BASE)/imgui_tables.cpp
 IMGUI_OBJS = $(addsuffix .o, $(basename $(notdir $(IMGUI_SOURCES))))
-
-IMGUI_SDL_BASE = $(TORNADO_BASE)/third_party/imgui_sdl
-IMGUI_SDL_INCDIR = $(IMGUI_SDL_BASE)
-IMGUI_SDL_SOURCES = $(IMGUI_SDL_BASE)/imgui_sdl.cpp
-IMGUI_SDL_OBJS = $(addsuffix .o, $(basename $(notdir $(IMGUI_SDL_SOURCES))))
 
 INCDIR = $(TORNADO_BASE)/include
 INCDIR += $(LZW_INCDIR)
 INCDIR += $(DDPCM_INCDIR)
 INCDIR += $(ROCKET_INCDIR)
 INCDIR += $(IMGUI_INCDIR)
-INCDIR += $(IMGUI_SDL_INCDIR)
+INCDIR += $(IMGUI_BACKENDS_INCDIR)
 INCDIR += $(LOCAL_INCDIR)
 
 #################################################################################
@@ -53,7 +50,6 @@ OBJECTS += $(LZH_OBJS)
 OBJECTS += $(LZSS_OBJS)
 OBJECTS += $(ROCKET_OBJS)
 OBJECTS += $(IMGUI_OBJS)
-OBJECTS += $(IMGUI_SDL_OBJS)
 OBJECTS += $(DEMO_OBJS)
 
 #################################################################################
@@ -97,8 +93,8 @@ CCFLAGS += -Wno-missing-braces
 CCFLAGS += -DUSE_GETADDRINFO
 CCFLAGS += -fsanitize=address -fsanitize=undefined
 
-# SDL2 and SDL2_Mixer
-CCFLAGS += $(shell pkg-config --cflags SDL2)
+# SDL3 and SDL2_Mixer (audio deferred to SDL3_mixer migration)
+CCFLAGS += $(shell pkg-config --cflags sdl3)
 CCFLAGS += $(shell pkg-config --cflags SDL2_Mixer)
 
 CXXFLAGS = $(CCFLAGS)
@@ -109,8 +105,8 @@ LDFLAGS := -lc
 LDFLAGS += -lm
 LDFLAGS += -fno-omit-frame-pointer
 
-# SDL2 and SDL2_Mixer
-LDFLAGS += $(shell pkg-config --libs sdl2)
+# SDL3 and SDL2_Mixer (audio deferred to SDL3_mixer migration)
+LDFLAGS += $(shell pkg-config --libs sdl3)
 LDFLAGS += $(shell pkg-config --libs SDL2_mixer)
 
 LDFLAGS += -fsanitize=address -fsanitize=undefined
@@ -170,10 +166,15 @@ $(BUILDDIR)/tcp.o: $(ROCKET_BASE)/tcp.c Makefile
 	$(QUIET)$(ECHO) "(CC) -> $@"
 	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ROCKET_INCDIR)) $(CCFLAGS) $< -o $@
 
-$(BUILDDIR)/imgui_impl_sdl2.o: $(IMGUI_BASE)/backends/imgui_impl_sdl2.cpp Makefile
+$(BUILDDIR)/imgui_impl_sdl3.o: $(IMGUI_BASE)/backends/imgui_impl_sdl3.cpp Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CXX) -> $@"
-	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(addprefix -I,$(IMGUI_BACKENDS_INCDIR)) $(CXXFLAGS) $< -o $@
+
+$(BUILDDIR)/imgui_impl_sdlrenderer3.o: $(IMGUI_BASE)/backends/imgui_impl_sdlrenderer3.cpp Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CXX) -> $@"
+	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(addprefix -I,$(IMGUI_BACKENDS_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/imgui.o: $(IMGUI_BASE)/imgui.cpp Makefile
 	$(MKDIR) $(dir $@)
@@ -199,11 +200,6 @@ $(BUILDDIR)/imgui_tables.o: $(IMGUI_BASE)/imgui_tables.cpp Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CXX) -> $@"
 	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_INCDIR)) $(CXXFLAGS) $< -o $@
-
-$(BUILDDIR)/imgui_sdl.o: $(IMGUI_SDL_BASE)/imgui_sdl.cpp Makefile
-	$(MKDIR) $(dir $@)
-	$(QUIET)$(ECHO) "(CXX) -> $@"
-	$(QUIET)$(CXX) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(IMGUI_SDL_INCDIR)) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)

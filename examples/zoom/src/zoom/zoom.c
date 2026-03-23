@@ -199,6 +199,16 @@ void trackDataZoom(int row, imguiOverlayData *overlayData) {
     current_instance = sliders[3].current;
   }
 
+  // Validate parameters to prevent division by zero and out-of-bounds access
+  if (current_z < 1.0f) {
+    current_z = 1.0f;
+  }
+  if (current_instance < 0) {
+    current_instance = 0;
+  } else if (current_instance >= NUM_INSTANCES) {
+    current_instance = NUM_INSTANCES - 1;
+  }
+
   sliders[0].current = current_z;
   sliders[1].current = current_delta_x;
   sliders[2].current = current_delta_y;
@@ -843,7 +853,7 @@ t_canvas *editZoom(int frame) {
       tileY = 0;
       prevy = iy;
     }
-    zi->iy[y] = iy * 256;
+    zi->iy[y] = (iy & 0xFF) * 256;
     int tyTemp = (int)floorf(tileY);
     zi->iTileY[y] = tyTemp * (int)tileSize;
     tileY = tileY + m_delta;
@@ -961,14 +971,21 @@ t_canvas *renderZoomRocket(int frame) {
   float tileSize;
 
   zi = &iterations1[0];
-  allTxts = rocketInstances[current_instance];
+  
+  // Guard against uninitialized or invalid parameters
+  float safe_z = (current_z < 1.0f) ? 1.0f : current_z;
+  int safe_instance = current_instance;
+  if (safe_instance < 0) safe_instance = 0;
+  if (safe_instance >= NUM_INSTANCES) safe_instance = NUM_INSTANCES - 1;
+  
+  allTxts = rocketInstances[safe_instance];
 
   // Calculate a single iteration
-  float delta = 256.0f / current_z;
+  float delta = 256.0f / safe_z;
   float m_delta = delta * 256.0f;
   float xorig = (256.0f - ((delta + current_delta_x) * 320.0f)) / 2.0f;
   float yorig = (256.0f - ((delta + current_delta_y) * 320.0f)) / 2.0f;
-  float pixel_size = current_z / 256.0f;
+  float pixel_size = safe_z / 256.0f;
 
   fx = xorig;
   fy = yorig;
@@ -1041,7 +1058,7 @@ t_canvas *renderZoomRocket(int frame) {
       tileY = 0;
       prevy = iy;
     }
-    zi->iy[y] = iy * 256;
+    zi->iy[y] = (iy & 0xFF) * 256;
     int tyTemp = (int)floorf(tileY);
     zi->iTileY[y] = tyTemp * (int)tileSize;
     tileY = tileY + m_delta;
