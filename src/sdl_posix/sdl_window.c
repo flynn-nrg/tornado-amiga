@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -109,22 +109,21 @@ void dev_window_output_init(int delay, int rocketMode) {
   // Initialization flag
   flip_delay = delay;
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO)) {
     fprintf(stderr, "SDL could not initialize! SDL Error: %s\n",
             SDL_GetError());
     exit(EXIT_FAILURE);
   }
 
-  gWindow = SDL_CreateWindow("Tornado 2 Window", SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH + modulo,
-                             SCREEN_HEIGHT + SMPTE_HEIGHT, SDL_WINDOW_SHOWN);
+  gWindow = SDL_CreateWindow("Tornado 2 Window", SCREEN_WIDTH + modulo,
+                             SCREEN_HEIGHT + SMPTE_HEIGHT, 0);
   if (gWindow == NULL) {
     fprintf(stderr, "Window could not be created! SDL Error: %s\n",
             SDL_GetError());
     exit(EXIT_FAILURE);
   }
 
-  gRenderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_ACCELERATED );
+  gRenderer = SDL_CreateRenderer(gWindow, NULL);
   if (gRenderer == NULL) {
     fprintf(stderr, "Renderer could not be created! SDL Error: %s\n",
             SDL_GetError());
@@ -132,7 +131,7 @@ void dev_window_output_init(int delay, int rocketMode) {
   }
 
   gTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_ARGB8888,
-                               SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH + modulo,
+                               SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH + modulo,
                                SCREEN_HEIGHT + SMPTE_HEIGHT);
   if (gTexture == NULL) {
     fprintf(stderr, "Texture could not be created! SDL Error: %s\n",
@@ -140,11 +139,20 @@ void dev_window_output_init(int delay, int rocketMode) {
     exit(EXIT_FAILURE);
   }
 
+  SDL_SetTextureScaleMode(gTexture, SDL_SCALEMODE_NEAREST);
+
   _framebuffer.p.pixels = (unsigned int *)malloc(
       (SCREEN_WIDTH + modulo) * (SCREEN_HEIGHT + SMPTE_HEIGHT) * sizeof(int));
+  
+  // Initialize framebuffer to black with full opacity (ARGB)
+  unsigned int *pixels = _framebuffer.p.pixels;
+  for (int i = 0; i < (SCREEN_WIDTH + modulo) * (SCREEN_HEIGHT + SMPTE_HEIGHT); i++) {
+    pixels[i] = 0xFF000000;
+  }
+  
   _success = 1;
 
-  imgui_overlay_init(gRenderer, SCREEN_WIDTH + modulo,
+  imgui_overlay_init(gWindow, gRenderer, SCREEN_WIDTH + modulo,
                      SCREEN_HEIGHT + SMPTE_HEIGHT, rocket_enabled);
 
   tndo_assert(_success);
@@ -174,31 +182,34 @@ static int _last_key = 0;
 
 static void check_events() {
   SDL_Event e;
-  while (SDL_PollEvent(&e) != 0) {
-    // User requests quit
-    if (e.type == SDL_QUIT) {
+  while (SDL_PollEvent(&e)) {
+    imgui_overlay_process_event(&e);
+
+    if (e.type == SDL_EVENT_QUIT) {
       exit(EXIT_SUCCESS);
       sdl_quit = 1;
     }
 
-    if (e.type == SDL_MOUSEBUTTONDOWN) {
-      if (e.button.button == SDL_BUTTON_LEFT)
-        mouse_left = 1;
-      if (e.button.button == SDL_BUTTON_RIGHT)
-        mouse_right = 1;
-    }
-    if (e.type == SDL_MOUSEBUTTONUP) {
-      if (e.button.button == SDL_BUTTON_LEFT)
-        mouse_left = 0;
-      if (e.button.button == SDL_BUTTON_RIGHT)
-        mouse_right = 0;
+    if (!rocket_enabled) {
+      if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+        if (e.button.button == SDL_BUTTON_LEFT)
+          mouse_left = 1;
+        if (e.button.button == SDL_BUTTON_RIGHT)
+          mouse_right = 1;
+      }
+      if (e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+        if (e.button.button == SDL_BUTTON_LEFT)
+          mouse_left = 0;
+        if (e.button.button == SDL_BUTTON_RIGHT)
+          mouse_right = 0;
+      }
     }
 
-    if (e.type == SDL_KEYDOWN) {
+    if (e.type == SDL_EVENT_KEY_DOWN) {
       int keyboard_translation_found = 0;
       int i;
       for (i = 0; i < (int)(sizeof(_keytrans) / sizeof(t_keytrans)); i++)
-        if (_keytrans[i].ksdl == e.key.keysym.scancode) {
+        if (_keytrans[i].ksdl == e.key.scancode) {
           keyboard_translation_found = 1;
           _last_key = _keytrans[i].kamiga;
           break;
@@ -234,17 +245,32 @@ void dev_window_output_flip() {
     dump_to_drive();
   }
 
-  SDL_UpdateTexture(gTexture, NULL, (const void *)_framebuffer.p.pixels,
-                    (SCREEN_WIDTH + modulo) * sizeof(unsigned int));
-  SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+  void *texture_pixels;
+  int texture_pitch;
+  if (SDL_LockTexture(gTexture, NULL, &texture_pixels, &texture_pitch)) {
+    int src_pitch = (SCREEN_WIDTH + modulo) * sizeof(unsigned int);
+    if (texture_pitch == src_pitch) {
+      memcpy(texture_pixels, _framebuffer.p.pixels,
+             src_pitch * (SCREEN_HEIGHT + SMPTE_HEIGHT));
+    } else {
+      unsigned char *dst = (unsigned char *)texture_pixels;
+      unsigned char *src = (unsigned char *)_framebuffer.p.pixels;
+      for (int y = 0; y < SCREEN_HEIGHT + SMPTE_HEIGHT; y++) {
+        memcpy(dst, src, src_pitch);
+        dst += texture_pitch;
+        src += src_pitch;
+      }
+    }
+    SDL_UnlockTexture(gTexture);
+  }
+
+  SDL_RenderTexture(gRenderer, gTexture, NULL, NULL);
 
   imgui_overlay_render();
 
   SDL_RenderPresent(gRenderer);
 
-  if (!rocket_enabled) {
-    check_events();
-  }
+  check_events();
 
   waitVBL();
 }
