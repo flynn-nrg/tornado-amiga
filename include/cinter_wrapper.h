@@ -28,9 +28,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __AMIGA__
 
 #include "asmparm.h"
+
+#ifdef __GCC_ELF__
+
+static inline void CinterInit(void *music_data, void *intrument_data,
+                               int instrument_data_size) {
+  register void *_a2 __asm__("a2") = music_data;
+  register void *_a0 __asm__("a0") = intrument_data;
+  register int _d0 __asm__("d0") = instrument_data_size;
+  __asm__ volatile("jsr _CinterInit"
+                   : "+r"(_a2), "+r"(_a0), "+r"(_d0)
+                   :
+                   : "cc", "memory");
+}
+
+#else
+
 void CinterInit(__ASMPARM("a2", void *music_data),
                 __ASMPARM("a0", void *intrument_data),
                 __ASMPARM("d0", int instrument_data_size));
+
+#endif
+
 void CinterPlay1(void);
 void CinterPlay2(void);
 void CinterEnd();

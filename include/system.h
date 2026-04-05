@@ -28,6 +28,70 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "asmparm.h"
 
+#ifdef __GCC_ELF__
+
+static inline int installLevel3(int *vectorBase, int *paulaOutputVBLCallback,
+                                int *optionalVBLCallback) {
+  register int *_a0 __asm__("a0") = vectorBase;
+  register int *_a1 __asm__("a1") = paulaOutputVBLCallback;
+  register int *_a2 __asm__("a2") = optionalVBLCallback;
+  register int _ret __asm__("d0");
+  __asm__ volatile("jsr _installLevel3"
+                   : "=r"(_ret), "+r"(_a0), "+r"(_a1), "+r"(_a2)
+                   :
+                   : "cc", "memory");
+  return _ret;
+}
+
+static inline int setupVBLChain(int *paulaOutputVBLCallback,
+                                int *optionalVBLCallback) {
+  register int *_a1 __asm__("a1") = paulaOutputVBLCallback;
+  register int *_a2 __asm__("a2") = optionalVBLCallback;
+  register int _ret __asm__("d0");
+  __asm__ volatile("jsr _setupVBLChain"
+                   : "=r"(_ret), "+r"(_a1), "+r"(_a2)
+                   :
+                   : "cc", "memory");
+  return _ret;
+}
+
+static inline int installLevel2(int *vectorBase) {
+  register int *_a0 __asm__("a0") = vectorBase;
+  register int _ret __asm__("d0");
+  __asm__ volatile("jsr _installLevel2"
+                   : "=r"(_ret), "+r"(_a0)
+                   :
+                   : "cc", "memory");
+  return _ret;
+}
+
+static inline int closeOS(int *vectorBase) {
+  register int *_a0 __asm__("a0") = vectorBase;
+  register int _ret __asm__("d0");
+  __asm__ volatile("jsr _closeOS"
+                   : "=r"(_ret), "+r"(_a0)
+                   :
+                   : "cc", "memory");
+  return _ret;
+}
+
+static inline int restoreOS(int *vectorBase) {
+  register int *_a0 __asm__("a0") = vectorBase;
+  register int _ret __asm__("d0");
+  __asm__ volatile("jsr _restoreOS"
+                   : "=r"(_ret), "+r"(_a0)
+                   :
+                   : "cc", "memory");
+  return _ret;
+}
+
+static inline void serialPutc(char c) {
+  register char _d0 __asm__("d0") = c;
+  __asm__ volatile("jsr _serialPutc" : "+r"(_d0) : : "cc", "memory");
+}
+
+#else
+
 int installLevel3(__ASMPARM("a0", int *vectorBase),
                   __ASMPARM("a1", int *paulaOutputVBLCallback),
                   __ASMPARM("a2", int *optionalVBLCallback));
@@ -39,6 +103,8 @@ int installLevel2(__ASMPARM("a0", int *vectorBase));
 int closeOS(__ASMPARM("a0", int *vectorBase));
 int restoreOS(__ASMPARM("a0", int *vectorBase));
 void serialPutc(__ASMPARM("d0", char c));
+
+#endif
 
 int mousePressL(void);
 int mousePressR(void);

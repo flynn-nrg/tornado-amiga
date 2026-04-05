@@ -65,7 +65,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "demo.h"
 
+#ifdef __VBCC__
 size_t __stack = 65536; /* 64KB stack-size */
+#endif
+
 static int fenv;
 
 static unsigned int scratch_pal[256];

@@ -100,9 +100,15 @@ CINTER_BASE = $(TORNADO_BASE)/third_party/Cinter
 CINTER_INCDIR = $(CINTER_BASE)/player
 
 #################################################################################
+# Auto-detect host OS.
+UNAME_S := $(shell uname -s)
+#################################################################################
 
 INCDIR = $(TORNADO_BASE)/include
-ifdef LINUX_GCC_HOST
+ifdef GCC_ELF_HOST
+INCDIR += $(TORNADO_BASE)/include_gcc_elf
+INCDIR += $(TORNADO_BASE)/include_amiga_math
+else ifdef LINUX_GCC_HOST
 INCDIR += $(TORNADO_BASE)/include_amiga_math
 endif
 INCDIR += $(TORNADO_BASE)/third_party
@@ -128,66 +134,91 @@ INCDIR   += include
 LIBDIR   = lib
 
 ################################################################################
+# Toolchain selection.
+#
+# The user sets ONE of these environment variables (or none for VBCC default):
+#   GCC_ELF_HOST=true   -> m68k-amiga-elf-gcc (GCC 14, recommended)
+#   LINUX_GCC_HOST=true -> m68k-amigaos-gcc (Bebbo 6.x, legacy Linux only)
+#   (none)              -> VBCC (default)
+#
+# The host OS is detected automatically via uname.  On macOS, VBCC/VASM/VLINK
+# are expected to be installed via Homebrew.  On Linux, set TOOLCHAIN to the
+# directory containing the VBCC/Bebbo cross-compiler.
+################################################################################
 
-ifdef OSX_BREW_HOST
-OSX_HOST = true
+ifdef GCC_ELF_HOST
+# ---------- m68k-amiga-elf-gcc (GCC 14) ----------
+CC     := m68k-amiga-elf-gcc
 
-VBCC   := $(shell brew --prefix vbcc)
-VASM   := $(shell brew --prefix vasm)
-VLINK  := $(shell brew --prefix vlink)
-
-INCDIR  += $(VBCC)/targets/m68k-amigaos/include
-LIBDIR  += $(VBCC)/targets/m68k-amigaos/lib
-STARTUP := $(VBCC)/targets/m68k-amigaos/lib/startup.o
-
-CC     := $(VBCC)/bin/vbccm68k
-AS     := $(VASM)/bin/vasmm68k_mot
-LD     := $(VLINK)/bin/vlink
+ifeq ($(UNAME_S),Darwin)
+  VBCC_PREFIX  := $(shell brew --prefix vbcc)
+  VASM_PREFIX  := $(shell brew --prefix vasm)
+  VLINK_PREFIX := $(shell brew --prefix vlink)
+  AS := $(VASM_PREFIX)/bin/vasmm68k_mot
+  LD := $(VLINK_PREFIX)/bin/vlink
+  VBCC_LIBS ?= $(VBCC_PREFIX)/targets/m68k-amigaos/lib
+  STARTUP := $(VBCC_PREFIX)/targets/m68k-amigaos/lib/startup.o
+else
+  AS := vasmm68k_mot
+  LD := vlink
+  STARTUP :=
 endif
 
-ifdef OSX_HOST
-VBCC_HOST = true
-TOOL_BIN = bin-osx
-endif 
-
-ifdef LINUX_VBCC_HOST
-VBCC_HOST = true
-TOOL_BIN = bin-linux
-endif 
-
-ifdef VBCC_HOST
-INCDIR  += $(TORNADO_BASE)/third_party/ndk/include_h
-INCDIR  += $(TORNADO_BASE)/third_party/ndk/include_i
-INCDIR  += $(TORNADO_BASE)/third_party/ndk/
-
-INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_h
-INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_i
-INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/include
-LIBDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/lib
-STARTUP := $(TOOLCHAIN)/targets/m68k-amigaos/lib/startup.o
-
-CC     := $(TOOLCHAIN)/$(TOOL_BIN)/vbccm68k
-GAS    := $(TOOLCHAIN)/$(TOOL_BIN)/vasmm68k_mot
-AS     := $(TOOLCHAIN)/$(TOOL_BIN)/vasmm68k_mot
-LD     := $(TOOLCHAIN)/$(TOOL_BIN)/vlink
-CCOUT  := "-o="
+ifdef VBCC_LIBS
+LIBDIR += $(VBCC_LIBS)
 endif
 
-ifdef LINUX_GCC_HOST
-LIBDIR  += $(TOOLCHAIN)/m68k-amigaos/lib
-
-INCDIR  += $(TOOLCHAIN)/m68k-amigaos/ndk-include
-LIBDIR  += $(TOOLCHAIN)/m68k-amigaos/ndk/lib
-LIBDIR  += $(TOOLCHAIN)/lib/gcc/m68k-amigaos/6.4.1b
-LIBDIR  += $(TOOLCHAIN)/lib/gcc/m68k-amigaos/6.5.0b
-LIBDIR  += $(TOOLCHAIN)/lib
-STARTUP := $(TOOLCHAIN)/m68k-amigaos/lib/crt0.o
-
+else ifdef LINUX_GCC_HOST
+# ---------- m68k-amigaos-gcc (Bebbo, legacy) ----------
 CC     := $(TOOLCHAIN)/bin/m68k-amigaos-gcc
 GAS    := $(TOOLCHAIN)/bin/m68k-amigaos-as
 AS     := $(TOOLCHAIN)/bin/vasmm68k_mot
 LD     := $(TOOLCHAIN)/bin/m68k-amigaos-ld
 CCOUT  := -o
+STARTUP := $(TOOLCHAIN)/m68k-amigaos/lib/crt0.o
+
+INCDIR  += $(TOOLCHAIN)/m68k-amigaos/ndk-include
+LIBDIR  += $(TOOLCHAIN)/m68k-amigaos/lib
+LIBDIR  += $(TOOLCHAIN)/m68k-amigaos/ndk/lib
+LIBDIR  += $(TOOLCHAIN)/lib/gcc/m68k-amigaos/6.4.1b
+LIBDIR  += $(TOOLCHAIN)/lib/gcc/m68k-amigaos/6.5.0b
+LIBDIR  += $(TOOLCHAIN)/lib
+
+else
+# ---------- VBCC (default) ----------
+ifeq ($(UNAME_S),Darwin)
+  # macOS: tools from Homebrew.
+  VBCC_PREFIX  := $(shell brew --prefix vbcc)
+  VASM_PREFIX  := $(shell brew --prefix vasm)
+  VLINK_PREFIX := $(shell brew --prefix vlink)
+
+  CC     := $(VBCC_PREFIX)/bin/vbccm68k
+  GAS    := $(VASM_PREFIX)/bin/vasmm68k_mot
+  AS     := $(VASM_PREFIX)/bin/vasmm68k_mot
+  LD     := $(VLINK_PREFIX)/bin/vlink
+
+  INCDIR  += $(VBCC_PREFIX)/targets/m68k-amigaos/include
+  LIBDIR  += $(VBCC_PREFIX)/targets/m68k-amigaos/lib
+  STARTUP := $(VBCC_PREFIX)/targets/m68k-amigaos/lib/startup.o
+else
+  # Linux: tools from TOOLCHAIN directory.
+  CC     := $(TOOLCHAIN)/bin-linux/vbccm68k
+  GAS    := $(TOOLCHAIN)/bin-linux/vasmm68k_mot
+  AS     := $(TOOLCHAIN)/bin-linux/vasmm68k_mot
+  LD     := $(TOOLCHAIN)/bin-linux/vlink
+
+  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_h
+  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_i
+  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/include
+  LIBDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/lib
+  STARTUP := $(TOOLCHAIN)/targets/m68k-amigaos/lib/startup.o
+endif
+
+CCOUT := "-o="
+
+INCDIR += $(TORNADO_BASE)/third_party/ndk/include_h
+INCDIR += $(TORNADO_BASE)/third_party/ndk/include_i
+INCDIR += $(TORNADO_BASE)/third_party/ndk/
 endif
 
 ################################################################################
@@ -196,14 +227,20 @@ OBJECTS  := $(OBJECTS:%=$(BUILDDIR)/%)
 
 ################################################################################
 
+ifdef GCC_ELF_HOST
+VASM_FMT := -Felf
+else
+VASM_FMT := -Fhunk
+endif
+
 P61FLAGS := -quiet
-P61FLAGS += -Fhunk
+P61FLAGS += $(VASM_FMT)
 P61FLAGS += -phxass
 P61FLAGS += -D__AMIGA__
 P61FLAGS += -D__VASM__
 
 ASFLAGS := -quiet      # Do not print the copyright notice and the final statistics.
-ASFLAGS += -Fhunk      # Use module "hunk" as output driver.
+ASFLAGS += $(VASM_FMT) # Output format: ELF for GCC_ELF_HOST, hunk otherwise.
 ASFLAGS += -align      # Enables 16-bit alignment for constant declaration.
 ASFLAGS += -phxass     # PhxAss-compatibilty mode.
 ASFLAGS += -x          # Show error message, when referencing an undefined symbol.
@@ -222,8 +259,60 @@ ASFLAGS += -opt-st     # Enables optimization from MOVE.B #-1,<ea> into ST <ea>.
 ASFLAGS += -D__AMIGA__
 ASFLAGS += -D__VASM__
 
+ifdef GCC_ELF_HOST
+# NDK assembly includes for vasm only (not added to INCDIR for C compilation).
+ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_h
+ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_i
+ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/
+P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_h
+P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_i
+P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/
+endif
+
 
 ################################################################################
+# Compiler flags (mutually exclusive).
+################################################################################
+
+ifdef GCC_ELF_HOST
+CCFLAGS += -c                    # Compile only, do not link.
+CCFLAGS += -std=c99              # C99 standard.
+CCFLAGS += -O2                   # Optimise for speed. Benchmark -O3 if desired.
+CCFLAGS += -m68060               # Full 68060 instruction set.
+CCFLAGS += -mtune=68060          # Schedule for 68060 pipeline.
+CCFLAGS += -mhard-float          # Use FPU hardware instructions.
+CCFLAGS += -fleading-underscore  # Emit _symbol names to match vasm convention.
+CCFLAGS += -fomit-frame-pointer  # Free up a6 for general use.
+CCFLAGS += -fno-common           # Each variable gets its own section.
+CCFLAGS += -malign-int           # Align int to 32-bit boundary.
+CCFLAGS += -mbitfield            # Use bitfield instructions (68020+).
+CCFLAGS += -Wno-int-conversion             # Amiga APIs pass pointers in ULONG tag values.
+CCFLAGS += -Wno-incompatible-pointer-types # Assembly wrappers are type-agnostic.
+CCFLAGS += -D__stdargs=          # Not a GCC 14 keyword; strip it.
+CCFLAGS += -D__saveds=
+CCFLAGS += -D__chip=
+CCFLAGS += -D__interrupt=
+CCFLAGS += -D__AMIGA__
+CCFLAGS += -DAMIGA
+CCFLAGS += -D__GCC_ELF__
+
+else ifdef LINUX_GCC_HOST
+# enabling this needs libnix.a, which I cant get to work
+#CCFLAGS += -noixemul
+# -O2 causes "code reloc is out of range" when linking
+# -O2 causes "error unpacking file"
+CCFLAGS += -O1
+GASFLAGS := -march=68040
+CCFLAGS += -S
+CCFLAGS += -std=c99
+CCFLAGS += -march=68040
+CCFLAGS += -mtune=68040
+CCFLAGS += -mhard-float
+CCFLAGS += -D__AMIGA__
+CCFLAGS += -DAMIGA
+CCFLAGS += -D__GCC__
+
+else
 # VBCC opt bits
 # bit 0 - register alloc
 # bit 1 - optimizer on
@@ -237,18 +326,15 @@ ASFLAGS += -D__VASM__
 # bit 11 - loop unrolling
 # bit 12 - function inlining
 # bit 14 - cross module opt.
-
-# -O=23999 -> 101110110111111 reg_alloc, opt_on, subexp, const, dead_code, global, loop_inv, unused_obj, alias, unroll, inline, cross (ALL OPTS)
-# -O=21663 -> 101010010011111 reg_alloc, opt_on, subexp, const, dead_code, loop_inv, alias, inline, cross (DANGER: cross seems to trigger internal compiler bugs)
+# -O=23999 -> 101110110111111 ALL OPTS
+# -O=21663 -> 101010010011111 DANGER: cross seems to trigger internal compiler bugs
 # -O=5279  -> 1010010011111 reg_alloc, opt_on, subexp, const, dead_code, loop_inv, alias, inline
 # -O=4119  -> 1000000010111 reg_alloc, opt_on, subexp, dead_code, inline
 # -O=4115  -> 1000000010011 reg_alloc, opt_on, dead_code, inline
 # -O=23    -> 10111         reg_alloc, opt_on, subexp, dead_code
-
-ifdef VBCC_HOST
 CCFLAGS += -quiet              # Do not print the copyright notice.
 CCFLAGS += -c99                # Switch to the 1999 ISO standard for C.
-CCFLAGS += -O=5279             # eg_alloc, opt_on, subexp, const, dead_code, loop_inv, alias, inline
+CCFLAGS += -O=5279             # reg_alloc, opt_on, subexp, const, dead_code, loop_inv, alias, inline
 CCFLAGS += -no-alias-opt          
 CCFLAGS += -no-delayed-popping # Force to pop arguments after every function call.
 CCFLAGS += -inline-size=100    # DANGER: higher than 100 seems to trigger compiler bugs
@@ -261,32 +347,28 @@ CCFLAGS += -D__VBCC__
 GASFLAGS := $(ASFLAGS)
 endif
 
-ifdef LINUX_GCC_HOST
-
-# enabling this needs libnix.a, which I cant get to work
-#CCFLAGS += -noixemul
-
-
-# -O2 causes "code reloc is out of range" when linking
-# -O2 causes "error unpacking file"
-CCFLAGS += -O1
-
-
-GASFLAGS := -march=68040
-CCFLAGS += -S
-CCFLAGS += -std=c99
-CCFLAGS += -march=68040
-CCFLAGS += -mtune=68040
-CCFLAGS += -mhard-float
-CCFLAGS += -D__AMIGA__
-CCFLAGS += -DAMIGA
-CCFLAGS += -D__GCC__
-#CCFLAGS += -warn=-1
-endif
-
+################################################################################
+# Linker flags (mutually exclusive).
 ################################################################################
 
-ifdef VBCC_HOST
+ifdef GCC_ELF_HOST
+LDFLAGS := -bamigahunk                # Output AmigaDos hunk format from ELF objects.
+LDFLAGS += -Bstatic                   # Static linking only.
+LDFLAGS += -x                         # Discard local symbols.
+LDFLAGS += -Cvbcc                     # VBCC style constructors (when using VBCC libs).
+LDFLAGS += -nostdlib                  # Ignore default library search path.
+ifdef VBCC_LIBS
+LDFLAGS += -lm060                     # 68060 math library.
+LDFLAGS += -lamiga                    # Amiga library stubs.
+LDFLAGS += -lvc                       # VBCC C runtime library.
+LDFLAGS += -lauto                     # Auto-open libraries.
+endif
+
+else ifdef LINUX_GCC_HOST
+LDFLAGS := -notstdlib
+LDFLAGS += -lm -lc -lstubs -lgcc -lamiga
+
+else
 LDFLAGS := -Bstatic                   # Turn of dynamic linking for all library specifiers.
 LDFLAGS += -bamigahunk                # AmigaDos hunk format.
 LDFLAGS += -x                         # Discard all local symbols in the input files.
@@ -296,11 +378,6 @@ LDFLAGS += -lm060                     # Include m060.lib in the output.
 LDFLAGS += -lamiga                    # Include amiga.lib in the output.
 LDFLAGS += -lvc                       # Include vc.lib in the output.
 LDFLAGS += -lauto                     # Include auto.lib in the output.
-endif
-
-ifdef LINUX_GCC_HOST
-LDFLAGS := -notstdlib
-LDFLAGS += -lm -lc -lstubs -lgcc -lamiga
 endif
 
 
@@ -319,12 +396,35 @@ $(TARGET): $(OBJECTS) Makefile
 	$(QUIET)$(ECHO) "(LD) -> $@"
 	$(QUIET)$(LD) $(STARTUP) $(addprefix -L,$(LIBDIR)) $(OBJECTS) $(LDFLAGS) -o $@
 
+ifdef GCC_ELF_HOST
+# GCC ELF: single-step compile, C directly to ELF .o
+$(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.c Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< -o $@
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< -o $@
+
+else
+# VBCC / old GCC: two-step compile, C -> .s then GAS -> .o
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.c Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(CC) -> $@"
 	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
 	$(QUIET)$(GAS) $(addprefix -I,$(INCDIR)) $(addprefix -I,$(ZINCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
 
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(CC) -> $@"
+	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
+	$(QUIET)$(GAS) $(addprefix -I,$(INCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
+
+endif
+
+# Assembly rules are shared: vasm handles both hunk and ELF via VASM_FMT.
 $(BUILDDIR)/mod_replay.o: $(TORNADO_SRCDIR)/mod_replay.s Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(AS) -> $@"
@@ -334,12 +434,6 @@ $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.s Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(AS) -> $@"
 	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS) -o $@ $<
-
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c Makefile
-	$(MKDIR) $(dir $@)
-	$(QUIET)$(ECHO) "(CC) -> $@"
-	$(QUIET)$(CC) $(addprefix -I,$(INCDIR)) $(CCFLAGS) $< $(CCOUT)$(@:%.o=%.s)
-	$(QUIET)$(GAS) $(addprefix -I,$(INCDIR)) $(GASFLAGS) -o $@ $(@:%.o=%.s)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.s Makefile
 	$(MKDIR) $(dir $@)

@@ -5,7 +5,7 @@
 #error "only should use for amiga target"
 #endif
 
-#ifndef __GCC__
+#if !defined(__GCC__) && !defined(__GCC_ELF__)
 #error "only should use for gcc"
 #endif
 
