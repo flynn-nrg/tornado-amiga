@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
   // ---------------------------------------------------------------------------
   if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
     printf("DEBUG - Memory manager init...");
+    fflush(stdout);
   }
 
   // Reusable memory pool size.
@@ -111,6 +112,7 @@ int main(int argc, char **argv) {
 
   if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
     printf("done\n");
+    fflush(stdout);
   }
   switch (m_res) {
   case TNDO_ENOMEM:
@@ -137,6 +139,9 @@ int main(int argc, char **argv) {
   // ---------------------------------------------------------------------------
   timeInit();
 
+  if (dp->tornadoOptions & VERBOSE_DEBUGGING) {
+    printf("DEBUG - Timing service initialized.\n");
+  }
 #ifdef TORNADO_ASSET_MANAGER
   // ---------------------------
   // Tornado VFS init if needed.
@@ -196,6 +201,8 @@ int main(int argc, char **argv) {
 
   // Release timer.device.
   timeEnd();
+
+  printf("DEBUG - Timing service ended.\n");
 
   // ---------------------------------------------------------------------------
   // WARNING: No OS calls beyond this point!!!

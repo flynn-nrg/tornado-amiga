@@ -267,6 +267,9 @@ ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/
 P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_h
 P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_i
 P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/
+# Assembly files with chip memory sections (data_c, bss_c) must use -Fhunk so
+# that vlink preserves the MEMF_CHIP attribute in the output hunk executable.
+ASFLAGS_CHIP := $(subst -Felf,-Fhunk,$(ASFLAGS))
 endif
 
 
@@ -284,8 +287,9 @@ CCFLAGS += -mhard-float          # Use FPU hardware instructions.
 CCFLAGS += -fleading-underscore  # Emit _symbol names to match vasm convention.
 CCFLAGS += -fomit-frame-pointer  # Free up a6 for general use.
 CCFLAGS += -fno-common           # Each variable gets its own section.
-CCFLAGS += -malign-int           # Align int to 32-bit boundary.
+CCFLAGS += -mno-align-int         # Use standard m68k ABI struct layout (AmigaOS compatible).
 CCFLAGS += -mbitfield            # Use bitfield instructions (68020+).
+CCFLAGS += -fno-optimize-sibling-calls  # Prevent tail-call bra.l across hunks.
 CCFLAGS += -Wno-int-conversion             # Amiga APIs pass pointers in ULONG tag values.
 CCFLAGS += -Wno-incompatible-pointer-types # Assembly wrappers are type-agnostic.
 CCFLAGS += -D__stdargs=          # Not a GCC 14 keyword; strip it.
@@ -429,6 +433,15 @@ $(BUILDDIR)/mod_replay.o: $(TORNADO_SRCDIR)/mod_replay.s Makefile
 	$(MKDIR) $(dir $@)
 	$(QUIET)$(ECHO) "(AS) -> $@"
 	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(P61FLAGS) -o $@ $<
+
+ifdef GCC_ELF_HOST
+# paula_output.s uses data_c/bss_c sections for chip memory DMA buffers.
+# Must be assembled as hunk format so vlink preserves MEMF_CHIP attributes.
+$(BUILDDIR)/amiga/paula_output.o: $(TORNADO_SRCDIR)/amiga/paula_output.s Makefile
+	$(MKDIR) $(dir $@)
+	$(QUIET)$(ECHO) "(AS/CHIP) -> $@"
+	$(QUIET)$(AS) $(addprefix -I,$(INCDIR)) $(ASFLAGS_CHIP) -o $@ $<
+endif
 
 $(BUILDDIR)/%.o: $(TORNADO_SRCDIR)/%.s Makefile
 	$(MKDIR) $(dir $@)

@@ -1,110 +1,68 @@
 Getting Started
 ============
 
-This framework only works on Mac OS X and GNU/Linux. It might work on Windows using the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux), but this hasn't been tested.
+This framework works on macOS and GNU/Linux. It might work on Windows using the [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux), but this hasn't been tested.
 
 **IMPORTANT**: Clone this repository. Do not download a ZIP file.
 
 Before you can use Tornado there's a few things you need to setup:
 
-* A working [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) compiler with [AddressSanitizer](https://en.wikipedia.org/wiki/AddressSanitizer) support. Mac OS X uses clang by default and it's available in every GNU/Linux distribution as a package.
+* A working [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) compiler with [AddressSanitizer](https://en.wikipedia.org/wiki/AddressSanitizer) support. macOS uses clang by default and it's available in every GNU/Linux distribution as a package.
 * [SDL2](https://www.libsdl.org/). This is used by the posix/SDL target and it's a dependency for ImGui and ImGuiSDL.
 * [SDL_Mixer](https://github.com/libsdl-org/SDL_mixer). Used for audio replay.
-* A working [vbcc](http://sun.hasenbraten.de/vbcc/index.php?view=main) setup.
+* A cross-compiler targeting the Amiga (see below).
 
-I suggest that you build your vbcc toolchain and add it to your repo. This makes everyone use the same set of tools.
-
-Building the compiler
+Amiga cross-compiler
 ----------------------------
 
-The current versions are:
+Tornado supports two cross-compilers for generating Amiga code:
 
-* [vbcc 0.9g](http://sun.hasenbraten.de/vbcc/)
-* [vasm 2.0](http://sun.hasenbraten.de/vasm/)
-* [vlink 0.16h](http://sun.hasenbraten.de/vlink/)
+* **m68k-amiga-elf-gcc (GCC 14)** — Recommended. Generates better code overall.
+* **VBCC** — The original compiler used by Tornado. Still fully supported.
 
-Tornado is guaranteed to work with these. Please make sure you stay up to date.
+Both compilers use [vasm](http://sun.hasenbraten.de/vasm/) for assembly and [vlink](http://sun.hasenbraten.de/vlink/) for linking.
 
-There's a set of shell scripts in the scripts directory that will build the toolchain for you.
+The host operating system is detected automatically via `uname`. You do not need to set `OSX_HOST` or `LINUX_HOST` variables.
 
-Let's create a directory for the toolchain and copy the scripts there:
+### Installing the GCC 14 toolchain (recommended)
 
-```
-mmendez$ mkdir toolchain
-mmendez$ cd toolchain
-mmendez$ curl http://sun.hasenbraten.de/vasm/release/vasm.tar.gz | tar xzvf -
-[...]
-mmendez$ curl http://sun.hasenbraten.de/vlink/release/vlink.tar.gz | tar xzvf -
-[...]
-mmendez$ curl https://server.owl.de/~frank/tags/vbcc0_9g.tar.gz | tar xzvf -
-[...]
-```
+The easiest way to get a working `m68k-amiga-elf-gcc` toolchain is to install [Bartman's Amiga Debugging VSCode extension](https://marketplace.visualstudio.com/items?itemName=BartmanAbyss.amiga-debug). The extension bundles a complete GCC 14 cross-compiler for m68k. Once installed, add the toolchain's `bin` directory to your `PATH` so that `m68k-amiga-elf-gcc` is accessible from the terminal.
 
-Now we build the toolchain (use the scripts from the scripts directory):
+If you prefer to supply your own toolchain, any `m68k-amiga-elf-gcc` build based on GCC 14 or later will work.
+
+### Installing vasm, vlink and vbcc on macOS
+
+On macOS, install vbcc, vasm and vlink via [Homebrew](https://brew.sh/):
 
 ```
-mmendez$ mkdir bin-osx (mkdir bin for GNU/Linux users)
-mmendez$ sh 01-vasm-osx.sh (01-vasm-linux.sh for GNU/Linux users.)
-[...]
-mmendez$ sh 02-vlink-osx.sh (02-vlink-linux.sh for GNU/Linux users.)
-[...]
-mmendez$ sh 03-vbcc-osx.sh (03-vbcc-linux.sh for GNU/Linux users.)
-(Accept all the defaults)
+brew install vbcc vasm vlink
 ```
 
-Verify that you have the relevant binaries:
+These are required regardless of whether you use GCC or VBCC as your C compiler, since assembly files are always processed by vasm and linking is always done by vlink using VBCC's runtime libraries.
+
+### Installing vasm, vlink and vbcc on GNU/Linux
+
+On GNU/Linux, build vbcc, vasm and vlink from source and place them in a `toolchain` directory. Set the `TOOLCHAIN` environment variable to point to it. See the scripts in the `scripts/` directory for guidance.
+
+Setting up the environment
+----------------------------
+
+To build with GCC 14 (recommended), set:
 
 ```
-mmendez$ ls -la bin-osx/ (bin for GNU/Linux users.)
-total 4680
-drwxr-xr-x   9 mmendez  staff     288  2 Jun 15:48 .
-drwxr-xr-x  15 mmendez  staff     480  2 Jun 15:47 ..
--rwxr-xr-x   1 mmendez  staff  394572  2 Jun 15:47 vasmm68k_mot
--rwxr-xr-x   1 mmendez  staff  829172  2 Jun 15:48 vbccm68k
--rwxr-xr-x   1 mmendez  staff  829204  2 Jun 15:48 vbccm68ks
--rwxr-xr-x   1 mmendez  staff   26216  2 Jun 15:48 vc
--rwxr-xr-x   1 mmendez  staff  272648  2 Jun 15:47 vlink
--rwxr-xr-x   1 mmendez  staff   17508  2 Jun 15:47 vobjdump
--rwxr-xr-x   1 mmendez  staff    9636  2 Jun 15:48 vprof
+export GCC_ELF_HOST=true
+export SHARED=.
 ```
 
-Now let's add the config and targets:
+To build with VBCC (default), only set:
 
 ```
-mmendez$ curl https://server.owl.de/~frank/vbcc/2017-08-14/vbcc_target_m68k-amigaos.lha -o vbcc_target_m68k-amigaos.lha
-[...]
-mmendez$ lha x vbcc_target_m68k-amigaos.lha 
-[...]
-mmendez$ cd vbcc_target_m68k-amigaos
-mmendez$ mv targets ..
-mmendez$ cd ..
-mmendez$ curl https://server.owl.de/~frank/vbcc/2017-08-14/vbcc_unix_config.tar.gz | tar xzvf - 
-[...]
+export SHARED=.
 ```
 
-In the scripts directory you will also find two examples that show how to setup the environment: 
+The `SHARED` variable controls where the output binary is placed (`.` means the current directory).
 
-```
-mmendez$ ls go-vbcc-*
-go-vbcc-linux.sh	go-vbcc-osx.sh
-```
-
-Or you can set the environment variables yourself. I want the executable file to be created in the same directory where the ```Makefile``` is and I'm pointing the ```TOOLCHAIN``` variable to
-my recently built toolchain. I'm also adding the ```VBCC``` binaries to my ```PATH``` and telling Tornado that we have an OS X host.
-
-
-```
-mmendez$ export SHARED=.
-mmendez$ export TOOLCHAIN=`pwd`
-mmendez$ echo $TOOLCHAIN
-/Users/mmendez/Amiga/toolchain
-mmendez$ export OSX_HOST=true
-```
-
-On GNU/Linux systems you would instead export ```LINUX_HOST``` and use ```bin``` instead of ```bin-osx``` in the ```PATH```.
-
-
-You can either execute those scripts (adapted to your setup) before you start working or permanently set those environment variables in your ```.bashrc``` file.
+You can either set these before you start working or permanently add them to your `.bashrc` or `.zshrc`.
 
 Adding the external dependencies
 ----------------------------------------------
@@ -135,17 +93,17 @@ mmendez$ cd third_party/ndk
 mmendez$ tree -d .
 .
 ├── autodocs
-│   └── ag
+│   └── ag
 ├── dacontrol+trackfile
-│   ├── dacontrol
-│   └── trackfile
-│       └── goodies
+│   ├── dacontrol
+│   └── trackfile
+│       └── goodies
 ├── developerdocumentation
-│   └── memorypools
+│   └── memorypools
 ├── examples
-│   ├── arexx
-│   ├── backfill
-│   └── bitmap
+│   ├── arexx
+│   ├── backfill
+│   └── bitmap
 ├── fd
 [...]    
 ```
@@ -153,7 +111,7 @@ mmendez$ tree -d .
 Local dependencies
 ----------------------
 
-If you're on a MacOS machine, use brew to install SDL2, SDL_Mixer and pkg-config:
+If you're on a macOS machine, use Homebrew to install SDL2, SDL_Mixer and pkg-config:
 
 ```
 brew install pkg-config sdl2 sdl2_mixer
@@ -164,7 +122,7 @@ On GNU/Linux systems, use your package manager to do the same.
 Testing that everything is setup correctly
 -------------------------------------------
 
-Let's do a quick test:
+Let's do a quick test with GCC:
 
 ```
 mmendez$ cd examples/simple_screen
@@ -174,9 +132,7 @@ mmendez$ make clean all
 (AS) -> /tmp/build-amiga/amiga/aga.o
 [...]
 (CC) -> /tmp/build-amiga/demo.o
->#warning "Building with debugging and profiling enabled!"
-warning 325 in line 71 of "src/demo.c": #warning "Building with debugging and profiling enabled!"
-(CC) -> /tmp/build-amiga/simple_screen/simple_screen.o
+(AS/CHIP) -> /tmp/build-amiga/amiga/paula_output.o
 (LD) -> simple_screen.68k
 mmendez$ ls -la simple_screen.68k
 -rwxr-xr-x@ 1 mmendez  staff  263532  1 Apr 16:19 simple_screen.68k

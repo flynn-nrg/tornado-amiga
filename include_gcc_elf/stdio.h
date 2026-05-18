@@ -17,9 +17,9 @@
 #define EOF (-1)
 #endif
 
-#define SEEK_SET 0
-#define SEEK_CUR 1
-#define SEEK_END 2
+#define SEEK_SET (-1)
+#define SEEK_CUR  0
+#define SEEK_END  1
 
 typedef struct _FILE FILE;
 
