@@ -42,6 +42,42 @@ t_canvas *renderBlurMusicRocket(int);
 
 #ifdef __AMIGA__
 
+#ifdef __GCC_ELF__
+
+static inline void blurRenderScanlineAsm(const int *p0, const int *p1,
+                                         const short int *xt, const int m,
+                                         int num, unsigned char *chunky) {
+  register const int *_a0 __asm__("a0") = p0;
+  register const int *_a1 __asm__("a1") = p1;
+  register const short int *_a2 __asm__("a2") = xt;
+  register int _d6 __asm__("d6") = m;
+  register int _d7 __asm__("d7") = num;
+  register unsigned char *_a6 __asm__("a6") = chunky;
+  __asm__ volatile("jsr _blurRenderScanlineAsm"
+                   : "+r"(_a0), "+r"(_a1), "+r"(_a2), "+r"(_d6), "+r"(_d7),
+                     "+r"(_a6)
+                   :
+                   : "cc", "memory");
+}
+
+static inline void blurRenderScanlineMixAsm(const int *p0, const int *p1,
+                                            const short int *xt, const int m,
+                                            int num, unsigned char *chunky) {
+  register const int *_a0 __asm__("a0") = p0;
+  register const int *_a1 __asm__("a1") = p1;
+  register const short int *_a2 __asm__("a2") = xt;
+  register int _d6 __asm__("d6") = m;
+  register int _d7 __asm__("d7") = num;
+  register unsigned char *_a6 __asm__("a6") = chunky;
+  __asm__ volatile("jsr _blurRenderScanlineMixAsm"
+                   : "+r"(_a0), "+r"(_a1), "+r"(_a2), "+r"(_d6), "+r"(_d7),
+                     "+r"(_a6)
+                   :
+                   : "cc", "memory");
+}
+
+#else
+
 void blurRenderScanlineAsm(__ASMPARM("a0", const int *p0),
                            __ASMPARM("a1", const int *p1),
                            __ASMPARM("a2", const short int *xt),
@@ -54,6 +90,9 @@ void blurRenderScanlineMixAsm(__ASMPARM("a0", const int *p0),
                               __ASMPARM("d6", const int m),
                               __ASMPARM("d7", int num),
                               __ASMPARM("a6", unsigned char *chunky));
+
+#endif
+
 #endif
 
 #endif

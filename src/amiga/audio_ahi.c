@@ -67,11 +67,17 @@ struct AHISampleInfo rBuffer = {
     0,
 };
 
+#ifdef __GCC_ELF__
+static void PlayerFunc(void) {
+  ddpcmAHIPlayerFunc(numSamples, lBuffer.ahisi_Address, rBuffer.ahisi_Address);
+}
+#else
 static void PlayerFunc(__ASMPARM("a0", struct Hook *hook),
                        __ASMPARM("a1", APTR ignored),
                        __ASMPARM("a2", struct AHIAudioCtrl *h_actrl)) {
   ddpcmAHIPlayerFunc(numSamples, lBuffer.ahisi_Address, rBuffer.ahisi_Address);
 }
+#endif
 
 static struct Hook PlayerHook = {
     0, 0, (ULONG(*)())PlayerFunc, NULL, NULL,

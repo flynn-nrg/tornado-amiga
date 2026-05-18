@@ -245,6 +245,7 @@ void demoInit(unsigned int tornadoOptions, int initialEffect) {
 
   if (tornadoOptions & VERBOSE_DEBUGGING) {
     printf("DEBUG - demoAudioInit() completed in %u seconds\n", initTime);
+    fflush(stdout);
   }
 
   for (int i = 0; i < numEffects; i++) {
