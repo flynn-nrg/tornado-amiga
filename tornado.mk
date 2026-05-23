@@ -207,8 +207,8 @@ else
   AS     := $(TOOLCHAIN)/bin-linux/vasmm68k_mot
   LD     := $(TOOLCHAIN)/bin-linux/vlink
 
-  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_h
-  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/include_i
+  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/Include_H
+  INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/ndk/Include_I
   INCDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/include
   LIBDIR  += $(TOOLCHAIN)/targets/m68k-amigaos/lib
   STARTUP := $(TOOLCHAIN)/targets/m68k-amigaos/lib/startup.o
@@ -216,8 +216,8 @@ endif
 
 CCOUT := "-o="
 
-INCDIR += $(TORNADO_BASE)/third_party/ndk/include_h
-INCDIR += $(TORNADO_BASE)/third_party/ndk/include_i
+INCDIR += $(TORNADO_BASE)/third_party/ndk/Include_H
+INCDIR += $(TORNADO_BASE)/third_party/ndk/Include_I
 INCDIR += $(TORNADO_BASE)/third_party/ndk/
 endif
 
@@ -261,11 +261,11 @@ ASFLAGS += -D__VASM__
 
 ifdef GCC_ELF_HOST
 # NDK assembly includes for vasm only (not added to INCDIR for C compilation).
-ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_h
-ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_i
+ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/Include_H
+ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/Include_I
 ASFLAGS += -I$(TORNADO_BASE)/third_party/ndk/
-P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_h
-P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/include_i
+P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/Include_H
+P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/Include_I
 P61FLAGS += -I$(TORNADO_BASE)/third_party/ndk/
 # Assembly files with chip memory sections (data_c, bss_c) must use -Fhunk so
 # that vlink preserves the MEMF_CHIP attribute in the output hunk executable.
