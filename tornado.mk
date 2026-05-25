@@ -108,6 +108,9 @@ INCDIR = $(TORNADO_BASE)/include
 ifdef GCC_ELF_HOST
 INCDIR += $(TORNADO_BASE)/include_gcc_elf
 INCDIR += $(TORNADO_BASE)/include_amiga_math
+INCDIR += $(TORNADO_BASE)/third_party/ndk/Include_H
+INCDIR += $(TORNADO_BASE)/third_party/ndk/Include_I
+INCDIR += $(TORNADO_BASE)/third_party/ndk/
 else ifdef LINUX_GCC_HOST
 INCDIR += $(TORNADO_BASE)/include_amiga_math
 endif
@@ -154,15 +157,12 @@ ifeq ($(UNAME_S),Darwin)
   VBCC_PREFIX  := $(shell brew --prefix vbcc)
   VASM_PREFIX  := $(shell brew --prefix vasm)
   VLINK_PREFIX := $(shell brew --prefix vlink)
-  AS := $(VASM_PREFIX)/bin/vasmm68k_mot
-  LD := $(VLINK_PREFIX)/bin/vlink
-  VBCC_LIBS ?= $(VBCC_PREFIX)/targets/m68k-amigaos/lib
-  STARTUP := $(VBCC_PREFIX)/targets/m68k-amigaos/lib/startup.o
-else
-  AS := vasmm68k_mot
-  LD := vlink
-  STARTUP :=
 endif
+
+AS := $(VASM_PREFIX)/bin/vasmm68k_mot
+LD := $(VLINK_PREFIX)/bin/vlink
+VBCC_LIBS ?= $(VBCC_PREFIX)/targets/m68k-amigaos/lib
+STARTUP := $(VBCC_PREFIX)/targets/m68k-amigaos/lib/startup.o
 
 ifdef VBCC_LIBS
 LIBDIR += $(VBCC_LIBS)
@@ -299,6 +299,11 @@ CCFLAGS += -D__interrupt=
 CCFLAGS += -D__AMIGA__
 CCFLAGS += -DAMIGA
 CCFLAGS += -D__GCC_ELF__
+
+# FIXME
+# audio_ahi fails to compile without this, due to generating
+# Error: syntax error -- statement `jsr a6@(-0x78:W)' ignored
+CCFLAGS += -Wa,--register-prefix-optional
 
 else ifdef LINUX_GCC_HOST
 # enabling this needs libnix.a, which I cant get to work
