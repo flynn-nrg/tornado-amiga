@@ -10,10 +10,7 @@ fi
 
 export SHARED=/home/winden/Documents/FS-UAE/HardDrives/dh1/t
 
-export GCC_ELF_HOST=true
-
-export PATH=/opt/m68k/barto-m68k-amiga-elf-toolchain/bin:$PATH
-export PATH=/opt/m68k/vasm-vlink-vbcc/bin:$PATH
+source scripts/linux-use-prebuilt-toolchain.sh
 
 cd $1
 shift

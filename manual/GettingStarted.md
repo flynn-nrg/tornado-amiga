@@ -28,6 +28,9 @@ The host operating system is detected automatically via `uname`. You do not need
 
 The easiest way to get a working `m68k-amiga-elf-gcc` toolchain is to install [Bartman's Amiga Debugging VSCode extension](https://marketplace.visualstudio.com/items?itemName=BartmanAbyss.amiga-debug). The extension bundles a complete GCC 14 cross-compiler for m68k. Once installed, add the toolchain's `bin` directory to your `PATH` so that `m68k-amiga-elf-gcc` is accessible from the terminal.
 
+The next simpler way is specific to linux, by following the instructions below to install the prebuilt binary packages.
+
+Finally, if you prefer to supply your own toolchain, any `m68k-amiga-elf-gcc` build based on GCC 14 or later will work.
 
 ### Installing vasm, vlink and vbcc on macOS
 
@@ -62,11 +65,10 @@ sudo apt update
 sudo apt install barto-m68k-amiga-elf-toolchain vasm-vlink-vbcc-m68k-toolchain
 ```
 
-4. Add the PATH to your shell startup file (eg: .bashrc)
+3. Enable the new PATHS in your shell startup file (eg: .bashrc)
 
 ```bash
-export PATH=/opt/m68k/barto-m68k-amiga-elf-toolchain/bin:$PATH
-export PATH=/opt/m68k/vasm-vlink-vbcc/bin:$PATH
+source /home/xxx/yyy/tornado-amiga/scripts/linux-use-prebuilt-toolchain.sh
 ```
 
 ### Installing the GCC, vasm, vlink and vbcc on GNU/Linux from source

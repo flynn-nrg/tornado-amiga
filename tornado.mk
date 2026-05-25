@@ -157,10 +157,6 @@ ifeq ($(UNAME_S),Darwin)
   VBCC_PREFIX  := $(shell brew --prefix vbcc)
   VASM_PREFIX  := $(shell brew --prefix vasm)
   VLINK_PREFIX := $(shell brew --prefix vlink)
-else
-  VBCC_PREFIX  := /opt/m68k/vasm-vlink-vbcc
-  VASM_PREFIX  := /opt/m68k/vasm-vlink-vbcc
-  VLINK_PREFIX := /opt/m68k/vasm-vlink-vbcc
 endif
 
 AS := $(VASM_PREFIX)/bin/vasmm68k_mot
