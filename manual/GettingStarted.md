@@ -17,18 +17,25 @@ Amiga cross-compiler
 
 Tornado supports two cross-compilers for generating Amiga code:
 
-* **m68k-amiga-elf-gcc (GCC 14)** — Recommended. Generates better code overall.
+* **m68k-amiga-elf-gcc (GCC 15)** — Recommended. Generates better code overall.
 * **VBCC** — The original compiler used by Tornado. Still fully supported.
 
 Both compilers use [vasm](http://sun.hasenbraten.de/vasm/) for assembly and [vlink](http://sun.hasenbraten.de/vlink/) for linking.
 
 The host operating system is detected automatically via `uname`. You do not need to set `OSX_HOST` or `LINUX_HOST` variables.
 
-### Installing the GCC 14 toolchain (recommended)
+### Installing the GCC 15 toolchain (recommended)
 
-The easiest way to get a working `m68k-amiga-elf-gcc` toolchain is to install [Bartman's Amiga Debugging VSCode extension](https://marketplace.visualstudio.com/items?itemName=BartmanAbyss.amiga-debug). The extension bundles a complete GCC 14 cross-compiler for m68k. Once installed, add the toolchain's `bin` directory to your `PATH` so that `m68k-amiga-elf-gcc` is accessible from the terminal.
 
-If you prefer to supply your own toolchain, any `m68k-amiga-elf-gcc` build based on GCC 14 or later will work.
+If you already use VSCode, the easiest way to get a working `m68k-amiga-elf-gcc` toolchain is to install [Bartman's Amiga Debugging VSCode extension](https://marketplace.visualstudio.com/items?itemName=BartmanAbyss.amiga-debug). The extension bundles a complete GCC 15 cross-compiler for m68k. Once installed, add the toolchain's `bin` directory to your `PATH` so that `m68k-amiga-elf-gcc` is accessible from the terminal.
+
+macOS users can also install it via [Homebrew](https://brew.sh/):
+
+```shell
+brew install tditlu/amiga/bartman-amiga-gcc
+```
+
+If you prefer to supply your own toolchain, any `m68k-amiga-elf-gcc` build based on GCC 15 or later will work.
 
 ### Installing vasm, vlink and vbcc on macOS
 
