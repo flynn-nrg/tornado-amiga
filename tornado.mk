@@ -84,13 +84,20 @@ endif
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 TORNADO_THIRD_PARTY_DIR = $(TORNADO_BASE)/third_party
 
+# External source dependencies (rocket) that used to live as git submodules
+# under third_party/. They are now expected to be checked out separately. By
+# default we look for them in the directory that encloses this repository, but
+# this can be overridden on the command line, e.g.:
+#   make TORNADO_SOURCE_DEPENDENCIES=/path/to/deps
+TORNADO_SOURCE_DEPENDENCIES ?= $(TORNADO_BASE)/..
+
 #################################################################################
 LZW_BASE = $(TORNADO_BASE)/tools/compress
 
 DDPCM_BASE = $(TORNADO_BASE)/tools/ddpcm
 DDPCM_INCDIR = $(DDPCM_BASE)
 
-ROCKET_BASE = $(TORNADO_BASE)/third_party/rocket/lib
+ROCKET_BASE = $(TORNADO_SOURCE_DEPENDENCIES)/rocket/lib
 ROCKET_INCDIR = $(ROCKET_BASE)
 
 AHI_BASE = $(TORNADO_BASE)/third_party/m68k-amigaos-ahi/Developer

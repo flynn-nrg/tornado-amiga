@@ -8,7 +8,7 @@ This framework works on macOS and GNU/Linux. It might work on Windows using the 
 Before you can use Tornado there's a few things you need to setup:
 
 * A working [clang](https://clang.llvm.org/) or [gcc](https://gcc.gnu.org/) compiler with [AddressSanitizer](https://en.wikipedia.org/wiki/AddressSanitizer) support. macOS uses clang by default and it's available in every GNU/Linux distribution as a package.
-* [SDL2](https://www.libsdl.org/). This is used by the posix/SDL target and it's a dependency for ImGui and ImGuiSDL.
+* [SDL2](https://www.libsdl.org/). This is used by the posix/SDL target and it's a dependency for ImGui.
 * [SDL_Mixer](https://github.com/libsdl-org/SDL_mixer). Used for audio replay.
 * A cross-compiler targeting the Amiga (see below).
 
@@ -74,20 +74,36 @@ You can either set these before you start working or permanently add them to you
 Adding the external dependencies
 ----------------------------------------------
 
-You need to initialise and update the submodules so that they get populated:
+Tornado relies on two external source dependencies: [Rocket](https://github.com/rocket/rocket)
+(the sync tracker library) and [Dear ImGui](https://github.com/ocornut/imgui)
+(used by the debug overlay in the posix/SDL target). These used to be git
+submodules, but they are now expected to be checked out separately.
+
+Clone both repositories alongside `tornado-amiga`, i.e. in the same enclosing
+directory:
 
 ```
-mmendez$ git submodule init
-Submodule 'tornado2/third_party/imgui' (https://github.com/ocornut/imgui.git) registered for path './'
-Submodule 'tornado2/third_party/imgui_sdl' (https://github.com/Tyyppi77/imgui_sdl.git) registered for path '../imgui_sdl'
-Submodule 'tornado2/third_party/rocket' (https://github.com/rocket/rocket.git) registered for path '../rocket'
-mmendez$ git submodule update
-Cloning into '/Users/mmendez/Amiga/ClassicWB_UAE_v28/HardDisk/Devel/amiga-demo/tornado2/third_party/imgui'...
-Cloning into '/Users/mmendez/Amiga/ClassicWB_UAE_v28/HardDisk/Devel/amiga-demo/tornado2/third_party/imgui_sdl'...
-Cloning into '/Users/mmendez/Amiga/ClassicWB_UAE_v28/HardDisk/Devel/amiga-demo/tornado2/third_party/rocket'...
-Submodule path './': checked out '00b3c830db849551a26dbaccf0cfc8bb2e7fa2b9'
-Submodule path '../imgui_sdl': checked out '4c69d9a5dac35eb7b2550dcbb32e7d0ed323230b'
-Submodule path '../rocket': checked out '901db86412a0d57600cb072c16deac9c3ebc709d'
+mmendez$ cd ..            # move to the directory that contains tornado-amiga
+mmendez$ git clone https://github.com/rocket/rocket
+mmendez$ git clone https://github.com/ocornut/imgui
+```
+
+You should end up with something like this:
+
+```
+devel/
+├── tornado-amiga/
+├── rocket/
+└── imgui/
+```
+
+The build looks for these dependencies via the `TORNADO_SOURCE_DEPENDENCIES`
+variable, which defaults to the directory that encloses `tornado-amiga` (i.e.
+`$(TORNADO_BASE)/..`). If you keep `rocket` and `imgui` somewhere else, point the
+variable at their parent directory when invoking make, e.g.:
+
+```
+mmendez$ make TORNADO_SOURCE_DEPENDENCIES=/path/to/deps
 ```
 
 Adding the NDK

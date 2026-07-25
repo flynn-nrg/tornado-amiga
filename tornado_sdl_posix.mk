@@ -12,6 +12,13 @@ TORNADO_OBJ += lzw_unpack_stream.o lzss_unpack_stream.o tndo_file.o dprint.o ddp
 TORNADO_OBJ += placeholder.o
 TORNADO_SRCDIR = $(TORNADO_BASE)/src
 
+# External source dependencies (imgui, rocket) that used to live as git
+# submodules under third_party/. They are now expected to be checked out
+# separately. By default we look for them in the directory that encloses this
+# repository, but this can be overridden on the command line, e.g.:
+#   make -f Makefile_sdl_posix TORNADO_SOURCE_DEPENDENCIES=/path/to/deps
+TORNADO_SOURCE_DEPENDENCIES ?= $(TORNADO_BASE)/..
+
 LZW_BASE = $(TORNADO_BASE)/tools/compress
 LZW_OBJS = lzw_unpack.o
 LZSS_OBJS = lzss_unpack.o
@@ -21,12 +28,12 @@ LZW_INCDIR = $(LZW_BASE)
 DDPCM_BASE = $(TORNADO_BASE)/tools/ddpcm
 DDPCM_INCDIR = $(DDPCM_BASE)
 
-ROCKET_BASE = $(TORNADO_BASE)/third_party/rocket/lib
+ROCKET_BASE = $(TORNADO_SOURCE_DEPENDENCIES)/rocket/lib
 ROCKET_INCDIR = $(ROCKET_BASE)
 ROCKET_SRCS = $(ROCKET_BASE)/device.c $(ROCKET_BASE)/track.c $(ROCKET_BASE)/tcp.c
 ROCKET_OBJS = device.o track.o tcp.o
 
-IMGUI_BASE = $(TORNADO_BASE)/third_party/imgui
+IMGUI_BASE = $(TORNADO_SOURCE_DEPENDENCIES)/imgui
 IMGUI_INCDIR = $(IMGUI_BASE)
 IMGUI_BACKENDS_INCDIR = $(IMGUI_BASE)/backends
 IMGUI_SOURCES = $(IMGUI_BASE)/backends/imgui_impl_sdl3.cpp
