@@ -49,6 +49,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 
 #include "m68k.h"
+#include "m68k_emu_internal.h"
 #include "tndo_m68k.h"
 
 // m68k_emu_glue.c
@@ -58,7 +59,7 @@ void tndo_m68k_glue_saved_regs(unsigned int out[16]);
 #define TRAP_STUBS (TNDO_M68K_TRAP_BASE + 0x400) // Vector n -> TRAP_STUBS+4n.
 #define SSTACK_SIZE 0x1000
 #define NOP_OPCODE 0x4E71
-#define MAX_CODE_RANGES 64
+#define MAX_CODE_RANGES 256
 #define MAX_WARNINGS 32
 #define STACK_OVERFLOW_ZONE 0x10000
 #define EXECUTE_SLICE 200000
@@ -76,6 +77,7 @@ typedef struct {
   char *name;
   uint32_t addr;
   uint32_t size;
+  int exported;
 } m68k_symbol;
 
 static struct {
@@ -114,6 +116,7 @@ static const char *status_names[] = {
     "OK",          "BUS_ERROR",       "NULL_ACCESS", "VECTOR_WRITE",
     "HW_ACCESS",   "CODE_WRITE",      "EXEC_FAULT",  "ODD_PC",
     "EXCEPTION",   "TIMEOUT",         "ABI_VIOLATION", "BAD_CALL",
+    "UNRESOLVED",
 };
 
 const char *tndo_m68k_status_name(tndo_m68k_status status) {
@@ -322,6 +325,17 @@ static uint32_t access_fault(uint32_t addr, int size, int write,
                              uint32_t value) {
   const char *op = write ? "write" : "read";
 
+  if (addr >= M68K_THUNK_BASE && addr < M68K_THUNK_END) {
+    // An unresolved external points at its thunk (see m68k_emu_hunk.c).
+    const char *name =
+        m68k_hunk_import((int)((addr - M68K_THUNK_BASE) / 4), NULL, NULL);
+    fault(TNDO_M68K_UNRESOLVED, 1, addr, size, write,
+          "%s of unresolved external %s (define it in a module or bind it "
+          "with tndo_m68k_bind_data)",
+          op, name ? name : "?");
+    return 0;
+  }
+
   if (addr < TNDO_M68K_VECTORS_BASE) {
     if (!write && addr == 4 && size == 4) {
       fault(TNDO_M68K_NULL_ACCESS, 1, addr, size, write,
@@ -502,9 +516,53 @@ static void trap_page(uint32_t pc) {
         pc);
 }
 
+// The PC reached the thunk of an external symbol: run the bound host
+// function, then return to the 68k caller as rts would.
+static void host_call(uint32_t pc) {
+  int idx = (int)((pc - M68K_THUNK_BASE) / 4);
+  tndo_m68k_host_fn fn = NULL;
+  void *user = NULL;
+  const char *name = m68k_hunk_import(idx, &fn, &user);
+  if (!fn || (pc & 3)) {
+    fault(TNDO_M68K_UNRESOLVED, 0, pc, 0, 0,
+          "call to unresolved external %s (define it in a module or bind it "
+          "with tndo_m68k_bind)",
+          name ? name : "?");
+    return;
+  }
+
+  tndo_m68k_regs regs;
+  for (int i = 0; i < 8; i++) {
+    regs.d[i] = m68k_get_reg(NULL, (m68k_register_t)(M68K_REG_D0 + i));
+    regs.a[i] = m68k_get_reg(NULL, (m68k_register_t)(M68K_REG_A0 + i));
+  }
+  uint32_t sp = regs.a[7];
+  fn(&regs, user);
+  for (int i = 0; i < 8; i++)
+    m68k_set_reg((m68k_register_t)(M68K_REG_D0 + i), regs.d[i]);
+  for (int i = 0; i < 7; i++)
+    m68k_set_reg((m68k_register_t)(M68K_REG_A0 + i), regs.a[i]);
+
+  if (!find_ram(sp, 4)) {
+    fault(TNDO_M68K_BUS_ERROR, 0, sp, 4, 0,
+          "return from host function %s: bad stack pointer $%08X", name, sp);
+    return;
+  }
+  uint32_t ret = peek(sp, 4);
+  m68k_set_reg(M68K_REG_A7, sp + 4);
+  m68k_set_reg(M68K_REG_PC, ret);
+  // Musashi fetches from the new PC without calling the hook again: run it
+  // here so the return address gets the usual checks (sentinel, odd PC...).
+  tndo_m68k_instr_hook(ret);
+}
+
 void tndo_m68k_instr_hook(unsigned int pc) {
   if (g.stop)
     return;
+  if (pc >= M68K_THUNK_BASE && pc < M68K_THUNK_END) {
+    host_call(pc);
+    return;
+  }
   if (pc >= TNDO_M68K_TRAP_BASE) {
     trap_page(pc);
     return;
@@ -612,7 +670,21 @@ int tndo_m68k_init(const tndo_m68k_config *cfg) {
   m68k_init();
   m68k_set_cpu_type(M68K_CPU_TYPE_68040);
   g.initialized = 1;
+
+  if (m68k_hunk_load_registered()) {
+    tndo_m68k_shutdown();
+    return -1;
+  }
   return 0;
+}
+
+void m68k_emu_ensure_init(void) {
+  if (g.initialized)
+    return;
+  if (tndo_m68k_init(NULL)) {
+    fprintf(stderr, "68k: initialization failed\n");
+    abort();
+  }
 }
 
 void tndo_m68k_shutdown(void) {
@@ -621,12 +693,12 @@ void tndo_m68k_shutdown(void) {
   for (int i = 0; i < g.nsyms; i++)
     free(g.syms[i].name);
   free(g.syms);
+  m68k_hunk_reset();
   memset(&g, 0, sizeof(g));
 }
 
 void *tndo_m68k_alloc(uint32_t size, int where) {
-  if (!g.initialized)
-    return NULL;
+  m68k_emu_ensure_init();
   ram_region *r = &g.ram[where == TNDO_M68K_CHIP ? R_CHIP : R_FAST];
   uint32_t *top = where == TNDO_M68K_CHIP ? &g.chip_top : &g.fast_top;
   uint64_t off = ((uint64_t)*top + 15) & ~(uint64_t)15;
@@ -672,6 +744,11 @@ void tndo_m68k_add_code_range(uint32_t addr, uint32_t len) {
 }
 
 void tndo_m68k_add_symbol(const char *name, uint32_t addr, uint32_t size) {
+  m68k_emu_add_symbol(name, addr, size, 0);
+}
+
+void m68k_emu_add_symbol(const char *name, uint32_t addr, uint32_t size,
+                         int exported) {
   if (g.nsyms == g.syms_cap) {
     int cap = g.syms_cap ? g.syms_cap * 2 : 64;
     m68k_symbol *s = realloc(g.syms, cap * sizeof(*s));
@@ -688,15 +765,37 @@ void tndo_m68k_add_symbol(const char *name, uint32_t addr, uint32_t size) {
   g.syms[g.nsyms].name = copy;
   g.syms[g.nsyms].addr = addr;
   g.syms[g.nsyms].size = size;
+  g.syms[g.nsyms].exported = exported;
   g.nsyms++;
 }
 
+uint32_t m68k_emu_find_export(const char *name, int *found) {
+  for (int i = 0; i < g.nsyms; i++) {
+    if (g.syms[i].exported && !strcmp(g.syms[i].name, name)) {
+      *found = 1;
+      return g.syms[i].addr;
+    }
+  }
+  *found = 0;
+  return 0;
+}
+
 uint32_t tndo_m68k_symbol(const char *name) {
+  m68k_emu_ensure_init();
+  int found;
+  uint32_t addr = m68k_emu_find_export(name, &found);
+  if (found)
+    return addr;
   for (int i = 0; i < g.nsyms; i++) {
     if (!strcmp(g.syms[i].name, name))
       return g.syms[i].addr;
   }
   return 0;
+}
+
+uint32_t tndo_m68k_arg(const tndo_m68k_regs *regs, int n) {
+  // regs->a[7] points at the return address, the arguments follow it.
+  return peek(regs->a[7] + 4 + 4 * (uint32_t)n, 4);
 }
 
 void tndo_m68k_symbolize(uint32_t addr, char *buf, int buflen) {
@@ -804,6 +903,9 @@ tndo_m68k_status tndo_m68k_call(uint32_t entry, tndo_m68k_regs *io,
     return bad_call(res, "tndo_m68k_init() has not been called");
   if (g.busy)
     return bad_call(res, "reentrant call: the emulated CPU is already busy");
+  if (entry == 0)
+    return bad_call(res, "entry point is 0: symbol not found? (is the "
+                         "module listed in DEMO_68K_OBJS?)");
   if ((entry & 1) || !find_ram(entry, 2) ||
       find_ram(entry, 2) == &g.ram[R_VECTORS])
     return bad_call(res, "entry point is not in 68k RAM");

@@ -324,6 +324,145 @@ static void test_policies(void) {
         "call before init");
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2: hunk objects, linking and host bindings.
+// ---------------------------------------------------------------------------
+
+static int load_hunk_file(const char *name) {
+  char path[1024];
+  snprintf(path, sizeof(path), "%s/%s.hunk", bin_dir, name);
+  FILE *f = fopen(path, "rb");
+  if (!f) {
+    printf("can't open %s\n", path);
+    exit(2);
+  }
+  static uint8_t buf[1 << 16];
+  size_t n = fread(buf, 1, sizeof(buf), f);
+  fclose(f);
+  return tndo_m68k_load_hunk(name, buf, (uint32_t)n);
+}
+
+static tndo_m68k_status call_sym(const char *sym, tndo_m68k_regs *r,
+                                 tndo_m68k_status expected,
+                                 tndo_m68k_result *res) {
+  tndo_m68k_status st = tndo_m68k_call(tndo_m68k_symbol(sym), r, NULL, 0, res);
+  CHECK(st == expected, "%s: got %s, expected %s (%s)", sym,
+        tndo_m68k_status_name(st), tndo_m68k_status_name(expected),
+        res->message);
+  if (verbose && st != TNDO_M68K_OK) {
+    printf("---- %s ----", sym);
+    tndo_m68k_report(res, stdout);
+  }
+  return st;
+}
+
+static void host_add(tndo_m68k_regs *r, void *user) {
+  r->d[0] += r->d[1];
+  (*(int *)user)++;
+}
+
+static void host_sub(tndo_m68k_regs *r, void *user) {
+  r->d[0] += tndo_m68k_arg(r, 0) - tndo_m68k_arg(r, 1);
+  (void)user;
+}
+
+static void test_hunks(void) {
+  tndo_m68k_result res;
+  tndo_m68k_regs r;
+  char where[96];
+
+  init(NULL);
+
+  // Embedded modules are loaded by init and linked to each other.
+  tndo_m68k_regs_init(&r);
+  call_sym("_emb_main", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 43, "_emb_main: d0=%u", res.d0);
+  // So is all the framework asm.
+  CHECK(tndo_m68k_symbol("_c2p1x1_8_c5_040") != 0, "framework c2p loaded");
+  CHECK(tndo_m68k_symbol("_PaulaOutput_Init") != 0, "framework paula loaded");
+
+  // Relocations between code, data and chip bss.
+  CHECK(load_hunk_file("reloc") == 0, "load reloc");
+  tndo_m68k_regs_init(&r);
+  call_sym("_reloc_sum", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 110, "_reloc_sum: d0=%u", res.d0);
+  CHECK(r.a[0] >= TNDO_M68K_CHIP_BASE && r.a[0] < 0x200000,
+        "chip bss at %08X", r.a[0]);
+  CHECK(tndo_m68k_rd32(tndo_m68k_host(r.a[0], 4)) == 110, "chip bss write");
+  CHECK(r.d[1] == tndo_m68k_symbol("_reloc_sum"), "data->code ptr %08X",
+        r.d[1]);
+
+  // Crash reports name local labels from the SYMBOL hunk.
+  tndo_m68k_regs_init(&r);
+  r.a[0] = 0;
+  call_sym("_crash", &r, TNDO_M68K_NULL_ACCESS, &res);
+  tndo_m68k_symbolize(res.pc, where, sizeof(where));
+  CHECK(!strcmp(where, "inner_fault+$0"), "symbolized pc: %s", where);
+
+  // Cross-module references, resolved when the second module is loaded.
+  CHECK(load_hunk_file("mod_a") == 0, "load mod_a");
+  tndo_m68k_regs_init(&r);
+  r.d[0] = 5;
+  call_sym("_twice_plus", &r, TNDO_M68K_UNRESOLVED, &res);
+  CHECK(strstr(res.message, "_helper") != NULL, "unresolved: %s",
+        res.message);
+  CHECK(load_hunk_file("mod_b") == 0, "load mod_b");
+  tndo_m68k_regs_init(&r);
+  r.d[0] = 5;
+  call_sym("_twice_plus", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 1020, "_twice_plus: d0=%u", res.d0);
+
+  // Exported names must be unique.
+  CHECK(load_hunk_file("dup") != 0, "duplicate _helper must fail");
+
+  // Host bindings.
+  CHECK(load_hunk_file("host") == 0, "load host");
+  int calls = 0;
+  CHECK(tndo_m68k_bind("_host_add", host_add, &calls) == 0, "bind add");
+  CHECK(tndo_m68k_bind("_host_sub", host_sub, NULL) == 0, "bind sub");
+  uint8_t *table = tndo_m68k_alloc(8, TNDO_M68K_FAST);
+  tndo_m68k_wr32(table, 10000);
+  tndo_m68k_wr32(table + 4, 200000);
+  CHECK(tndo_m68k_bind_data("_host_table", tndo_m68k_addr(table)) == 0,
+        "bind table");
+  CHECK(tndo_m68k_bind("_helper", host_add, NULL) != 0,
+        "binding a module symbol must fail");
+  tndo_m68k_regs_init(&r);
+  r.d[0] = 1;
+  call_sym("_call_host", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 1 + 3 + 4 + 10000 + 200000 - 2, "_call_host: d0=%d",
+        (int)res.d0);
+  CHECK(calls == 2, "host_add calls: %d", calls);
+
+  tndo_m68k_regs_init(&r);
+  call_sym("_call_unbound", &r, TNDO_M68K_UNRESOLVED, &res);
+  CHECK(strstr(res.message, "call to unresolved external _not_bound") != NULL,
+        "%s", res.message);
+  tndo_m68k_regs_init(&r);
+  call_sym("_bsr_unbound", &r, TNDO_M68K_UNRESOLVED, &res);
+  CHECK(strstr(res.message, "_not_bound") != NULL, "%s", res.message);
+  tndo_m68k_regs_init(&r);
+  call_sym("_read_unbound", &r, TNDO_M68K_UNRESOLVED, &res);
+  CHECK(strstr(res.message, "read of unresolved external _not_bound_data") !=
+            NULL,
+        "%s", res.message);
+
+  // A missing symbol gives a clear error.
+  CHECK(tndo_m68k_call(tndo_m68k_symbol("_nope"), NULL, NULL, 0, &res) ==
+                TNDO_M68K_BAD_CALL &&
+            strstr(res.message, "symbol not found") != NULL,
+        "missing symbol: %s", res.message);
+
+  tndo_m68k_shutdown();
+
+  // Registered modules come back after a shutdown/init cycle, host modules
+  // loaded at runtime do not.
+  init(NULL);
+  CHECK(tndo_m68k_symbol("_emb_magic") != 0, "embedded module after reinit");
+  CHECK(tndo_m68k_symbol("_call_host") == 0, "runtime module is gone");
+  tndo_m68k_shutdown();
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     printf("usage: %s <bin dir> [-v]\n", argv[0]);
@@ -335,6 +474,7 @@ int main(int argc, char **argv) {
   test_basics();
   test_faults();
   test_policies();
+  test_hunks();
 
   printf("%d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;

@@ -73,6 +73,18 @@ LIBDIR   = lib
 OBJECTS  := $(OBJECTS:%=$(BUILDDIR)/%)
 
 ################################################################################
+# Emulated 68k: set TORNADO_68K_EMU = true in Makefile_sdl_posix and list the
+# asm to run in DEMO_68K_OBJS (demo) and TORNADO_68K_OBJS (framework). See
+# manual/Emulated68k.md.
+################################################################################
+
+ifeq ($(TORNADO_68K_EMU),true)
+include $(TORNADO_BASE)/m68k_emu.mk
+CCFLAGS += -DTORNADO_68K_EMU
+OBJECTS += $(M68K_EMU_OBJS)
+endif
+
+################################################################################
 
 ifdef LINUX_HOST
 CCFLAGS += -D_XOPEN_SOURCE=500

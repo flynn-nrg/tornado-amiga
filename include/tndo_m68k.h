@@ -38,7 +38,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //   0x06FF0000-...         supervisor stack (exception frames)
 //   0x07000000-...         user stack, unmapped below it (overflow faults)
 //   0x08000000-...         "fast" arena: code, data and tndo_m68k_alloc()
-//   0xFFFF0000-0xFFFFFFFF  trap page: return sentinel and exception stubs
+//   0xFFFF0000-0xFFFFFFFF  trap page: return sentinel, exception stubs and
+//                          one thunk per external symbol (host bindings)
 //
 // 68k code always runs in user mode, as under AmigaOS. Only one call can run
 // at a time: the emulated CPU is a single global, and calls are not reentrant.
@@ -123,6 +124,7 @@ typedef enum {
   TNDO_M68K_TIMEOUT,        // instr_budget exceeded.
   TNDO_M68K_ABI_VIOLATION,  // Callee-saved register clobbered / sp moved.
   TNDO_M68K_BAD_CALL,       // Not initialized, reentrant call, bad entry.
+  TNDO_M68K_UNRESOLVED,     // Use of an external symbol nobody defined/bound.
 } tndo_m68k_status;
 
 #define TNDO_M68K_TRACE_LEN 16
@@ -151,10 +153,33 @@ typedef struct {
   int trace_len;
 } tndo_m68k_result;
 
-// Lifecycle.
+// Lifecycle. tndo_m68k_init() loads every registered module (see below). It
+// is optional: the first call to tndo_m68k_alloc(), tndo_m68k_symbol(),
+// tndo_m68k_bind() or a loader initializes with the default config, and
+// aborts if a module fails to load. Call it yourself to use another config.
 void tndo_m68k_default_config(tndo_m68k_config *cfg);
 int tndo_m68k_init(const tndo_m68k_config *cfg); // NULL = defaults. 0 = ok.
 void tndo_m68k_shutdown(void);
+
+// Hunk object modules, as written by vasm -Fhunk. A module is registered once
+// (the build does it from a constructor, see m68k_embed) and loaded by every
+// tndo_m68k_init(). 'data' must stay valid. All modules share one address
+// space: exported symbols (xdef) are visible to every module, and an
+// exported name defined twice is a load error.
+void tndo_m68k_register_module(const char *name, const void *data,
+                               uint32_t len);
+// Loads a module now, into an initialized emulator. 0 = ok.
+int tndo_m68k_load_hunk(const char *name, const void *data, uint32_t len);
+
+// Externals (xref) that no module defines are left unresolved: calling or
+// reading one fails with TNDO_M68K_UNRESOLVED and names the symbol. They can
+// be bound to a host function, called with the 68k registers (stack arguments
+// are read with tndo_m68k_arg()), or to data at a 68k address. 0 = ok.
+typedef void (*tndo_m68k_host_fn)(tndo_m68k_regs *regs, void *user);
+int tndo_m68k_bind(const char *name, tndo_m68k_host_fn fn, void *user);
+int tndo_m68k_bind_data(const char *name, uint32_t addr);
+// Inside a host function: the n-th 32-bit stack argument (C ABI).
+uint32_t tndo_m68k_arg(const tndo_m68k_regs *regs, int n);
 
 // Memory. Allocations are 16 byte aligned, zeroed, and live until shutdown.
 void *tndo_m68k_alloc(uint32_t size, int where);
@@ -169,7 +194,8 @@ void *tndo_m68k_host(uint32_t addr, uint32_t len);
 uint32_t tndo_m68k_load_code(const void *code, uint32_t len, const char *name);
 void tndo_m68k_add_code_range(uint32_t addr, uint32_t len);
 void tndo_m68k_add_symbol(const char *name, uint32_t addr, uint32_t size);
-uint32_t tndo_m68k_symbol(const char *name); // 0 if not found.
+// Exported symbols win over local labels of the same name. 0 if not found.
+uint32_t tndo_m68k_symbol(const char *name);
 // Writes "name+$off" (or the bare address) into buf.
 void tndo_m68k_symbolize(uint32_t addr, char *buf, int buflen);
 
