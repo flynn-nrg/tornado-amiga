@@ -127,6 +127,29 @@ int main(int argc, char **argv) {
   CHECK(r1b == r1 && !POISONED(r1b), "pool restarts at the same block");
   CHECK(fill(fill_entry, r1b, 32, 3) == TNDO_M68K_OK, "fill reused block");
 
+  // Options can change after tndo_memory_init() brought the emulator up.
+  tndo_m68k_config cfg;
+  tndo_m68k_get_config(&cfg);
+  uint32_t fast_size = cfg.fast_size;
+  CHECK(cfg.alloc_check == TNDO_M68K_ALLOC_CHECK_WRITES, "default alloc_check");
+  uint32_t read_entry = load_bin(argv[1], "read_a0");
+  tndo_m68k_regs r;
+  tndo_m68k_result res;
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(p) + 100;
+  CHECK(tndo_m68k_call(read_entry, &r, NULL, 0, &res) == TNDO_M68K_OK,
+        "read past a block is allowed by default");
+  cfg.alloc_check = TNDO_M68K_ALLOC_CHECK_ALL;
+  cfg.fast_size = 1234;
+  tndo_m68k_set_options(&cfg);
+  tndo_m68k_get_config(&cfg);
+  CHECK(cfg.fast_size == fast_size, "sizes don't change: %u", cfg.fast_size);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(p) + 100;
+  CHECK(tndo_m68k_call(read_entry, &r, NULL, 0, &res) ==
+            TNDO_M68K_UNALLOCATED,
+        "read past a block with ALLOC_CHECK_ALL");
+
   tndo_memory_shutdown(0);
 
   printf("%d checks, %d failures\n", checks, failures);

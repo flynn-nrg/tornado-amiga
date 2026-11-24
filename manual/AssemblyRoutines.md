@@ -25,7 +25,7 @@ void renderZoom_asm(__ASMPARM("a0", unsigned char ***allTxtPtr),
 Then in your code you will surround this include with an `#ifdef`statement, like this:
 
 ```c
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
 #include "amiga/zoom_inner.h"
 #endif
 ```
@@ -66,11 +66,13 @@ The three things you should always keep in mind are:
 Later in your effect code you will call the appropriate implementation:
 
 ```c
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
   renderZoom_asm(allTxts, chunky, zi);
 #else
   renderZoomC(allTxts, chunky, zi);
 #endif
 ```
 
-This code can of course only be tested on an emulator or real hardware, so I strongly recommend that you leave this kind of optimisation until the end and only if you're sure you will gain performance from doing this.
+On the Amiga build `renderZoom_asm()` is the assembler routine. On the posix build the C version runs, unless you enable the emulated 68k: then the same `zoom_inner.s` runs on the host, and you can compare its output with the C version and get a readable report when it crashes. See [Running 68k assembler on the host](Emulated68k.md).
+
+I still recommend that you leave this kind of optimisation until the end, and only do it if you're sure it will make your effect faster. Measure on real hardware: the emulator tells you whether the code is correct, not how fast it is on a 060.

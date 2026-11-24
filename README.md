@@ -44,9 +44,9 @@ It also makes use of the following third party software:
 * [AHI](https://en.wikipedia.org/wiki/AHI_(Amiga)) by Martin Blom.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
 * [Amiga Topaz font](https://fontstruct.com/fontstructions/show/675155) created by Patrick H. Lauke used in the SDL/Posix UI.
+* [Musashi M680x0 processor emulation engine](https://github.com/kstenerud/Musashi) by Karl Stenerud.
 
 License
 ----------
 
 This software is released under the [2-Clause BSD License](https://opensource.org/licenses/BSD-2-Clause).
-

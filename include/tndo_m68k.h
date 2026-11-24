@@ -175,6 +175,16 @@ void tndo_m68k_default_config(tndo_m68k_config *cfg);
 int tndo_m68k_init(const tndo_m68k_config *cfg); // NULL = defaults. 0 = ok.
 void tndo_m68k_shutdown(void);
 int tndo_m68k_initialized(void);
+// The current config (the defaults before init). tndo_m68k_set_options()
+// changes everything but the sizes (fast_size, chip_size, stack_size), which
+// tndo_m68k_init() fixes. With TORNADO_68K_SHARED_HEAP, tndo_memory_init()
+// brings the emulator up with the defaults: change the options like this:
+//   tndo_m68k_config cfg;
+//   tndo_m68k_get_config(&cfg);
+//   cfg.alloc_check = TNDO_M68K_ALLOC_CHECK_ALL;
+//   tndo_m68k_set_options(&cfg);
+void tndo_m68k_get_config(tndo_m68k_config *cfg);
+void tndo_m68k_set_options(const tndo_m68k_config *cfg);
 
 // Hunk object modules, as written by vasm -Fhunk. A module is registered once
 // (the build does it from a constructor, see m68k_embed) and loaded by every

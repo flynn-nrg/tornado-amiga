@@ -1,6 +1,14 @@
 #ifndef INCLUDE_ZOOM_INNER_H
 #define INCLUDE_ZOOM_INNER_H
 
+#if defined(TORNADO_68K_EMU)
+
+// POSIX build: zoom_68k.c runs zoom_inner.s in the 68k emulator.
+void renderZoom_asm(unsigned char ***allTxtPtr, unsigned char *chunky,
+                    zoomIter *iteration);
+
+#else
+
 #include "asmparm.h"
 
 #ifdef __GCC_ELF__
@@ -24,5 +32,7 @@ void renderZoom_asm(__ASMPARM("a0", unsigned char ***allTxtPtr),
                     __ASMPARM("a2", zoomIter *iteration));
 
 #endif
+
+#endif // TORNADO_68K_EMU
 
 #endif

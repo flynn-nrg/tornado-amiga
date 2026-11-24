@@ -1,0 +1,36 @@
+#################################################################################
+# Tornado root directory
+#################################################################################
+TORNADO_BASE = ../../
+
+#################################################################################
+# Your demo code comes here
+#################################################################################
+LOCAL_INCDIR  = ./src
+
+#Demo objects.
+DEMO_OBJS += demo.o
+
+# Plasma effect.
+DEMO_OBJS += plasma/plasma.o
+
+# Run the 68k inner loop on the host. Needs a Musashi checkout, see
+# manual/Emulated68k.md. With TORNADO_68K_EMU=false the effect only has its C
+# version.
+TORNADO_68K_EMU ?= true
+DEMO_68K_OBJS += plasma/amiga/plasma_inner.o
+
+# Save all object and source files to tmp.
+BUILDDIR = /tmp/build-posix
+
+CCFLAGS += -D__DEBUG_CODE
+
+# Tndo malloc debug.
+#CCFLAGS += -DTNDO_MEMORY_DEBUG
+
+TARGET = ./emulated_68k.elf
+
+#################################################################################
+# Do NOT add anything below this line!!!
+#################################################################################
+include $(TORNADO_BASE)/tornado_sdl_posix.mk

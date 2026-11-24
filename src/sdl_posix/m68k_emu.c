@@ -814,6 +814,24 @@ void m68k_emu_ensure_init(void) {
 
 int tndo_m68k_initialized(void) { return g.initialized; }
 
+void tndo_m68k_get_config(tndo_m68k_config *cfg) {
+  if (g.initialized) {
+    *cfg = g.cfg;
+  } else {
+    tndo_m68k_default_config(cfg);
+  }
+}
+
+void tndo_m68k_set_options(const tndo_m68k_config *cfg) {
+  m68k_emu_ensure_init();
+  tndo_m68k_config c = *cfg;
+  // The address map is fixed once the emulator is up.
+  c.fast_size = g.cfg.fast_size;
+  c.chip_size = g.cfg.chip_size;
+  c.stack_size = g.cfg.stack_size;
+  g.cfg = c;
+}
+
 void tndo_m68k_shutdown(void) {
   for (int i = 0; i < R_COUNT; i++) {
     if (g.ram[i].mem)
