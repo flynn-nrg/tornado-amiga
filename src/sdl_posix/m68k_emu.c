@@ -55,6 +55,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // m68k_emu_glue.c
 void tndo_m68k_glue_saved_regs(unsigned int out[16]);
 
+// AddressSanitizer: the fast and chip arenas are poisoned except for live
+// allocations, so ASan catches host C overflows between 68k buffers. The
+// emulator's own accessors are not instrumented (M68K_NO_ASAN): 68k accesses
+// are checked against the shadow explicitly (cfg.alloc_check) and reported as
+// 68k faults. The whole accessor chain carries the attribute because clang
+// does not inline instrumented functions into non-instrumented ones.
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define M68K_ASAN 1
+#endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) && !defined(M68K_ASAN)
+#define M68K_ASAN 1
+#endif
+
+#ifdef M68K_ASAN
+#include <sanitizer/asan_interface.h>
+#define M68K_NO_ASAN __attribute__((no_sanitize("address")))
+#define POISON(p, n) ASAN_POISON_MEMORY_REGION((p), (n))
+#define UNPOISON(p, n) ASAN_UNPOISON_MEMORY_REGION((p), (n))
+#else
+#define M68K_NO_ASAN
+#define POISON(p, n) ((void)(p), (void)(n))
+#define UNPOISON(p, n) ((void)(p), (void)(n))
+#endif
+
 #define NUM_VECTORS 256
 #define TRAP_STUBS (TNDO_M68K_TRAP_BASE + 0x400) // Vector n -> TRAP_STUBS+4n.
 #define SSTACK_SIZE 0x1000
@@ -63,6 +89,9 @@ void tndo_m68k_glue_saved_regs(unsigned int out[16]);
 #define MAX_WARNINGS 32
 #define STACK_OVERFLOW_ZONE 0x10000
 #define EXECUTE_SLICE 200000
+// Unallocated gap left after every tndo_m68k_alloc() block.
+#define REDZONE 16
+#define REDZONE_SCAN_LIMIT (1u << 20)
 
 enum { R_FAST, R_CHIP, R_USTACK, R_SSTACK, R_VECTORS, R_COUNT };
 
@@ -116,7 +145,7 @@ static const char *status_names[] = {
     "OK",          "BUS_ERROR",       "NULL_ACCESS", "VECTOR_WRITE",
     "HW_ACCESS",   "CODE_WRITE",      "EXEC_FAULT",  "ODD_PC",
     "EXCEPTION",   "TIMEOUT",         "ABI_VIOLATION", "BAD_CALL",
-    "UNRESOLVED",
+    "UNRESOLVED",  "UNALLOCATED",
 };
 
 const char *tndo_m68k_status_name(tndo_m68k_status status) {
@@ -172,7 +201,8 @@ static const char *vector_name(int v) {
 // Address map helpers.
 // ---------------------------------------------------------------------------
 
-static inline ram_region *find_ram(uint32_t addr, uint32_t size) {
+static inline M68K_NO_ASAN ram_region *find_ram(uint32_t addr,
+                                               uint32_t size) {
   ram_region *r = &g.ram[g.last_region];
   uint32_t off = addr - r->base;
   if (off < r->size && size <= r->size - off) {
@@ -223,27 +253,34 @@ static int in_code(uint32_t addr, uint32_t size) {
   return 0;
 }
 
-static inline uint32_t load_be(const uint8_t *p, int size) {
+// Spelled out instead of calling tndo_m68k_rd32() & co: those are
+// instrumented, and would not be inlined here.
+static inline M68K_NO_ASAN uint32_t load_be(const uint8_t *p, int size) {
   switch (size) {
   case 1:
     return p[0];
   case 2:
-    return tndo_m68k_rd16(p);
+    return ((uint32_t)p[0] << 8) | p[1];
   default:
-    return tndo_m68k_rd32(p);
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) |
+           ((uint32_t)p[2] << 8) | p[3];
   }
 }
 
-static inline void store_be(uint8_t *p, int size, uint32_t v) {
+static inline M68K_NO_ASAN void store_be(uint8_t *p, int size, uint32_t v) {
   switch (size) {
   case 1:
     p[0] = (uint8_t)v;
     break;
   case 2:
-    tndo_m68k_wr16(p, (uint16_t)v);
+    p[0] = (uint8_t)(v >> 8);
+    p[1] = (uint8_t)v;
     break;
   default:
-    tndo_m68k_wr32(p, v);
+    p[0] = (uint8_t)(v >> 24);
+    p[1] = (uint8_t)(v >> 16);
+    p[2] = (uint8_t)(v >> 8);
+    p[3] = (uint8_t)v;
     break;
   }
 }
@@ -404,16 +441,89 @@ static uint32_t access_fault(uint32_t addr, int size, int write,
 // Musashi memory callbacks.
 // ---------------------------------------------------------------------------
 
-static inline uint32_t mem_read(uint32_t addr, int size) {
+static inline M68K_NO_ASAN int is_arena(const ram_region *r) {
+  return r == &g.ram[R_FAST] || r == &g.ram[R_CHIP];
+}
+
+// 1 if any byte of [p, p+size) is outside a live allocation.
+static inline M68K_NO_ASAN int unallocated(const uint8_t *p, int size) {
+#ifdef M68K_ASAN
+  return __asan_region_is_poisoned((void *)p, size) != NULL;
+#else
+  (void)p;
+  (void)size;
+  return 0;
+#endif
+}
+
+static int poisoned_at(const ram_region *r, uint32_t off) {
+#ifdef M68K_ASAN
+  return __asan_address_is_poisoned(r->mem + off);
+#else
+  (void)r;
+  (void)off;
+  return 0;
+#endif
+}
+
+// An arena access outside any allocation. Finds the nearest allocation to
+// describe the overrun ("4 bytes past the end of the 64 byte block at ...").
+static void alloc_fault(const ram_region *r, uint32_t addr, int size,
+                        int write) {
+  const char *op = write ? "write" : "read";
+  uint32_t off = addr - r->base;
+  uint32_t bad = off;
+  while (bad < off + size && !poisoned_at(r, bad))
+    bad++;
+
+  uint32_t limit = bad > REDZONE_SCAN_LIMIT ? bad - REDZONE_SCAN_LIMIT : 0;
+  uint32_t end = bad;
+  while (end > limit && poisoned_at(r, end - 1))
+    end--;
+  if (end > limit) {
+    uint32_t start = end - 1;
+    while (start > limit && !poisoned_at(r, start - 1))
+      start--;
+    char where[96];
+    tndo_m68k_symbolize(r->base + start, where, sizeof(where));
+    fault(TNDO_M68K_UNALLOCATED, 1, addr, size, write,
+          "%s of %d byte(s) at $%08X: %u byte(s) past the end of the %u "
+          "byte block at $%08X %s",
+          op, size, addr, bad - end, end - start, r->base + start, where);
+    return;
+  }
+  uint32_t next = bad;
+  while (next < r->size && next - bad < REDZONE_SCAN_LIMIT &&
+         poisoned_at(r, next))
+    next++;
+  if (next < r->size && next - bad < REDZONE_SCAN_LIMIT) {
+    fault(TNDO_M68K_UNALLOCATED, 1, addr, size, write,
+          "%s of %d byte(s) at $%08X: %u byte(s) before the block at $%08X",
+          op, size, addr, next - bad, r->base + next);
+    return;
+  }
+  fault(TNDO_M68K_UNALLOCATED, 1, addr, size, write,
+        "%s of %d byte(s) at $%08X: %s that was never allocated", op, size,
+        addr, describe(addr));
+}
+
+static inline M68K_NO_ASAN uint32_t mem_read(uint32_t addr, int size) {
   if (g.stop)
     return 0;
   ram_region *r = find_ram(addr, size);
-  if (r)
-    return load_be(r->mem + (addr - r->base), size);
+  if (r) {
+    uint8_t *p = r->mem + (addr - r->base);
+    if (g.cfg.alloc_check == TNDO_M68K_ALLOC_CHECK_ALL && is_arena(r) &&
+        unallocated(p, size)) {
+      alloc_fault(r, addr, size, 0);
+      return 0;
+    }
+    return load_be(p, size);
+  }
   return access_fault(addr, size, 0, 0);
 }
 
-static inline uint32_t mem_fetch(uint32_t addr, int size) {
+static inline M68K_NO_ASAN uint32_t mem_fetch(uint32_t addr, int size) {
   if (g.resetting) {
     // Reset reads the initial SSP and PC from address 0. The real values
     // are set by tndo_m68k_call() right after the reset.
@@ -426,11 +536,17 @@ static inline uint32_t mem_fetch(uint32_t addr, int size) {
   return mem_read(addr, size);
 }
 
-static inline void mem_write(uint32_t addr, int size, uint32_t value) {
+static inline M68K_NO_ASAN void mem_write(uint32_t addr, int size,
+                                          uint32_t value) {
   if (g.stop)
     return;
   ram_region *r = find_ram(addr, size);
   if (r && r->writable) {
+    if (g.cfg.alloc_check != TNDO_M68K_ALLOC_CHECK_OFF && is_arena(r) &&
+        unallocated(r->mem + (addr - r->base), size)) {
+      alloc_fault(r, addr, size, 1);
+      return;
+    }
     if (in_code(addr, size)) {
       if (!g.cfg.allow_smc) {
         fault(TNDO_M68K_CODE_WRITE, 1, addr, size, 1,
@@ -449,30 +565,30 @@ static inline void mem_write(uint32_t addr, int size, uint32_t value) {
   access_fault(addr, size, 1, value);
 }
 
-unsigned int m68k_read_memory_8(unsigned int a) { return mem_read(a, 1); }
-unsigned int m68k_read_memory_16(unsigned int a) { return mem_read(a, 2); }
-unsigned int m68k_read_memory_32(unsigned int a) { return mem_read(a, 4); }
-unsigned int m68k_read_immediate_16(unsigned int a) { return mem_fetch(a, 2); }
-unsigned int m68k_read_immediate_32(unsigned int a) { return mem_fetch(a, 4); }
-unsigned int m68k_read_pcrelative_8(unsigned int a) { return mem_read(a, 1); }
-unsigned int m68k_read_pcrelative_16(unsigned int a) { return mem_read(a, 2); }
-unsigned int m68k_read_pcrelative_32(unsigned int a) { return mem_read(a, 4); }
-void m68k_write_memory_8(unsigned int a, unsigned int v) { mem_write(a, 1, v); }
-void m68k_write_memory_16(unsigned int a, unsigned int v) {
+unsigned int M68K_NO_ASAN m68k_read_memory_8(unsigned int a) { return mem_read(a, 1); }
+unsigned int M68K_NO_ASAN m68k_read_memory_16(unsigned int a) { return mem_read(a, 2); }
+unsigned int M68K_NO_ASAN m68k_read_memory_32(unsigned int a) { return mem_read(a, 4); }
+unsigned int M68K_NO_ASAN m68k_read_immediate_16(unsigned int a) { return mem_fetch(a, 2); }
+unsigned int M68K_NO_ASAN m68k_read_immediate_32(unsigned int a) { return mem_fetch(a, 4); }
+unsigned int M68K_NO_ASAN m68k_read_pcrelative_8(unsigned int a) { return mem_read(a, 1); }
+unsigned int M68K_NO_ASAN m68k_read_pcrelative_16(unsigned int a) { return mem_read(a, 2); }
+unsigned int M68K_NO_ASAN m68k_read_pcrelative_32(unsigned int a) { return mem_read(a, 4); }
+void M68K_NO_ASAN m68k_write_memory_8(unsigned int a, unsigned int v) { mem_write(a, 1, v); }
+void M68K_NO_ASAN m68k_write_memory_16(unsigned int a, unsigned int v) {
   mem_write(a, 2, v);
 }
-void m68k_write_memory_32(unsigned int a, unsigned int v) {
+void M68K_NO_ASAN m68k_write_memory_32(unsigned int a, unsigned int v) {
   mem_write(a, 4, v);
 }
 
 // The disassembler must never fault.
-static uint32_t peek(uint32_t addr, int size) {
+static M68K_NO_ASAN uint32_t peek(uint32_t addr, int size) {
   ram_region *r = find_ram(addr, size);
   return r ? load_be(r->mem + (addr - r->base), size) : 0;
 }
-unsigned int m68k_read_disassembler_8(unsigned int a) { return peek(a, 1); }
-unsigned int m68k_read_disassembler_16(unsigned int a) { return peek(a, 2); }
-unsigned int m68k_read_disassembler_32(unsigned int a) { return peek(a, 4); }
+unsigned int M68K_NO_ASAN m68k_read_disassembler_8(unsigned int a) { return peek(a, 1); }
+unsigned int M68K_NO_ASAN m68k_read_disassembler_16(unsigned int a) { return peek(a, 2); }
+unsigned int M68K_NO_ASAN m68k_read_disassembler_32(unsigned int a) { return peek(a, 4); }
 
 // ---------------------------------------------------------------------------
 // Instruction hook.
@@ -611,6 +727,7 @@ void tndo_m68k_default_config(tndo_m68k_config *cfg) {
   cfg->allow_smc = 0;
   cfg->strict_exec = 0;
   cfg->abi_check = 1;
+  cfg->alloc_check = TNDO_M68K_ALLOC_CHECK_WRITES;
 }
 
 static int setup_region(int idx, uint32_t base, uint32_t size, int writable) {
@@ -663,6 +780,14 @@ int tndo_m68k_init(const tndo_m68k_config *cfg) {
   for (int v = 0; v < NUM_VECTORS; v++) {
     tndo_m68k_wr32(g.ram[R_VECTORS].mem + v * 4, TRAP_STUBS + v * 4);
   }
+  // Nothing in the arenas is allocated yet.
+  POISON(g.ram[R_FAST].mem, g.ram[R_FAST].size);
+  POISON(g.ram[R_CHIP].mem, g.ram[R_CHIP].size);
+#ifndef M68K_ASAN
+  if (g.cfg.alloc_check != TNDO_M68K_ALLOC_CHECK_OFF)
+    fprintf(stderr, "68k: alloc_check needs an AddressSanitizer build, it is "
+                    "disabled\n");
+#endif
 
   g.code_lo = 0xFFFFFFFFu;
   g.code_hi = 0;
@@ -687,9 +812,14 @@ void m68k_emu_ensure_init(void) {
   }
 }
 
+int tndo_m68k_initialized(void) { return g.initialized; }
+
 void tndo_m68k_shutdown(void) {
-  for (int i = 0; i < R_COUNT; i++)
+  for (int i = 0; i < R_COUNT; i++) {
+    if (g.ram[i].mem)
+      UNPOISON(g.ram[i].mem, g.ram[i].size);
     free(g.ram[i].mem);
+  }
   for (int i = 0; i < g.nsyms; i++)
     free(g.syms[i].name);
   free(g.syms);
@@ -697,15 +827,28 @@ void tndo_m68k_shutdown(void) {
   memset(&g, 0, sizeof(g));
 }
 
-void *tndo_m68k_alloc(uint32_t size, int where) {
+void *tndo_m68k_alloc_aligned(uint32_t size, int where, uint32_t align) {
   m68k_emu_ensure_init();
+  if (align < 16)
+    align = 16;
+  if (align & (align - 1))
+    return NULL;
   ram_region *r = &g.ram[where == TNDO_M68K_CHIP ? R_CHIP : R_FAST];
   uint32_t *top = where == TNDO_M68K_CHIP ? &g.chip_top : &g.fast_top;
-  uint64_t off = ((uint64_t)*top + 15) & ~(uint64_t)15;
-  if (off + size > r->size)
+  uint64_t off = ((uint64_t)*top + align - 1) & ~(uint64_t)(align - 1);
+  // A redzone follows every block: it stays poisoned, so overruns into the
+  // next block are caught (by ASan on the host, by alloc_check in 68k code).
+  if (off + size + REDZONE > r->size)
     return NULL;
-  *top = (uint32_t)(off + size);
-  return r->mem + off;
+  *top = (uint32_t)(off + size + REDZONE);
+  uint8_t *p = r->mem + off;
+  UNPOISON(p, size);
+  memset(p, 0, size);
+  return p;
+}
+
+void *tndo_m68k_alloc(uint32_t size, int where) {
+  return tndo_m68k_alloc_aligned(size, where, 16);
 }
 
 uint32_t tndo_m68k_addr(const void *ptr) {
@@ -1105,4 +1248,64 @@ void tndo_m68k_report(const tndo_m68k_result *res, FILE *out) {
     }
   }
   fputc('\n', out);
+}
+
+// ---------------------------------------------------------------------------
+// Data helpers.
+// ---------------------------------------------------------------------------
+
+uint32_t tndo_m68k_addr_or_die(const void *ptr) {
+  if (!ptr)
+    return 0;
+  uint32_t addr = tndo_m68k_addr(ptr);
+  if (!addr) {
+    fprintf(stderr,
+            "68k: host pointer %p is not 68k memory. 68k code can only see "
+            "memory from tndo_m68k_alloc(), or from tndo_malloc() with "
+            "TORNADO_68K_SHARED_HEAP.\n",
+            ptr);
+    abort();
+  }
+  return addr;
+}
+
+void tndo_m68k_put_ptrs(void *dst, void *const *ptrs, uint32_t n) {
+  uint8_t *d = (uint8_t *)dst;
+  for (uint32_t i = 0; i < n; i++)
+    tndo_m68k_wr32(d + 4 * i, tndo_m68k_addr_or_die(ptrs[i]));
+}
+
+uint32_t tndo_m68k_ptr_table(void *const *ptrs, uint32_t n) {
+  uint8_t *table = tndo_m68k_alloc(n ? n * 4 : 4, TNDO_M68K_FAST);
+  if (!table) {
+    fprintf(stderr, "68k: out of fast memory for a %u entry pointer table\n",
+            n);
+    abort();
+  }
+  tndo_m68k_put_ptrs(table, ptrs, n);
+  return tndo_m68k_addr(table);
+}
+
+void tndo_m68k_to_be16(void *dst, const uint16_t *src, uint32_t n) {
+  uint8_t *d = (uint8_t *)dst;
+  for (uint32_t i = 0; i < n; i++)
+    tndo_m68k_wr16(d + 2 * i, src[i]);
+}
+
+void tndo_m68k_to_be32(void *dst, const uint32_t *src, uint32_t n) {
+  uint8_t *d = (uint8_t *)dst;
+  for (uint32_t i = 0; i < n; i++)
+    tndo_m68k_wr32(d + 4 * i, src[i]);
+}
+
+void tndo_m68k_from_be16(uint16_t *dst, const void *src, uint32_t n) {
+  const uint8_t *s = (const uint8_t *)src;
+  for (uint32_t i = 0; i < n; i++)
+    dst[i] = tndo_m68k_rd16(s + 2 * i);
+}
+
+void tndo_m68k_from_be32(uint32_t *dst, const void *src, uint32_t n) {
+  const uint8_t *s = (const uint8_t *)src;
+  for (uint32_t i = 0; i < n; i++)
+    dst[i] = tndo_m68k_rd32(s + 4 * i);
 }

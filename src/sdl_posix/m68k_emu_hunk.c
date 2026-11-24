@@ -676,7 +676,10 @@ static int link_unit(const char *module, reader *r, section *sects,
           if (t == EXT_ABS) {
             m68k_emu_add_symbol(name, value, 1, 1);
           } else {
-            m68k_emu_add_symbol(name, s->addr + value, s->size - value, 1);
+            // A label at the very end of a section (dcb.b 0) still only
+            // names its own address: size 0 would mean "unbounded".
+            m68k_emu_add_symbol(name, s->addr + value,
+                                value < s->size ? s->size - value : 1, 1);
           }
           continue;
         }
@@ -728,7 +731,8 @@ static int link_unit(const char *module, reader *r, section *sects,
         rd_name(r, n, name);
         uint32_t value = rd32(r);
         if (s && value <= s->size)
-          m68k_emu_add_symbol(name, s->addr + value, s->size - value, 0);
+          m68k_emu_add_symbol(name, s->addr + value,
+                              value < s->size ? s->size - value : 1, 0);
       }
       break;
     case HUNK_END:

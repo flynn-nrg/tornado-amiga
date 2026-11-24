@@ -82,6 +82,18 @@ typedef enum {
   TNDO_M68K_HW_HOOK,      // Forward to hw_read/hw_write in the config.
 } tndo_m68k_hw_policy;
 
+// Checks of 68k accesses against the live allocations in the fast and chip
+// arenas (AddressSanitizer builds, the POSIX default). Every block from
+// tndo_m68k_alloc() (and from tndo_malloc() with TORNADO_68K_SHARED_HEAP) is
+// followed by an unallocated redzone.
+typedef enum {
+  TNDO_M68K_ALLOC_CHECK_OFF = 0,
+  TNDO_M68K_ALLOC_CHECK_WRITES, // Writes outside a block fault (default).
+  TNDO_M68K_ALLOC_CHECK_ALL,    // Reads too. Stricter than real hardware:
+                                // reading a long past a table is harmless on
+                                // an Amiga, but it is reported here.
+} tndo_m68k_alloc_check;
+
 typedef struct {
   uint32_t fast_size;   // Fast arena size in bytes. Default 16MB.
   uint32_t chip_size;   // Chip arena size, <= TNDO_M68K_CHIP_MAX (default).
@@ -100,6 +112,7 @@ typedef struct {
   // Fail the call if d2-d7/a2-a6 are not preserved or the stack is not
   // balanced on return. Default on.
   int abi_check;
+  tndo_m68k_alloc_check alloc_check;
   // Used when hw_policy == TNDO_M68K_HW_HOOK. size is 1, 2 or 4.
   uint32_t (*hw_read)(uint32_t addr, int size, void *user);
   void (*hw_write)(uint32_t addr, int size, uint32_t value, void *user);
@@ -125,6 +138,7 @@ typedef enum {
   TNDO_M68K_ABI_VIOLATION,  // Callee-saved register clobbered / sp moved.
   TNDO_M68K_BAD_CALL,       // Not initialized, reentrant call, bad entry.
   TNDO_M68K_UNRESOLVED,     // Use of an external symbol nobody defined/bound.
+  TNDO_M68K_UNALLOCATED,    // Arena access outside any block (alloc_check).
 } tndo_m68k_status;
 
 #define TNDO_M68K_TRACE_LEN 16
@@ -160,6 +174,7 @@ typedef struct {
 void tndo_m68k_default_config(tndo_m68k_config *cfg);
 int tndo_m68k_init(const tndo_m68k_config *cfg); // NULL = defaults. 0 = ok.
 void tndo_m68k_shutdown(void);
+int tndo_m68k_initialized(void);
 
 // Hunk object modules, as written by vasm -Fhunk. A module is registered once
 // (the build does it from a constructor, see m68k_embed) and loaded by every
@@ -183,6 +198,8 @@ uint32_t tndo_m68k_arg(const tndo_m68k_regs *regs, int n);
 
 // Memory. Allocations are 16 byte aligned, zeroed, and live until shutdown.
 void *tndo_m68k_alloc(uint32_t size, int where);
+// Same, aligned to 'align' bytes (a power of two, at least 16).
+void *tndo_m68k_alloc_aligned(uint32_t size, int where, uint32_t align);
 // Host pointer -> 68k address. Returns 0 if ptr is not inside the 68k RAM.
 uint32_t tndo_m68k_addr(const void *ptr);
 // 68k address -> host pointer. NULL unless [addr, addr+len) is 68k RAM.
@@ -217,6 +234,27 @@ uint32_t tndo_m68k_call_or_die(uint32_t entry, tndo_m68k_regs *io);
 // instructions, registers and a best effort backtrace.
 void tndo_m68k_report(const tndo_m68k_result *res, FILE *out);
 const char *tndo_m68k_status_name(tndo_m68k_status status);
+
+// Sharing data with 68k code. Byte data in 68k memory needs no conversion.
+// Pointers and 16/32-bit values must be converted: the 68k sees 32-bit
+// big-endian addresses, the host has 64-bit little-endian pointers.
+//
+// Host pointer -> 68k address, for memory 68k code must see. NULL gives 0.
+// Aborts with an explanation if ptr is not in 68k RAM.
+uint32_t tndo_m68k_addr_or_die(const void *ptr);
+// Writes the 68k addresses of n host pointers as big-endian longs to dst
+// (a host pointer into 68k memory). NULL entries become 0.
+void tndo_m68k_put_ptrs(void *dst, void *const *ptrs, uint32_t n);
+// Allocates a table of n 68k pointers in fast memory, fills it with
+// tndo_m68k_put_ptrs() and returns its 68k address.
+uint32_t tndo_m68k_ptr_table(void *const *ptrs, uint32_t n);
+// Bulk conversion between host arrays and big-endian 68k memory. Signed
+// arrays (int, int16_t) can be passed with a cast. dst and src may be the
+// same buffer for an in-place swap.
+void tndo_m68k_to_be16(void *dst, const uint16_t *src, uint32_t n);
+void tndo_m68k_to_be32(void *dst, const uint32_t *src, uint32_t n);
+void tndo_m68k_from_be16(uint16_t *dst, const void *src, uint32_t n);
+void tndo_m68k_from_be32(uint32_t *dst, const void *src, uint32_t n);
 
 // Big-endian access to 68k memory through host pointers.
 static inline uint16_t tndo_m68k_rd16(const void *p) {

@@ -40,9 +40,13 @@ BINS = $(TESTS:%=$(BUILDDIR)/bin/%.bin)
 HUNK_TESTS = $(basename $(notdir $(wildcard hunk/*.s)))
 HUNKS = $(HUNK_TESTS:%=$(BUILDDIR)/bin/%.hunk)
 RUNNER = $(BUILDDIR)/test_m68k_emu
+# src/memory.c with TORNADO_68K_SHARED_HEAP.
+HEAP_RUNNER = $(BUILDDIR)/test_shared_heap
+HEAP_CCFLAGS = $(CCFLAGS) -DTORNADO_68K_SHARED_HEAP -I$(TORNADO_BASE)/include
 
-test: $(RUNNER) $(BINS) $(HUNKS)
+test: $(RUNNER) $(HEAP_RUNNER) $(BINS) $(HUNKS)
 	$(RUNNER) $(BUILDDIR)/bin
+	$(HEAP_RUNNER) $(BUILDDIR)/bin
 
 verbose: $(RUNNER) $(BINS) $(HUNKS)
 	$(RUNNER) $(BUILDDIR)/bin -v
@@ -50,6 +54,20 @@ verbose: $(RUNNER) $(BINS) $(HUNKS)
 $(RUNNER): $(BUILDDIR)/test_m68k_emu.o $(M68K_EMU_OBJS)
 	@echo "(LD) -> $@"
 	@$(CC) $^ $(LDFLAGS) -o $@
+
+$(HEAP_RUNNER): $(BUILDDIR)/test_shared_heap.o $(BUILDDIR)/shared/memory.o $(M68K_EMU_OBJS)
+	@echo "(LD) -> $@"
+	@$(CC) $^ $(LDFLAGS) -o $@
+
+$(BUILDDIR)/test_shared_heap.o: test_shared_heap.c $(M68K_EMU_INCDIR)/tndo_m68k.h
+	@mkdir -p $(dir $@)
+	@echo "(CC) -> $@"
+	@$(CC) $(HEAP_CCFLAGS) $< -o $@
+
+$(BUILDDIR)/shared/memory.o: $(TORNADO_BASE)/src/memory.c $(M68K_EMU_INCDIR)/tndo_m68k.h
+	@mkdir -p $(dir $@)
+	@echo "(CC) -> $@"
+	@$(CC) $(HEAP_CCFLAGS) $< -o $@
 
 $(BUILDDIR)/test_m68k_emu.o: test_m68k_emu.c $(M68K_EMU_INCDIR)/tndo_m68k.h
 	@mkdir -p $(dir $@)

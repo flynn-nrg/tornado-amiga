@@ -37,7 +37,11 @@ MUSASHI_BUILDDIR = $(BUILDDIR)/musashi
 
 # Musashi is compiled without the sanitizers: it relies on signed shifts and
 # type punning that UBSan would report constantly.
-MUSASHI_CFLAGS = -c -O2 -g -w -fno-omit-frame-pointer
+# -fno-common: the generated m68kops.c has large tentative definitions (the
+# 512KB opcode jump table) that would become common symbols, which ld64
+# aligns to 32KB and then warns "reducing alignment of section
+# __DATA,__common" on arm64 macOS.
+MUSASHI_CFLAGS = -c -O2 -g -w -fno-omit-frame-pointer -fno-common
 MUSASHI_CFLAGS += -DMUSASHI_CNF=\"m68k_emu_conf.h\"
 MUSASHI_CFLAGS += -I$(M68K_EMU_SRCDIR) -I$(MUSASHI_BUILDDIR) -I$(MUSASHI_BASE)
 

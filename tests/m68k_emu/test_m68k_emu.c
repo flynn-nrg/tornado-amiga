@@ -7,10 +7,27 @@
 //
 // Usage: test_m68k_emu <dir with .bin files> [-v]
 
+#define _POSIX_C_SOURCE 200809L // fork()
+
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define TEST_ASAN 1
+#endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) && !defined(TEST_ASAN)
+#define TEST_ASAN 1
+#endif
+#ifdef TEST_ASAN
+#include <sanitizer/asan_interface.h>
+#endif
 
 #include "tndo_m68k.h"
 
@@ -463,6 +480,165 @@ static void test_hunks(void) {
   tndo_m68k_shutdown();
 }
 
+// ---------------------------------------------------------------------------
+// Phase 3: data sharing helpers and allocation checks.
+// ---------------------------------------------------------------------------
+
+// Runs fn in a child process and returns 1 if it died from SIGABRT.
+static int aborts(void (*fn)(void)) {
+  fflush(stdout);
+  pid_t pid = fork();
+  if (pid == 0) {
+    // Keep the expected report out of the test output.
+    if (!verbose && !freopen("/dev/null", "w", stderr))
+      _exit(3);
+    fn();
+    _exit(0);
+  }
+  int status = 0;
+  waitpid(pid, &status, 0);
+  return WIFSIGNALED(status) && WTERMSIG(status) == SIGABRT;
+}
+
+static void addr_of_stack_var(void) {
+  int local = 0;
+  tndo_m68k_addr_or_die(&local);
+}
+
+static void call_null_write_or_die(void) {
+  tndo_m68k_regs r;
+  tndo_m68k_regs_init(&r);
+  r.a[0] = 0;
+  tndo_m68k_call_or_die(tndo_m68k_symbol("null_write"), &r);
+}
+
+static void test_data(void) {
+  tndo_m68k_result res;
+  tndo_m68k_regs r;
+  tndo_m68k_config cfg;
+
+  init(NULL);
+  CHECK(load_hunk_file("data") == 0, "load data");
+
+  // Bulk big-endian conversion.
+  uint32_t longs[4] = {1, 0x12345678, 0xFFFFFFFF, 0x80000000};
+  uint8_t *be = tndo_m68k_alloc(sizeof(longs), TNDO_M68K_FAST);
+  tndo_m68k_to_be32(be, longs, 4);
+  CHECK(be[4] == 0x12 && be[7] == 0x78, "to_be32 byte order");
+  uint32_t back[4];
+  tndo_m68k_from_be32(back, be, 4);
+  CHECK(!memcmp(back, longs, sizeof(longs)), "from_be32 round trip");
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(be);
+  r.d[0] = 2;
+  call_sym("_read_longs", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 0x12345679, "68k reads converted longs: %08X", res.d0);
+
+  int16_t words[5] = {100, -1, -200, 7, 32767};
+  uint8_t *bew = tndo_m68k_alloc(sizeof(words), TNDO_M68K_FAST);
+  tndo_m68k_to_be16(bew, (const uint16_t *)words, 5);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(bew);
+  r.d[0] = 5;
+  call_sym("_sum_words", &r, TNDO_M68K_OK, &res);
+  CHECK((int32_t)res.d0 == 100 - 1 - 200 + 7 + 32767, "_sum_words: %d",
+        (int)res.d0);
+  int16_t wback[5];
+  tndo_m68k_from_be16((uint16_t *)wback, bew, 5);
+  CHECK(!memcmp(wback, words, sizeof(words)), "from_be16 round trip");
+
+  // Two levels of pointer tables, like zoom's unsigned char ***.
+  enum { TILES = 3, MIPS = 4 };
+  void *inner[TILES];
+  for (int i = 0; i < TILES; i++) {
+    void *mips[MIPS];
+    for (int j = 0; j < MIPS; j++) {
+      uint8_t *texel = tndo_m68k_alloc(1, TNDO_M68K_FAST);
+      *texel = (uint8_t)(10 * i + j);
+      mips[j] = texel;
+    }
+    inner[i] = tndo_m68k_host(tndo_m68k_ptr_table(mips, MIPS), MIPS * 4);
+  }
+  uint32_t outer = tndo_m68k_ptr_table(inner, TILES);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = outer;
+  r.d[0] = 2;
+  r.d[1] = 3;
+  call_sym("_deref2", &r, TNDO_M68K_OK, &res);
+  CHECK(res.d0 == 23, "_deref2: %u", res.d0);
+  void *with_null[2] = {NULL, be};
+  uint8_t *tbl = tndo_m68k_alloc(8, TNDO_M68K_FAST);
+  tndo_m68k_put_ptrs(tbl, with_null, 2);
+  CHECK(tndo_m68k_rd32(tbl) == 0 &&
+            tndo_m68k_rd32(tbl + 4) == tndo_m68k_addr(be),
+        "put_ptrs with NULL");
+  CHECK(aborts(addr_of_stack_var), "addr_or_die(stack pointer) aborts");
+  load("null_write"); // for call_null_write_or_die()
+
+  // Allocation checks, default mode (writes).
+  uint8_t *blk = tndo_m68k_alloc(16, TNDO_M68K_FAST);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(blk);
+  r.d[0] = 4;
+  r.d[1] = 0x01020304;
+  call_sym("_write_longs", &r, TNDO_M68K_OK, &res);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(blk);
+  r.d[0] = 5;
+  r.d[1] = 0x01020304;
+  call_sym("_write_longs", &r, TNDO_M68K_UNALLOCATED, &res);
+  CHECK(res.fault_addr == tndo_m68k_addr(blk) + 16 && res.fault_write,
+        "overrun at %08X", res.fault_addr);
+  CHECK(strstr(res.message, "0 byte(s) past the end of the 16 byte block") !=
+            NULL,
+        "%s", res.message);
+  // Reading one long too many is allowed in this mode.
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(blk);
+  r.d[0] = 5;
+  call_sym("_read_longs", &r, TNDO_M68K_OK, &res);
+#ifdef TEST_ASAN
+  // Host C code gets the same redzone from ASan.
+  CHECK(__asan_address_is_poisoned(blk + 16), "redzone poisoned on host");
+  CHECK(!__asan_address_is_poisoned(blk + 15), "block addressable on host");
+#endif
+  // call_or_die prints the report and aborts.
+  CHECK(aborts(call_null_write_or_die), "call_or_die aborts on a fault");
+  tndo_m68k_shutdown();
+
+  // alloc_check = ALL: the overread is reported too.
+  tndo_m68k_default_config(&cfg);
+  cfg.alloc_check = TNDO_M68K_ALLOC_CHECK_ALL;
+  init(&cfg);
+  CHECK(load_hunk_file("data") == 0, "load data");
+  blk = tndo_m68k_alloc(16, TNDO_M68K_FAST);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(blk);
+  r.d[0] = 5;
+  call_sym("_read_longs", &r, TNDO_M68K_UNALLOCATED, &res);
+  CHECK(!res.fault_write && res.fault_addr == tndo_m68k_addr(blk) + 16,
+        "overread at %08X", res.fault_addr);
+  // Before any block: the start of the never used arena tail.
+  tndo_m68k_regs_init(&r);
+  r.a[0] = TNDO_M68K_FAST_BASE + cfg.fast_size - 64;
+  r.d[0] = 1;
+  call_sym("_read_longs", &r, TNDO_M68K_UNALLOCATED, &res);
+  tndo_m68k_shutdown();
+
+  // alloc_check = OFF.
+  tndo_m68k_default_config(&cfg);
+  cfg.alloc_check = TNDO_M68K_ALLOC_CHECK_OFF;
+  init(&cfg);
+  CHECK(load_hunk_file("data") == 0, "load data");
+  blk = tndo_m68k_alloc(16, TNDO_M68K_FAST);
+  tndo_m68k_regs_init(&r);
+  r.a[0] = tndo_m68k_addr(blk);
+  r.d[0] = 5;
+  r.d[1] = 0;
+  call_sym("_write_longs", &r, TNDO_M68K_OK, &res);
+  tndo_m68k_shutdown();
+}
+
 int main(int argc, char **argv) {
   if (argc < 2) {
     printf("usage: %s <bin dir> [-v]\n", argv[0]);
@@ -475,6 +651,7 @@ int main(int argc, char **argv) {
   test_faults();
   test_policies();
   test_hunks();
+  test_data();
 
   printf("%d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;
