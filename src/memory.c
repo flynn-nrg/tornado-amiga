@@ -42,6 +42,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ptr_bridges.h"
 #include "tornado_settings.h"
 
+// TORNADO_68K_SHARED_HEAP (POSIX + TORNADO_68K_EMU): all tndo_malloc() memory
+// comes from the emulated 68k's arenas, so 68k code can use any tndo buffer
+// directly. The reusable pools then behave as on the Amiga (a bump pool reset
+// by tndo_free()), chip memory is available and limited to the chip arena,
+// and ASan redzones separate the blocks. See manual/Emulated68k.md.
+#ifdef TORNADO_68K_SHARED_HEAP
+#include "tndo_m68k.h"
+
+// Fast arena size on top of the reusable pool, in MB: persistent
+// allocations, 68k modules and their data.
+#ifndef TORNADO_68K_FAST_EXTRA_MB
+#define TORNADO_68K_FAST_EXTRA_MB 256
+#endif
+
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define SHARED_HEAP_ASAN 1
+#endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) && !defined(SHARED_HEAP_ASAN)
+#define SHARED_HEAP_ASAN 1
+#endif
+#ifdef SHARED_HEAP_ASAN
+#include <sanitizer/asan_interface.h>
+#define POOL_POISON(p, n) ASAN_POISON_MEMORY_REGION((p), (n))
+#define POOL_UNPOISON(p, n) ASAN_UNPOISON_MEMORY_REGION((p), (n))
+#else
+#define POOL_POISON(p, n) ((void)(p), (void)(n))
+#define POOL_UNPOISON(p, n) ((void)(p), (void)(n))
+#endif
+
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,14 +88,17 @@ static uint32_t totalFastAllocated = 0;
 static uint32_t maxFastPoolUsage = 0;
 static uint32_t FastPoolDeficit = 0;
 
+#ifndef TORNADO_68K_SHARED_HEAP
 static void *fastAllocs[10240];
+#endif
 
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_SHARED_HEAP)
 static uint32_t numChipAllocs = 0;
 static uint32_t totalChipAllocated = 0;
 static uint32_t maxChipPoolUsage = 0;
 static uint32_t ChipPoolDeficit = 0;
-
+#endif
+#ifdef __AMIGA__
 static void *chipAllocs[1024];
 
 #endif
@@ -88,7 +124,7 @@ void *tndo_get_packed_data_buffer(uint32_t size) {
 }
 
 void init_chipmem_scratchpad(int size) {
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_SHARED_HEAP)
   tndo_assert(scratchInit == 0);
   scratchSize = size;
   scratchPad = tndo_malloc(size, TNDO_ALLOC_CHIP);
@@ -98,7 +134,7 @@ void init_chipmem_scratchpad(int size) {
 }
 
 void *get_chipmem_scratchpad_addr(int required_size) {
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_SHARED_HEAP)
   tndo_assert(scratchInit);
   tndo_assert(required_size <= scratchSize);
 #ifdef __DEBUG_CODE
@@ -123,6 +159,45 @@ static void *alignMem(void *ptr, int alignment) {
   m = (m + ((1 << alignment) - 1)) & mask;
   return ptr_bridge_back(m);
 }
+
+#ifdef TORNADO_68K_SHARED_HEAP
+static uint32_t sharedFastPoolSize = 0;
+static uint32_t sharedChipPoolSize = 0;
+
+static void *shared_alloc(size_t size, int chip, int alignment) {
+  void *ptr = tndo_m68k_alloc_aligned((uint32_t)size,
+                                      chip ? TNDO_M68K_CHIP : TNDO_M68K_FAST,
+                                      1u << alignment);
+  if (!ptr) {
+    fprintf(stderr,
+            "FATAL - 68k %s arena exhausted allocating %d bytes (shared "
+            "heap). Aborting.\n",
+            chip ? "chip" : "fast", (int)size);
+    exit(1);
+  }
+  return ptr;
+}
+
+// Bump allocation from a reusable pool, the same arithmetic as the Amiga
+// path so that pool usage and deficits match. Only [ptr, ptr+size) becomes
+// addressable: the padding between blocks stays poisoned.
+static void *shared_pool_alloc(void **current, void *max, size_t size,
+                               int alignment, uint32_t *deficit,
+                               const char *what) {
+  void *ptr = *current;
+  *current = ptr_bridge_back(PBRG(*current) + size + (1 << alignment));
+  if (PBRG(*current) > PBRG(max)) {
+    *deficit += PBRG(*current) - PBRG(max);
+    tndo_fprintf(stderr, "DEBUG - %s memory pool deficit: %u\n", what,
+                 *deficit);
+    tndo_assert(0 && "Reusable memory pool is not big enough.");
+    return 0;
+  }
+  ptr = alignMem(ptr, alignment);
+  POOL_UNPOISON(ptr, size);
+  return ptr;
+}
+#endif
 
 static void *allocChipmem(int bytes) {
 #ifdef __AMIGA__
@@ -162,7 +237,27 @@ int tndo_memory_init(uint32_t fastNeeded, uint32_t chipNeeded,
     return TNDO_ENOMEM;
   }
 
+#ifdef TORNADO_68K_SHARED_HEAP
+  if (!tndo_m68k_initialized()) {
+    tndo_m68k_config cfg;
+    tndo_m68k_default_config(&cfg);
+    cfg.fast_size = fastNeeded + TORNADO_68K_FAST_EXTRA_MB * 1024u * 1024u;
+    if (tndo_m68k_init(&cfg)) {
+      return TNDO_ENOMEM_FAST;
+    }
+  }
+  sharedFastPoolSize = fastNeeded;
+  sharedChipPoolSize = chipNeeded;
+  masterMemoryPool->reusableFastOrig = shared_alloc(fastNeeded, 0, 4);
+  POOL_POISON(masterMemoryPool->reusableFastOrig, fastNeeded);
+  masterMemoryPool->reusableChipOrig = shared_alloc(chipNeeded, 1, 4);
+  POOL_POISON(masterMemoryPool->reusableChipOrig, chipNeeded);
+  masterMemoryPool->reusableChipCurrent = masterMemoryPool->reusableChipOrig;
+  masterMemoryPool->reusableChipMax =
+      ptr_bridge_back(PBRG(masterMemoryPool->reusableChipOrig) + chipNeeded);
+#else
   masterMemoryPool->reusableFastOrig = calloc(fastNeeded, sizeof(uint8_t));
+#endif
   if (!masterMemoryPool->reusableFastOrig) {
     return TNDO_ENOMEM_FAST;
   }
@@ -181,6 +276,11 @@ int tndo_memory_init(uint32_t fastNeeded, uint32_t chipNeeded,
       ptr_bridge_back(PBRG(masterMemoryPool->reusableChipOrig) + chipNeeded);
 
   init_chipmem_scratchpad(chipScratchNeeded);
+#endif
+#ifdef TORNADO_68K_SHARED_HEAP
+  if (chipScratchNeeded) {
+    init_chipmem_scratchpad(chipScratchNeeded);
+  }
 #endif
 
   return 0;
@@ -224,19 +324,25 @@ void tndo_memory_shutdown(unsigned int tornadoOptions) {
   }
 #endif
 
+#ifndef TORNADO_68K_SHARED_HEAP
+  // With the shared heap everything lives in the 68k arenas, which are
+  // released by tndo_m68k_shutdown().
   for (int i = 0; i < (int)numFastAllocs; i++) {
     free(fastAllocs[i]);
   }
+#endif
 
 #ifdef __AMIGA__
   FreeVec(masterMemoryPool->reusableChipOrig);
 #endif
+#ifndef TORNADO_68K_SHARED_HEAP
   free(masterMemoryPool->reusableFastOrig);
+#endif
   free(masterMemoryPool);
 }
 
 void tndo_free() {
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_SHARED_HEAP)
   if (PBRG(masterMemoryPool->reusableChipCurrent) -
           PBRG(masterMemoryPool->reusableChipOrig) >
       maxChipPoolUsage) {
@@ -253,6 +359,12 @@ void tndo_free() {
 
   masterMemoryPool->reusableChipCurrent = masterMemoryPool->reusableChipOrig;
   masterMemoryPool->reusableFastCurrent = masterMemoryPool->reusableFastOrig;
+#endif
+#ifdef TORNADO_68K_SHARED_HEAP
+  // Reusable memory is gone: using it after tndo_free() is an ASan error on
+  // the host and an UNALLOCATED fault in 68k code.
+  POOL_POISON(masterMemoryPool->reusableFastOrig, sharedFastPoolSize);
+  POOL_POISON(masterMemoryPool->reusableChipOrig, sharedChipPoolSize);
 #endif
 }
 
@@ -271,7 +383,11 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
   if (options & TNDO_REUSABLE_MEM) {
     // Do we want reusable chip or fast mem?
     if (options & TNDO_ALLOC_CHIP) {
-#ifdef __AMIGA__
+#ifdef TORNADO_68K_SHARED_HEAP
+      return shared_pool_alloc(&masterMemoryPool->reusableChipCurrent,
+                               masterMemoryPool->reusableChipMax, size,
+                               alignment, &ChipPoolDeficit, "CHIP");
+#elif defined(__AMIGA__)
       void *ptr = masterMemoryPool->reusableChipCurrent;
       masterMemoryPool->reusableChipCurrent = ptr_bridge_back(
           PBRG(masterMemoryPool->reusableChipCurrent) + size + align_pad);
@@ -290,6 +406,11 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
 #endif
 
     } else {
+#ifdef TORNADO_68K_SHARED_HEAP
+      return shared_pool_alloc(&masterMemoryPool->reusableFastCurrent,
+                               masterMemoryPool->reusableFastMax, size,
+                               alignment, &FastPoolDeficit, "FAST");
+#else
       void *ptr = masterMemoryPool->reusableFastCurrent;
       masterMemoryPool->reusableFastCurrent = ptr_bridge_back(
           PBRG(masterMemoryPool->reusableFastCurrent) + size + align_pad);
@@ -309,6 +430,7 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
       ptr = malloc(size + align_pad);
 #endif
       return alignMem(ptr, alignment);
+#endif // TORNADO_68K_SHARED_HEAP
     }
 
   } else {
@@ -319,7 +441,11 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
       return 0;
     }
     if (options & TNDO_ALLOC_CHIP) {
-#ifdef __AMIGA__
+#ifdef TORNADO_68K_SHARED_HEAP
+      numChipAllocs++;
+      totalChipAllocated += size + align_pad;
+      return shared_alloc(size, 1, alignment);
+#elif defined(__AMIGA__)
       void *ptr = allocChipmem(size + align_pad);
       if (!ptr) {
         fprintf(stderr,
@@ -336,6 +462,13 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
       return 0;
 #endif
     } else {
+#ifdef TORNADO_68K_SHARED_HEAP
+      numFastAllocs++;
+      if (!(options & TNDO_PRIVATE_MEM)) {
+        totalFastAllocated += size + align_pad;
+      }
+      return shared_alloc(size, 0, alignment);
+#else
       void *ptr = calloc(1, size + align_pad);
       if (!ptr) {
         fprintf(stderr,
@@ -349,6 +482,7 @@ static void *tndo_malloc_internal(size_t size, uint32_t options,
         totalFastAllocated += size + align_pad;
       }
       return alignMem(ptr, alignment);
+#endif // TORNADO_68K_SHARED_HEAP
     }
   }
 }

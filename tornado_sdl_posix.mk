@@ -73,6 +73,30 @@ LIBDIR   = lib
 OBJECTS  := $(OBJECTS:%=$(BUILDDIR)/%)
 
 ################################################################################
+# Emulated 68k: set TORNADO_68K_EMU = true in Makefile_sdl_posix and list the
+# asm to run in DEMO_68K_OBJS (demo) and TORNADO_68K_OBJS (framework). See
+# manual/Emulated68k.md.
+################################################################################
+
+ifeq ($(TORNADO_68K_EMU),true)
+include $(TORNADO_BASE)/m68k_emu.mk
+CCFLAGS += -DTORNADO_68K_EMU
+OBJECTS += $(M68K_EMU_OBJS)
+
+# Shared heap: tndo_malloc() allocates from the 68k arenas, so 68k code can
+# use any tndo buffer. On by default; set it to false to keep the plain host
+# allocator and share data through tndo_m68k_alloc() only.
+TORNADO_68K_SHARED_HEAP ?= true
+ifeq ($(TORNADO_68K_SHARED_HEAP),true)
+CCFLAGS += -DTORNADO_68K_SHARED_HEAP
+# Fast arena size beyond the reusable pool, in MB (default 256).
+ifdef TORNADO_68K_FAST_EXTRA_MB
+CCFLAGS += -DTORNADO_68K_FAST_EXTRA_MB=$(TORNADO_68K_FAST_EXTRA_MB)
+endif
+endif
+endif
+
+################################################################################
 
 ifdef LINUX_HOST
 CCFLAGS += -D_XOPEN_SOURCE=500

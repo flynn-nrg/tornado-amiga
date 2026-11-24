@@ -15,6 +15,15 @@ DEMO_OBJS += demo.o
 DEMO_OBJS += zoom/zoom.o
 DEMO_OBJS += zoom/zoom_util.o
 
+# Run the Amiga inner loop (zoom_inner.s) in the emulated 68k instead of
+# renderZoomC(). Needs a Musashi checkout, see manual/Emulated68k.md.
+# Build with TORNADO_68K_EMU=false to use the C version.
+TORNADO_68K_EMU ?= true
+ifeq ($(TORNADO_68K_EMU),true)
+DEMO_68K_OBJS += zoom/amiga/zoom_inner.o
+DEMO_OBJS += zoom/zoom_68k.o
+endif
+
 # Save all object and source files to tmp.
 BUILDDIR = /tmp/build-posix
 

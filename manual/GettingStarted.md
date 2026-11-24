@@ -106,6 +106,12 @@ variable at their parent directory when invoking make, e.g.:
 mmendez$ make TORNADO_SOURCE_DEPENDENCIES=/path/to/deps
 ```
 
+To run your 68k assembler routines on the posix build you also need [Musashi](https://github.com/kstenerud/Musashi), cloned in the same place. It is optional: see [Running 68k assembler on the host](Emulated68k.md).
+
+```
+mmendez$ git clone https://github.com/kstenerud/Musashi
+```
+
 Adding the NDK
 ----------------------
 

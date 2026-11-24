@@ -45,7 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <system.h>
 
 #include "zoom.h"
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
 #include "amiga/zoom_inner.h"
 #endif
 #include "zoom_util.h"
@@ -639,7 +639,7 @@ t_canvas *renderZoom(int frame) {
   prof_reset_chrono();
 #endif
 
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
   renderZoom_asm(allTxts, chunky, zi);
 #else
   renderZoomC(allTxts, chunky, zi);
@@ -871,7 +871,7 @@ t_canvas *editZoom(int frame) {
     changed = 0;
   }
 
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
   renderZoom_asm(allTxts, chunky, zi);
 #else
   renderZoomC(allTxts, chunky, zi);
@@ -1065,7 +1065,7 @@ t_canvas *renderZoomRocket(int frame) {
     fy = fy + delta;
   }
 
-#ifdef __AMIGA__
+#if defined(__AMIGA__) || defined(TORNADO_68K_EMU)
   renderZoom_asm(allTxts, chunky, zi);
 #else
   renderZoomC(allTxts, chunky, zi);

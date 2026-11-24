@@ -240,6 +240,8 @@ else
 VASM_FMT := -Fhunk
 endif
 
+include $(TORNADO_BASE)/tornado_vasm.mk
+
 P61FLAGS := -quiet
 P61FLAGS += $(VASM_FMT)
 P61FLAGS += -phxass
@@ -248,23 +250,7 @@ P61FLAGS += -D__VASM__
 
 ASFLAGS := -quiet      # Do not print the copyright notice and the final statistics.
 ASFLAGS += $(VASM_FMT) # Output format: ELF for GCC_ELF_HOST, hunk otherwise.
-ASFLAGS += -align      # Enables 16-bit alignment for constant declaration.
-ASFLAGS += -phxass     # PhxAss-compatibilty mode.
-ASFLAGS += -x          # Show error message, when referencing an undefined symbol.
-ASFLAGS += -noesc      # No escape character sequence.
-ASFLAGS += -nosym      # Strips all local symbols from the output file.
-ASFLAGS += -m68060     # Generate code for the MC68060 CPU.
-ASFLAGS += -opt-allbra # Optimize branch instructions
-ASFLAGS += -opt-fconst # Floating point constants are loaded with the lowest precision possible.
-ASFLAGS += -opt-lsl    # Allows optimization of LSL into ADD.
-ASFLAGS += -opt-movem  # Enables optimization from MOVEM <ea>,Rn into MOVE <ea>,Rn.
-ASFLAGS += -opt-mul    # Optimize multplications to shifts.
-ASFLAGS += -opt-div    # Optimize divisors to shifts.
-ASFLAGS += -opt-pea    # Enables optimization from MOVE #x,-(SP) into PEA x.
-ASFLAGS += -opt-speed  # Optimize for speed, even if this would increase code size.
-ASFLAGS += -opt-st     # Enables optimization from MOVE.B #-1,<ea> into ST <ea>.
-ASFLAGS += -D__AMIGA__
-ASFLAGS += -D__VASM__
+ASFLAGS += $(TORNADO_VASM_FLAGS)
 
 ifdef GCC_ELF_HOST
 # NDK assembly includes for vasm only (not added to INCDIR for C compilation).

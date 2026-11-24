@@ -36,6 +36,7 @@ _renderZoom_asm:
 	;; for (int y = 0, y < 180, y++) {
 	move.l #179, d7
 	moveq #4, d6		; d6 = ixPtr offset
+	move.l #$ffff, d5	; d5 = texel index mask (a tile is 64KB)
 _y:	
 	;; 	iy = *iyPtr++
 	move.l (a4)+, d1	; d1 = iy
@@ -67,7 +68,10 @@ _x:
 	;; 		tileX = *tilexPtr++
 	add.l d2, d0			; d0 = tileY + tileX
 	
-	;; 		*chunky++ = source[tileX + tileY]
+	;; 		*chunky++ = source[(tileX + tileY) & 0xffff]
+	;; tileX + tileY can reach 65536 at a tile edge: without the mask
+	;; that reads the byte after the tile.
+	and.l d5, d0
 	move.b (a2, d0.l), (a1)+
 
 	;; 	}

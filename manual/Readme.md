@@ -34,6 +34,7 @@ Developing a demo with Tornado
 * [Debugging](Debugging.md).
 * [Performance Monitoring](PerformanceMonitoring.md).
 * [Assembly Routines](AssemblyRoutines.md).
+* [Running 68k assembler on the host](Emulated68k.md).
 * [Getting Ready For Release](GettingReadyForRelease.md).
 
 

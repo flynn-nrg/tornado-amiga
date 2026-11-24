@@ -36,7 +36,7 @@ It also makes use of the following third party software:
 * [Rocket](https://github.com/kusma/rocket): Used for synchronisation.
 * [SDL3](https://wiki.libsdl.org): Used to display the screen on the SDL/Posix target as well as serve as a backend for Dear ImGUI.
 * [SDL_Mixer](https://wiki.libsdl.org/SDL_mixer/FrontPage): Used to play music on the SDL/Posix target.
-* [Dear ImGUI](https://github.com/ocornut/imgui) and [ImGuiSDL](https://github.com/Tyyppi77/imgui_sdl): Used for the SDL/Posix UI and rocket controls.
+* [Dear ImGUI](https://github.com/ocornut/imgui): Used for the SDL/Posix UI and rocket controls.
 * [vbcc](http://www.compilers.de/vbcc.html): Used to cross-compile Amiga code.
 * [Kalmalyzer](https://github.com/Kalmalyzer): Michael Kalms' collection of [c2p](https://www.lysator.liu.se/~mikaelk/doc/c2ptut/) and audio routines. 
 * [The Player 6.1](http://www.pouet.net/prod.php?which=19922): Mod replay routines.
@@ -44,9 +44,9 @@ It also makes use of the following third party software:
 * [AHI](https://en.wikipedia.org/wiki/AHI_(Amiga)) by Martin Blom.
 * [STB single-file public domain libraries for C/C++](https://github.com/nothings/stb).
 * [Amiga Topaz font](https://fontstruct.com/fontstructions/show/675155) created by Patrick H. Lauke used in the SDL/Posix UI.
+* [Musashi M680x0 processor emulation engine](https://github.com/kstenerud/Musashi) by Karl Stenerud.
 
 License
 ----------
 
 This software is released under the [2-Clause BSD License](https://opensource.org/licenses/BSD-2-Clause).
-

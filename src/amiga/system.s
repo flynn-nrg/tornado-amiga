@@ -407,4 +407,4 @@ _ciab_icr       dc.b    0
 _ciaa_icr	dc.b	0	
 _ciab_cra       dc.b    0
 _ciaa_cra	dc.b	0	
-_rawkey 	dcb.b 	0
+_rawkey 	dc.b 	0
