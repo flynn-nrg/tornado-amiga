@@ -8,10 +8,16 @@
 #define OUTPUT_8_BIT_STEREO 2
 #define OUTPUT_14_BIT_STEREO 3
 
+// Paula replay periods. The rate is the PAL clock (3546895 Hz) divided by the
+// period. 11025 and 22050 are the nominal names of the closest periods (the real
+// rates are 11015 Hz and 22030 Hz).
 #define REPLAY_PERIOD_11025 322
 #define REPLAY_PERIOD_22050 161
-#define REPLAY_PERIOD_28867 124
+#define REPLAY_PERIOD_28604 124
 #define REPLAY_PERIOD_28150 126
+
+// Deprecated: 28867 Hz is the NTSC rate for period 124. Use REPLAY_PERIOD_28604.
+#define REPLAY_PERIOD_28867 REPLAY_PERIOD_28604
 
 #ifdef __GCC_ELF__
 
